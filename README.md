@@ -1,6 +1,21 @@
 # Projeto-Integrador2
 
 
+links uteis:
+
+https://whiteboard.cloud.microsoft/me/whiteboards/p/c3BvOmh0dHBzOi8vc2VuYWNzYzc1NC1teS5zaGFyZXBvaW50LmNvbS9wZXJzb25hbC9tYXVyaWNpbzYxMTg0Njg2X2FsdW5vc19zY19zZW5hY19icg%3D%3D/b!COjkxJBZCkW-sK41v2rjLH2P3dB-AepJvkIe8dv8y2u42NcfHc1DRL1W0f5SeIKZ/012GH7RIN3AK4RIIEXNJBIXXMSM2VXNABF?lng=pt-br&ref=oib-09dc32fc-45b8-4913-a439-1a70f7a9ddfe
+
+Link do kanban:
+
+https://planner.cloud.microsoft/webui/v1/plan/D2rlXSdIO0GLktdGp6w4u2QAHi8w?tid=0917fe10-56db-44bf-b1c5-31061ab21cf9
+
+
+Link das benchmarks:
+
+https://www.gentrop.com/produtos/reservaai
+
+https://agenda1.app/
+
 # História do Usuário — Sistema de Reserva de Salas
 
 ## Quem está contando essa história
@@ -65,3 +80,66 @@ No fim do mês, se um colaborador sai da instituição, eu simplesmente desativo
 - Preciso que fique claro, a qualquer momento, quais reservas ainda estão pendentes de decisão minha, e quais já estão confirmadas.
 - Quero poder confiar que a capacidade da sala e os recursos cadastrados estão corretos, porque é isso que vai evitar os erros de alocação que hoje acontecem por falta de informação.
 - A tela que fica na TV para os alunos precisa funcionar sozinha, sem alguém precisar ficar de olho nela ou trocando de tela manualmente ao longo do dia.
+
+
+
+
+Desenvolvimento:
+
+- Qualquer professor ou colaborador consiga **pedir uma sala** informando o que precisa (data, horário, finalidade, quantas vezes se repete, se for o caso), sem precisar falar comigo diretamente antes.
+- Quando o pedido é só de "vez em quando" (uma reunião pontual, por exemplo), tudo bem, mas quando é uma coisa que **se repete** (todo dia, toda semana, num intervalo específico, até uma certa data), eu não quero que a pessoa tenha que cadastrar uma por uma — quero que o sistema já organize essa série toda de uma vez.
+- **Eu (ou alguém no meu lugar) preciso aprovar** cada pedido antes de valer — assim ninguém usa uma sala sem eu saber, e eu consigo enxergar tudo que está pendente de decisão num lugar só, sem depender de mensagens perdidas.
+
+
+Um backlog de produto é uma lista viva e organizada por ordem de prioridade com tudo o que o produto precisa. Ele inclui novas funções, correções de erros e melhorias técnicas. Os itens mais importantes ficam sempre no topo para orientar o trabalho da equipe.
+ 
+Meio da lista (Média Prioridade):Funcionalidade: Como comprador, quero filtrar os produtos por faixa de preço para achar itens que cabem no meu orçamento. (Estimativa: 8 pontos)
+ 
+Topo da lista (Alta Prioridade / Pronto para a Sprint):História de Usuário: Como cliente, quero recuperar minha senha por e-mail para conseguir entrar na minha conta caso esqueça os dados. (Estimativa: 3 pontos)
+ 
+Meio da lista (Média Prioridade):Funcionalidade: Como comprador, quero filtrar os produtos por faixa de preço para achar itens que cabem no meu orçamento. (Estimativa: 8 pontos)
+ 
+
+
+
+
+💡 Ideias para o Backlog
+Prioridade	Ideia / Funcionalidade	Descrição
+🔴 Alta	🔐 Login de usuários	Professor, aluno e administrador entram com usuário e senha
+🔴 Alta	👨‍🏫 Cadastro de professores	Cadastrar nome, e-mail, curso e outras informações
+🔴 Alta	👨‍🎓 Cadastro de alunos	Registrar alunos e suas respectivas turmas
+🔴 Alta	🏫 Cadastro de salas	Número/nome da sala, capacidade e localização
+🔴 Alta	📅 Reserva de salas	Professor escolhe sala, data e horário
+🔴 Alta	🚫 Evitar reservas duplicadas	Não permitir duas reservas da mesma sala no mesmo horário
+🔴 Alta	✅ Salas disponíveis	Mostrar quais salas estão livres
+🔴 Alta	❌ Salas indisponíveis	Mostrar salas já ocupadas
+🟠 Média	🗓️ Calendário de reservas	Visualizar reservas por dia, semana e mês
+🟠 Média	📚 Cadastro de cursos	Registrar os cursos da instituição
+🟠 Média	👥 Cadastro de turmas	Associar alunos, professores e cursos às turmas
+🟠 Média	⏰ Cadastro de horários	Registrar horários das aulas
+🟠 Média	🔔 Notificações	Avisar quando ocorrer mudança ou cancelamento
+🟠 Média	🔄 Alterar reserva	Professor poderá modificar uma reserva existente
+🟠 Média	🗑️ Cancelar reserva	Permitir cancelamento de uma sala
+🟠 Média	🔎 Pesquisa de salas	Pesquisar sala pelo número, capacidade ou tipo
+🟡 Baixa	🖥️ Painel do professor	Mostrar as reservas feitas pelo professor
+🟡 Baixa	🎓 Painel do aluno	Aluno consulta onde acontecerá sua aula
+🟡 Baixa	👨‍💼 Painel administrativo	Administrador controla salas, professores e turmas
+🟡 Baixa	📜 Histórico de reservas	Guardar reservas anteriores
+🟡 Baixa	📊 Relatórios	Mostrar salas mais utilizadas, horários etc.
+🟡 Baixa	🚩 Status da sala	Livre, ocupada, reservada ou em manutenção
+🟡 Baixa	🔢 Capacidade da sala	Informar quantidade máxima de alunos
+🟡 Baixa	💻 Tipo de sala	Laboratório, sala normal, auditório etc.
+🟡 Baixa	📱 Sistema responsivo	Funcionar bem no computador e celular
+
+
+
+⭐ Aprovação de reservas
+O professor faz a solicitação:
+Professor solicita → sistema verifica conflito → administrador aprova → sala é reservada → professor/alunos recebem notificação.
+Isso deixaria o projeto mais completo.
+E vocês podem transformar o backlog em User Stories, por exemplo:
+👨‍🏫 Como professor, quero visualizar as salas disponíveis para poder reservar uma sala para minha aula.
+👨‍🎓 Como aluno, quero consultar minha sala para saber onde acontecerá minha próxima aula.
+👨‍💼 Como administrador, quero cadastrar e bloquear salas para manter o sistema atualizado.
+🔔 Como usuário, quero receber uma notificação quando minha sala for alterada ou a aula for cancelada.
+Para começar a desenvolver, eu priorizaria nesta ordem: Login → Cadastro de usuários → Cadastro de salas → Cadastro de turmas → Agenda → Disponibilidade → Reserva → Bloqueio de conflito → Cancelamento → Notificações → Histórico e relatórios. Isso já pode virar o Product Backlog oficial do trabalho.
