@@ -1,26 +1,28 @@
 # Projeto-Integrador2
 
+---
 
-links uteis:
+## 🔗 Links Úteis do Projeto
 
-https://whiteboard.cloud.microsoft/me/whiteboards/p/c3BvOmh0dHBzOi8vc2VuYWNzYzc1NC1teS5zaGFyZXBvaW50LmNvbS9wZXJzb25hbC9tYXVyaWNpbzYxMTg0Njg2X2FsdW5vc19zY19zZW5hY19icg%3D%3D/b!COjkxJBZCkW-sK41v2rjLH2P3dB-AepJvkIe8dv8y2u42NcfHc1DRL1W0f5SeIKZ/012GH7RIN3AK4RIIEXNJBIXXMSM2VXNABF?lng=pt-br&ref=oib-09dc32fc-45b8-4913-a439-1a70f7a9ddfe
+<p><strong>📋 Whiteboard</strong><br>
+<a href="https://whiteboard.cloud.microsoft.com/me/whiteboards/p/c3BvOmh0dHBzOi8vc2VuYWNzYzc1NC1teS5zaGFyZXBvaW50LmNvbS9wZXJzb25hbC9tYXVyaWNpbzYxMTg0Njg2X2FsdW5vc19zY19zZW5hY19icg%3D%3D/b!COjkxJBZCkW-sK41v2rjLH2P3dB-AepJvkIe8dv8y2u42NcfHc1DRL1W0f5SeIKZ/012GH7RIN3AK4RIIEXNJBIXXMSM2VXNABF?lng=pt-br&ref=oib-09dc32fc-45b8-4913-a439-1a70f7a9ddfe" target="_blank">Clique aqui para acessar o Whiteboard</a></p>
 
-Link do kanban:
+<p><strong>📊 Kanban - Planejamento</strong><br>
+<a href="https://planner.cloud.microsoft/webui/v1/plan/D2rlXSdIO0GLktdGp6w4u2QAHi8w?tid=0917fe10-56db-44bf-b1c5-31061ab21cf9" target="_blank">Acessar o Kanban no Planner</a></p>
 
-https://planner.cloud.microsoft/webui/v1/plan/D2rlXSdIO0GLktdGp6w4u2QAHi8w?tid=0917fe10-56db-44bf-b1c5-31061ab21cf9
+<p><strong>📈 Benchmarks - Referências</strong><br>
+- <a href="https://www.gentrop.com/produtos/reservaai" target="_blank">Reserva AI - Gentrop</a><br>
+- <a href="https://agenda1.app/" target="_blank">Agenda 1</a></p>
 
-
-Link das benchmarks:
-
-https://www.gentrop.com/produtos/reservaai
-
-https://agenda1.app/
+---
 
 # História do Usuário — Sistema de Reserva de Salas
 
 ## Quem está contando essa história
 
 Meu nome é Renata, sou coordenadora administrativa de uma unidade do Senac Joinville. Entre outras coisas, eu cuido da organização das salas de aula do prédio: quem usa cada uma, em qual horário, e resolvo os problemas quando duas turmas acabam batendo na mesma sala.
+
+---
 
 ## O problema que estou vivendo
 
@@ -34,8 +36,9 @@ Hoje a gente não tem nenhum sistema para isso. O jeito que funciona é mais ou 
 - Não sei de cabeça quantos alunos cada sala comporta, nem o que cada uma tem (projetor, ar-condicionado, quantidade de tomadas, quadro branco etc.). Isso já me fez colocar uma turma de 40 alunos numa sala que só tinha 20 cadeiras, e outra vez marcar uma aula que precisava de projetor numa sala que não tinha.
 - Quando um colaborador ou professor sai da instituição, não tem um controle claro de "desativar" o acesso dele às reservas — as informações ficam soltas e ninguém lembra de revisar.
 - Eu sou a única que consegue ter uma visão geral de tudo. Se eu estou de férias ou fora, ninguém mais consegue aprovar nada ou enxergar o que está reservado.
+- No fim das contas, eu gasto um tempo enorme só tentando organizar manualmente uma coisa que deveria ser simples: garantir que a sala certa, no tamanho certo, com o que for preciso dentro dela, esteja disponível pra quem precisa, sem conflitos.
 
-No fim das contas, eu gasto um tempo enorme só tentando organizar manualmente uma coisa que deveria ser simples: garantir que a sala certa, no tamanho certo, com o que for preciso dentro dela, esteja disponível pra quem precisa, sem conflitos.
+---
 
 ## Quem mais é afetado por esse problema
 
@@ -43,6 +46,8 @@ No fim das contas, eu gasto um tempo enorme só tentando organizar manualmente u
 - **Os alunos** — chegam no prédio sem saber onde é a aula ou o que está rolando em cada sala/andar naquele turno.
 - **Eu (coordenação)** — sou o gargalo de tudo: recebo os pedidos, decido, resolvo conflito, e ainda preciso lembrar de cadastrar/desativar pessoas manualmente.
 - **Quem cuida da estrutura física das salas** — hoje ninguém tem uma lista organizada de quais salas existem, quantos alunos cabem em cada uma e quais equipamentos/recursos elas têm. Isso vive só na cabeça de quem já trabalha aqui há muito tempo.
+
+--- 
 
 ## O que eu preciso que resolvam pra mim
 
@@ -61,17 +66,21 @@ Eu queria um sistema onde:
 - Quero também poder **cadastrar os recursos** que uma sala tem (projetor, ar-condicionado, computadores, quadro, o que for) e associar isso à sala, pra quem for reservar já saber de antemão se aquela sala serve pra atividade dele, sem precisar ir lá conferir pessoalmente.
 - E, o mais importante pros alunos: quero uma **tela pública, sem precisar de senha**, que eu possa deixar ligada numa TV no corredor, mostrando o que está acontecendo agora — separado por turno (manhã, tarde e noite, já focando automaticamente no turno que está rolando no momento), organizada por andar e sala, mostrando o nome da aula/atividade e quem é o responsável. Assim o aluno só olha a TV e já sabe pra onde ir.
 
+---
+
 ## Um dia perfeito, se isso existisse
 
-Um professor entra no sistema e pede uma sala para as terças e quintas, das 19h às 22h, até o fim do semestre, porque a disciplina dele é nesses dias. Ele recebe a confirmação de que o pedido foi enviado e fica esperando.
+- Um professor entra no sistema e pede uma sala para as terças e quintas, das 19h às 22h, até o fim do semestre, porque a disciplina dele é nesses dias. Ele recebe a confirmação de que o pedido foi enviado e fica esperando.
 
-Eu entro no sistema, vejo que tem um pedido novo esperando aprovação, confiro se bate com a disponibilidade da sala (e o tamanho da turma cabe na sala escolhida), e aprovo tudo de uma vez — o sistema já cria as aulas de terça e quinta até o fim do semestre sozinho, sem eu ter que repetir a ação toda semana.
+- Eu entro no sistema, vejo que tem um pedido novo esperando aprovação, confiro se bate com a disponibilidade da sala (e o tamanho da turma cabe na sala escolhida), e aprovo tudo de uma vez — o sistema já cria as aulas de terça e quinta até o fim do semestre sozinho, sem eu ter que repetir a ação toda semana.
 
-Se por acaso dois pedidos batessem na mesma sala e horário, eu quero saber disso antes de aprovar os dois, não descobrir depois.
+- Se por acaso dois pedidos batessem na mesma sala e horário, eu quero saber disso antes de aprovar os dois, não descobrir depois.
 
-Um aluno chega no prédio às 19h10, olha a TV do corredor, vê que no 2º andar, sala 204, está acontecendo a aula dele com o nome do professor, e vai direto pra lá sem precisar perguntar na recepção.
+- Um aluno chega no prédio às 19h10, olha a TV do corredor, vê que no 2º andar, sala 204, está acontecendo a aula dele com o nome do professor, e vai direto pra lá sem precisar perguntar na recepção.
 
-No fim do mês, se um colaborador sai da instituição, eu simplesmente desativo o acesso dele, sem apagar o que ele já tinha reservado.
+- No fim do mês, se um colaborador sai da instituição, eu simplesmente desativo o acesso dele, sem apagar o que ele já tinha reservado.
+
+---
 
 ## Algumas preocupações e limites que eu tenho
 
@@ -81,57 +90,53 @@ No fim do mês, se um colaborador sai da instituição, eu simplesmente desativo
 - Quero poder confiar que a capacidade da sala e os recursos cadastrados estão corretos, porque é isso que vai evitar os erros de alocação que hoje acontecem por falta de informação.
 - A tela que fica na TV para os alunos precisa funcionar sozinha, sem alguém precisar ficar de olho nela ou trocando de tela manualmente ao longo do dia.
 
+---
 
-
-
-Desenvolvimento:
+## Desenvolvimento:
 
 - Qualquer professor ou colaborador consiga **pedir uma sala** informando o que precisa (data, horário, finalidade, quantas vezes se repete, se for o caso), sem precisar falar comigo diretamente antes.
 - Quando o pedido é só de "vez em quando" (uma reunião pontual, por exemplo), tudo bem, mas quando é uma coisa que **se repete** (todo dia, toda semana, num intervalo específico, até uma certa data), eu não quero que a pessoa tenha que cadastrar uma por uma — quero que o sistema já organize essa série toda de uma vez.
 - **Eu (ou alguém no meu lugar) preciso aprovar** cada pedido antes de valer — assim ninguém usa uma sala sem eu saber, e eu consigo enxergar tudo que está pendente de decisão num lugar só, sem depender de mensagens perdidas.
-
-
-Um backlog de produto é uma lista viva e organizada por ordem de prioridade com tudo o que o produto precisa. Ele inclui novas funções, correções de erros e melhorias técnicas. Os itens mais importantes ficam sempre no topo para orientar o trabalho da equipe.
- 
-Meio da lista (Média Prioridade):Funcionalidade: Como comprador, quero filtrar os produtos por faixa de preço para achar itens que cabem no meu orçamento. (Estimativa: 8 pontos)
- 
-Topo da lista (Alta Prioridade / Pronto para a Sprint):História de Usuário: Como cliente, quero recuperar minha senha por e-mail para conseguir entrar na minha conta caso esqueça os dados. (Estimativa: 3 pontos)
- 
-Meio da lista (Média Prioridade):Funcionalidade: Como comprador, quero filtrar os produtos por faixa de preço para achar itens que cabem no meu orçamento. (Estimativa: 8 pontos)
+- Um backlog de produto é uma lista viva e organizada por ordem de prioridade com tudo o que o produto precisa. Ele inclui novas funções, correções de erros e melhorias técnicas. Os itens mais importantes ficam sempre no topo para orientar o trabalho da equipe.
+- Meio da lista (Média Prioridade):Funcionalidade: Como comprador, quero filtrar os produtos por faixa de preço para achar itens que cabem no meu orçamento. (Estimativa: 8 pontos)
+- Topo da lista (Alta Prioridade / Pronto para a Sprint):História de Usuário: Como cliente, quero recuperar minha senha por e-mail para conseguir entrar na minha conta caso esqueça os dados. (Estimativa: 3 pontos)
+- Meio da lista (Média Prioridade):Funcionalidade: Como comprador, quero filtrar os produtos por faixa de preço para achar itens que cabem no meu orçamento. (Estimativa: 8 pontos)
  
 
 
+---
 
+## 💡 Ideias para o Backlog
 
-💡 Ideias para o Backlog
-Prioridade	Ideia / Funcionalidade	Descrição
-🔴 Alta	🔐 Login de usuários	Professor, aluno e administrador entram com usuário e senha
-🔴 Alta	👨‍🏫 Cadastro de professores	Cadastrar nome, e-mail, curso e outras informações
-🔴 Alta	👨‍🎓 Cadastro de alunos	Registrar alunos e suas respectivas turmas
-🔴 Alta	🏫 Cadastro de salas	Número/nome da sala, capacidade e localização
-🔴 Alta	📅 Reserva de salas	Professor escolhe sala, data e horário
-🔴 Alta	🚫 Evitar reservas duplicadas	Não permitir duas reservas da mesma sala no mesmo horário
-🔴 Alta	✅ Salas disponíveis	Mostrar quais salas estão livres
-🔴 Alta	❌ Salas indisponíveis	Mostrar salas já ocupadas
-🟠 Média	🗓️ Calendário de reservas	Visualizar reservas por dia, semana e mês
-🟠 Média	📚 Cadastro de cursos	Registrar os cursos da instituição
-🟠 Média	👥 Cadastro de turmas	Associar alunos, professores e cursos às turmas
-🟠 Média	⏰ Cadastro de horários	Registrar horários das aulas
-🟠 Média	🔔 Notificações	Avisar quando ocorrer mudança ou cancelamento
-🟠 Média	🔄 Alterar reserva	Professor poderá modificar uma reserva existente
-🟠 Média	🗑️ Cancelar reserva	Permitir cancelamento de uma sala
-🟠 Média	🔎 Pesquisa de salas	Pesquisar sala pelo número, capacidade ou tipo
-🟡 Baixa	🖥️ Painel do professor	Mostrar as reservas feitas pelo professor
-🟡 Baixa	🎓 Painel do aluno	Aluno consulta onde acontecerá sua aula
-🟡 Baixa	👨‍💼 Painel administrativo	Administrador controla salas, professores e turmas
-🟡 Baixa	📜 Histórico de reservas	Guardar reservas anteriores
-🟡 Baixa	📊 Relatórios	Mostrar salas mais utilizadas, horários etc.
-🟡 Baixa	🚩 Status da sala	Livre, ocupada, reservada ou em manutenção
-🟡 Baixa	🔢 Capacidade da sala	Informar quantidade máxima de alunos
-🟡 Baixa	💻 Tipo de sala	Laboratório, sala normal, auditório etc.
-🟡 Baixa	📱 Sistema responsivo	Funcionar bem no computador e celular
+| Prioridade |	Ideia / Funcionalidade |	Descrição |
+| :--- | :--- | :--- |
+|🔴 Alta |	🔐 Login de usuários |	Professor, aluno e administrador entram com usuário e senha |
+|🔴 Alta |👨‍🏫 Cadastro de professores	| Cadastrar nome, e-mail, curso e outras informações |
+|🔴 Alta	|👨‍🎓 Cadastro de alunos |	Registrar alunos e suas respectivas turmas |
+|🔴 Alta |	🏫 Cadastro de salas |	Número/nome da sala, capacidade e localização |
+|🔴 Alta	|📅 Reserva de salas |	Professor escolhe sala, data e horário |
+|🔴 Alta	|🚫 Evitar reservas duplicadas |	Não permitir duas reservas da mesma sala no mesmo horário |
+|🔴 Alta	|✅ Salas disponíveis |	Mostrar quais salas estão livres |
+|🔴 Alta	|❌ Salas indisponíveis |	Mostrar salas já ocupadas |
+|🟠 Média	|🗓️ Calendário de reservas |	Visualizar reservas por dia, semana e mês |
+|🟠 Média	|📚 Cadastro de cursos |	Registrar os cursos da instituição |
+|🟠 Média	|👥 Cadastro de turmas |	Associar alunos, professores e cursos às turmas |
+|🟠 Média	|⏰ Cadastro de horários |	Registrar horários das aulas |
+|🟠 Média	|🔔 Notificações |	Avisar quando ocorrer mudança ou cancelamento |
+|🟠 Média	|🔄 Alterar reserva |	Professor poderá modificar uma reserva existente |
+|🟠 Média	|🗑️ Cancelar reserva |	Permitir cancelamento de uma sala |
+|🟠 Média	|🔎 Pesquisa de salas |	Pesquisar sala pelo número, capacidade ou tipo |
+|🟡 Baixa	|🖥️ Painel do professor |	Mostrar as reservas feitas pelo professor |
+|🟡 Baixa	|🎓 Painel do aluno |	Aluno consulta onde acontecerá sua aula |
+|🟡 Baixa	|👨‍💼 Painel administrativo |	Administrador controla salas, professores e turmas |
+|🟡 Baixa	|📜 Histórico de reservas | 	Guardar reservas anteriores |
+|🟡 Baixa	|📊 Relatórios |	Mostrar salas mais utilizadas, horários etc. |
+|🟡 Baixa	|🚩 Status da sala |	Livre, ocupada, reservada ou em manutenção |
+|🟡 Baixa	|🔢 Capacidade da sala |	Informar quantidade máxima de alunos |
+|🟡 Baixa	|💻 Tipo de sala |	Laboratório, sala normal, auditório etc. |
+|🟡 Baixa	|📱 Sistema responsivo |	Funcionar bem no computador e celular |
 
-
+---
 
 ⭐ Aprovação de reservas
 O professor faz a solicitação:
