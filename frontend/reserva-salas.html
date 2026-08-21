@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocupa · Reserva de Salas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12161f;
+    --bg-panel:#191f2b;
+    --surface:#212938;
+    --surface-2:#2a3346;
+    --border:#323d52;
+    --accent:#f2a93b;
+    --accent-dim:#8a6a2c;
+    --accent-2:#4fd1c5;
+    --accent-2-dim:#2a6b64;
+    --danger:#ef5b5b;
+    --danger-dim:#7a3232;
+    --text:#f2f0ea;
+    --text-dim:#9aa3b2;
+    --text-faint:#69728a;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;margin:0;font-weight:600;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+  ::selection{background:var(--accent);color:#1a1408;}
+
+  a{color:var(--accent);}
+
+  /* ---------- layout shells ---------- */
+  #app{min-height:100vh;display:flex;flex-direction:column;}
+  .container{max-width:1080px;margin:0 auto;padding:0 20px;width:100%;}
+
+  /* ---------- login ---------- */
+  .login-wrap{
+    flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(242,169,59,0.10), transparent),
+      radial-gradient(ellipse 700px 500px at 100% 110%, rgba(79,209,197,0.08), transparent),
+      var(--bg);
+  }
+  .login-card{max-width:480px;width:100%;}
+  .brandmark{
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;
+  }
+  .brandmark .dot{
+    width:10px;height:10px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 4px rgba(242,169,59,0.18);
+  }
+  .brandmark span{font-family:'IBM Plex Mono',monospace;letter-spacing:.14em;font-size:12px;color:var(--text-dim);text-transform:uppercase;}
+  .login-card h1{font-size:34px;line-height:1.15;margin-bottom:10px;}
+  .login-card .sub{color:var(--text-dim);font-size:15px;line-height:1.55;margin-bottom:28px;}
+  .userlist{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+  .user-btn{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:14px 16px;text-align:left;color:var(--text);transition:border-color .15s, background .15s;
+  }
+  .user-btn:hover{border-color:var(--accent);background:var(--surface-2);}
+  .user-btn .name{font-weight:600;font-size:15px;}
+  .user-btn .role{font-size:12px;color:var(--text-dim);margin-top:2px;}
+  .user-btn .arrow{color:var(--accent);font-family:'IBM Plex Mono',monospace;}
+  .tv-link{
+    display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    background:transparent;border:1px dashed var(--border);border-radius:var(--radius);
+    padding:13px 16px;color:var(--text-dim);font-size:13px;letter-spacing:.03em;
+  }
+  .tv-link:hover{border-color:var(--accent-2);color:var(--accent-2);}
+
+  /* ---------- top bar ---------- */
+  header.topbar{
+    border-bottom:1px solid var(--border);background:var(--bg-panel);position:sticky;top:0;z-index:20;
+  }
+  .topbar-inner{display:flex;align-items:center;gap:18px;padding:14px 20px;max-width:1080px;margin:0 auto;flex-wrap:wrap;}
+  .topbar-brand{display:flex;align-items:center;gap:8px;margin-right:6px;}
+  .topbar-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .topbar-brand b{font-family:'Space Grotesk',sans-serif;font-size:16px;}
+  nav.tabs{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;}
+  nav.tabs button{
+    background:transparent;border:none;color:var(--text-dim);padding:8px 12px;border-radius:8px;
+    font-size:13.5px;white-space:nowrap;font-weight:500;transition:background .15s,color .15s;
+  }
+  nav.tabs button:hover{color:var(--text);background:var(--surface);}
+  nav.tabs button.active{color:var(--bg);background:var(--accent);font-weight:600;}
+  .topbar-right{display:flex;align-items:center;gap:8px;}
+  .who{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;}
+  .who .n{font-size:13px;font-weight:600;}
+  .who .r{font-size:11px;color:var(--text-dim);}
+  .icon-btn{
+    background:var(--surface);border:1px solid var(--border);color:var(--text-dim);
+    border-radius:8px;padding:8px 11px;font-size:12.5px;font-weight:500;
+  }
+  .icon-btn:hover{color:var(--text);border-color:var(--accent-2);}
+  .icon-btn.warn:hover{border-color:var(--danger);color:var(--danger);}
+
+  main{flex:1;padding:28px 0 60px;}
+  .page-head{margin-bottom:22px;}
+  .page-head h2{font-size:22px;margin-bottom:4px;}
+  .page-head p{color:var(--text-dim);font-size:14px;margin:0;max-width:640px;line-height:1.5;}
+
+  /* ---------- cards / generic ---------- */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card + .card{margin-top:12px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  @media(max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+  label{display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;font-weight:500;}
+  .field{margin-bottom:14px;}
+  input[type=text],input[type=number],input[type=date],input[type=time],input[type=email],select,textarea{
+    width:100%;background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;
+    padding:10px 12px;color:var(--text);font-size:14px;outline:none;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+  textarea{resize:vertical;min-height:70px;}
+  .hint{font-size:12px;color:var(--text-faint);margin-top:5px;}
+  .error-text{font-size:12.5px;color:var(--danger);margin-top:5px;font-weight:500;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{
+    font-size:12px;padding:4px 10px;border-radius:20px;background:var(--surface-2);
+    border:1px solid var(--border);color:var(--text-dim);
+  }
+  .chip.on{background:rgba(242,169,59,0.15);border-color:var(--accent);color:var(--accent);}
+  .day-toggle{
+    display:flex;gap:5px;flex-wrap:wrap;
+  }
+  .day-toggle button{
+    width:42px;height:38px;border-radius:8px;border:1px solid var(--border);background:var(--bg-panel);
+    color:var(--text-dim);font-size:12.5px;font-weight:600;
+  }
+  .day-toggle button.on{background:var(--accent);border-color:var(--accent);color:#1a1408;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface-2);
+    color:var(--text);border-radius:8px;padding:10px 16px;font-size:13.5px;font-weight:600;
+  }
+  .btn:hover{border-color:var(--accent);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#1a1408;}
+  .btn.primary:hover{filter:brightness(1.06);}
+  .btn.teal{background:var(--accent-2);border-color:var(--accent-2);color:#062522;}
+  .btn.ghost{background:transparent;}
+  .btn.danger{background:transparent;border-color:var(--danger-dim);color:var(--danger);}
+  .btn.danger:hover{border-color:var(--danger);}
+  .btn.small{padding:6px 11px;font-size:12px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+
+  .badge{font-size:11px;font-weight:700;letter-spacing:.03em;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
+  .badge.pending{background:rgba(242,169,59,0.16);color:var(--accent);}
+  .badge.approved{background:rgba(79,209,197,0.16);color:var(--accent-2);}
+  .badge.rejected{background:rgba(239,91,91,0.16);color:var(--danger);}
+  .badge.cancelled{background:rgba(154,163,178,0.14);color:var(--text-dim);}
+  .badge.role{background:var(--surface-2);color:var(--text-dim);}
+
+  .empty{
+    text-align:center;padding:44px 20px;color:var(--text-faint);border:1px dashed var(--border);border-radius:var(--radius);
+  }
+  .empty b{display:block;color:var(--text-dim);font-size:14.5px;margin-bottom:4px;font-weight:600;}
+
+  .row-between{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+  .meta-line{color:var(--text-dim);font-size:13px;line-height:1.6;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;color:var(--text-faint);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;padding:0 10px 8px;}
+  td{padding:11px 10px;border-top:1px solid var(--border);vertical-align:middle;}
+  tr:hover td{background:rgba(255,255,255,0.015);}
+
+  .conflict-box{
+    margin-top:12px;background:rgba(239,91,91,0.08);border:1px solid var(--danger-dim);border-radius:8px;padding:12px 14px;
+  }
+  .conflict-box .title{color:var(--danger);font-size:12.5px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.02em;}
+  .conflict-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(239,91,91,0.18);}
+  .conflict-item:first-child{border-top:none;}
+  .conflict-item .d{font-size:13px;}
+  .conflict-item .who{font-size:12px;color:var(--text-dim);}
+
+  .fyi{
+    margin-top:10px;font-size:12px;color:var(--accent);background:rgba(242,169,59,0.08);
+    border:1px solid var(--accent-dim);border-radius:8px;padding:8px 12px;
+  }
+
+  /* toast */
+  #toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .toast{
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:11px 18px;border-radius:9px;
+    font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,0.35);animation:toastin .18s ease-out;
+  }
+  .toast.warn{border-color:var(--accent);}
+  .toast.err{border-color:var(--danger);color:var(--danger);}
+  @keyframes toastin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- TV panel ---------- */
+  .tv-body{background:#0c0f16;min-height:100vh;color:var(--text);}
+  .tv-head{
+    display:flex;justify-content:space-between;align-items:center;padding:26px 44px 18px;
+    border-bottom:1px solid var(--border);
+  }
+  .tv-head .left{display:flex;align-items:center;gap:16px;}
+  .tv-head .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 5px rgba(242,169,59,0.16);}
+  .tv-head h1{font-size:26px;letter-spacing:.01em;}
+  .tv-head .shift{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-top:2px;
+  }
+  .tv-head .clock{font-family:'IBM Plex Mono',monospace;font-size:38px;font-weight:600;letter-spacing:.03em;}
+  .tv-head .datestr{font-size:13px;color:var(--text-dim);text-align:right;margin-top:2px;text-transform:capitalize;}
+  .tv-exit{position:fixed;top:18px;right:18px;z-index:50;opacity:.35;}
+  .tv-exit:hover{opacity:1;}
+
+  .tv-floors{padding:20px 44px 50px;display:flex;flex-direction:column;gap:26px;}
+  .tv-floor-label{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-faint);
+    display:flex;align-items:center;gap:12px;margin-bottom:10px;
+  }
+  .tv-floor-label::after{content:"";flex:1;height:1px;background:var(--border);}
+  .tv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+  .tv-card{
+    background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;
+  }
+  .tv-card.live{border-color:var(--accent-2);background:linear-gradient(180deg, rgba(79,209,197,0.10), rgba(25,31,43,1) 55%);}
+  .tv-card .room-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+  .tv-card .room-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;}
+  .tv-card .cap{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint);}
+  .tv-card .status-live{
+    display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.1em;color:var(--accent-2);
+  }
+  .tv-card .status-live .pulse{
+    width:7px;height:7px;border-radius:50%;background:var(--accent-2);animation:pulse 1.4s infinite;
+  }
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,209,197,0.55);}70%{box-shadow:0 0 0 7px rgba(79,209,197,0);}100%{box-shadow:0 0 0 0 rgba(79,209,197,0);}}
+  .tv-card .activity{font-size:15px;font-weight:600;margin-bottom:3px;}
+  .tv-card .resp{font-size:12.5px;color:var(--text-dim);}
+  .tv-card .time{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent);margin-top:10px;letter-spacing:.02em;
+  }
+  .tv-card .free{color:var(--text-faint);font-size:14px;font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;}
+  .tv-card .next{font-size:11.5px;color:var(--text-faint);margin-top:8px;border-top:1px solid var(--border);padding-top:8px;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(6,8,12,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;max-width:480px;width:100%;}
+</style>
+</head>
+<body>
+<div id="toast-wrap"></div>
+<div id="app"></div>
+
+<script>
+/* ======================= STATE ======================= */
+const KEYS = { users:'ocupa_users', catalog:'ocupa_catalog', bookings:'ocupa_bookings' };
+const DAY_NAMES = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const FLOOR_ORDER = ['Térreo','1º andar','2º andar','3º andar','4º andar'];
+
+const St = {
+  users:[], rooms:[], resources:[], bookings:[],
+  currentUserId:null,
+  view:'login',
+  loaded:false,
+  transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, requestMode:'pontual', reqDays:[2,4] }
+};
+
+/* ======================= UTIL ======================= */
+function uid(prefix){ return prefix+'_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function dateStr(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function hhmm(d){ return pad(d.getHours())+':'+pad(d.getMinutes()); }
+function fmtBR(iso){ const [y,m,d]=iso.split('-'); return d+'/'+m+'/'+y; }
+function fmtLongBR(iso){
+  const d = new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('pt-BR',{weekday:'long', day:'2-digit', month:'long'});
+}
+function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function timeOverlap(s1,e1,s2,e2){ return s1<e2 && s2<e1; }
+function getShift(d=new Date()){ const h=d.getHours(); if(h<12) return 'Manhã'; if(h<18) return 'Tarde'; return 'Noite'; }
+function currentUser(){ return St.users.find(u=>u.id===St.currentUserId) || null; }
+function sortedFloors(list){
+  const uniq = [...new Set(list)];
+  return uniq.sort((a,b)=>{
+    const ia = FLOOR_ORDER.indexOf(a), ib = FLOOR_ORDER.indexOf(b);
+    if(ia===-1 && ib===-1) return a.localeCompare(b);
+    if(ia===-1) return 1; if(ib===-1) return -1;
+    return ia-ib;
+  });
+}
+function toast(msg, kind){
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast'+(kind?' '+kind:'');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 3600);
+}
+
+/* ======================= STORAGE ======================= */
+async function loadKey(key, seedFn){
+  try{
+    const r = await window.storage.get(key, true);
+    if(r && r.value) return JSON.parse(r.value);
+    const seed = seedFn();
+    await window.storage.set(key, JSON.stringify(seed), true);
+    return seed;
+  }catch(e){
+    const seed = seedFn();
+    try{ await window.storage.set(key, JSON.stringify(seed), true); }catch(e2){}
+    return seed;
+  }
+}
+async function saveUsers(){ try{ await window.storage.set(KEYS.users, JSON.stringify(St.users), true); }catch(e){ toast('Não foi possível salvar os usuários.','err'); } }
+async function saveCatalog(){ try{ await window.storage.set(KEYS.catalog, JSON.stringify({rooms:St.rooms, resources:St.resources}), true); }catch(e){ toast('Não foi possível salvar o cadastro de salas.','err'); } }
+async function saveBookings(){ try{ await window.storage.set(KEYS.bookings, JSON.stringify(St.bookings), true); }catch(e){ toast('Não foi possível salvar as reservas.','err'); } }
+
+/* ======================= SEED DATA ======================= */
+function seedUsers(){
+  return [
+    { id:'u_renata', name:'Renata Alves', email:'renata.alves@senac.br', role:'admin', floors:[], active:true },
+    { id:'u_carlos', name:'Carlos Menezes', email:'carlos.menezes@senac.br', role:'coordenador', floors:['2º andar','3º andar'], active:true },
+    { id:'u_fernanda', name:'Fernanda Lima', email:'fernanda.lima@senac.br', role:'requisitante', floors:[], active:true },
+    { id:'u_joao', name:'João Pedro Rocha', email:'joao.rocha@senac.br', role:'requisitante', floors:[], active:true },
+  ];
+}
+function seedCatalog(){
+  const resources = [
+    { id:'res_proj', name:'Projetor' },
+    { id:'res_ar', name:'Ar-condicionado' },
+    { id:'res_quadro', name:'Quadro branco' },
+    { id:'res_pc', name:'Computadores' },
+    { id:'res_som', name:'Sistema de som' },
+    { id:'res_tomadas', name:'Tomadas extras' },
+  ];
+  const rooms = [
+    { id:'room_101', name:'Sala 101', floor:'Térreo', capacity:20, description:'Sala padrão, carteiras individuais.', resourceIds:['res_quadro'], active:true },
+    { id:'room_102', name:'Sala 102', floor:'Térreo', capacity:25, description:'Carteiras em fileiras.', resourceIds:['res_quadro','res_ar'], active:true },
+    { id:'room_aud', name:'Auditório', floor:'Térreo', capacity:80, description:'Palco, telão e som para eventos.', resourceIds:['res_proj','res_som','res_ar'], active:true },
+    { id:'room_204', name:'Sala 204', floor:'2º andar', capacity:35, description:'Sala ampla com projeção fixa.', resourceIds:['res_proj','res_ar','res_quadro'], active:true },
+    { id:'room_205', name:'Sala 205', floor:'2º andar', capacity:30, description:'Sala com estações de computador.', resourceIds:['res_proj','res_pc'], active:true },
+    { id:'room_301', name:'Laboratório 301', floor:'3º andar', capacity:20, description:'Laboratório de informática.', resourceIds:['res_pc','res_ar','res_proj'], active:true },
+  ];
+  return { rooms, resources };
+}
+function seedBookings(){
+  const now = new Date();
+  const list = [];
+  // live demo bookings so the TV panel always shows something happening "now"
+  const liveA_start = new Date(now.getTime()-20*60000);
+  const liveA_end = new Date(now.getTime()+70*60000);
+  list.push({ id:uid('bk'), seriesId:null, roomId:'room_204', requesterId:'u_fernanda', title:'Programação Web II', responsavel:'Fernanda Lima', turmaSize:28, date:todayStr(), startTime:hhmm(liveA_start), endTime:hhmm(liveA_end), status:'approved', createdAt:now.toISOString(), decidedBy:'u_renata', decidedAt:now.toISOString() });
+
+  const liveB_start = new Date(now.getTime()-60*60000);
+  const liveB_end = new Date(now.getTime()+30*60000);
+  list.push({ id:uid('bk'), seriesId:null, roomId:'room_101', requesterId:'u_carlos', title:'Atendimento a alunos', responsavel:'Carlos Menezes', turmaSize:6, date:todayStr(), startTime:hhmm(liveB_start), endTime:hhmm(liveB_end), status:'approved', createdAt:now.toISOString(), decidedBy:'u_renata', decidedAt:now.toISOString() });
+
+  // an approved recurring series (Tue/Thu 19:00-22:00), spanning past + future, to show series handling
+  const seriesId = uid('series');
+  const seriesStart = new Date(now); seriesStart.setDate(seriesStart.getDate()-14);
+  const seriesEnd = new Date(now); seriesEnd.setDate(seriesEnd.getDate()+56);
+  const seriesMeta = { title:'Lógica de Programação', responsavel:'Fernanda Lima', requesterId:'u_fernanda', roomId:'room_205', startTime:'19:00', endTime:'22:00', daysOfWeek:[2,4], startDate:dateStr(seriesStart), endDate:dateStr(seriesEnd) };
+  for(let d=new Date(seriesStart); d<=seriesEnd; d.setDate(d.getDate()+1)){
+    if(seriesMeta.daysOfWeek.includes(d.getDay())){
+      list.push({ id:uid('bk'), seriesId, roomId:seriesMeta.roomId, requesterId:seriesMeta.requesterId, title:seriesMeta.title, responsavel:seriesMeta.responsavel, turmaSize:26, date:dateStr(d), startTime:seriesMeta.startTime, endTime:seriesMeta.endTime, status:'approved', createdAt:now.toISOString(), decidedBy:'u_renata', decidedAt:now.toISOString() });
+    }
+  }
+
+  // two pending, overlapping requests for tomorrow — demonstrates conflict detection before approval
+  const tmr = new Date(now); tmr.setDate(tmr.getDate()+1);
+  const tmrStr = dateStr(tmr);
+  list.push({ id:uid('bk'), seriesId:null, roomId:'room_101', requesterId:'u_fernanda', title:'Reunião pedagógica', responsavel:'Fernanda Lima', turmaSize:8, date:tmrStr, startTime:'10:00', endTime:'11:00', status:'pending', createdAt:now.toISOString() });
+  list.push({ id:uid('bk'), seriesId:null, roomId:'room_101', requesterId:'u_joao', title:'Oficina de robótica', responsavel:'João Pedro Rocha', turmaSize:18, date:tmrStr, startTime:'10:30', endTime:'12:00', status:'pending' , createdAt:now.toISOString()});
+
+  // one more pending, no conflict — to show a clean approval
+  list.push({ id:uid('bk'), seriesId:null, roomId:'room_301', requesterId:'u_joao', title:'Manutenção de máquinas', responsavel:'João Pedro Rocha', turmaSize:15, date:tmrStr, startTime:'14:00', endTime:'16:00', status:'pending', createdAt:now.toISOString() });
+
+  return list;
+}
+
+/* ======================= DOMAIN HELPERS ======================= */
+function visibleRoomsFor(user){
+  if(!user) return [];
+  if(user.role==='admin') return St.rooms;
+  if(user.role==='coordenador') return St.rooms.filter(r=>user.floors.includes(r.floor));
+  return St.rooms; // requisitante can request in any room
+}
+function roomById(id){ return St.rooms.find(r=>r.id===id); }
+function userById(id){ return St.users.find(u=>u.id===id); }
+function resourceNames(ids){ return (ids||[]).map(id=>{ const r=St.resources.find(x=>x.id===id); return r?r.name:null; }).filter(Boolean); }
+
+function conflictsForInstance(b, statuses){
+  statuses = statuses || ['approved'];
+  return St.bookings.filter(o=> o.id!==b.id && o.roomId===b.roomId && o.date===b.date && statuses.includes(o.status) && timeOverlap(b.startTime,b.endTime,o.startTime,o.endTime));
+}
+function generateSeriesDates(startDate,endDate,daysOfWeek){
+  const out = [];
+  const start = new Date(startDate+'T00:00:00');
+  const end = new Date(endDate+'T00:00:00');
+  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
+    if(daysOfWeek.includes(d.getDay())) out.push(dateStr(d));
+  }
+  return out;
+}
+function pendingGroupsFor(user){
+  const rooms = new Set(visibleRoomsFor(user).map(r=>r.id));
+  const pending = St.bookings.filter(b=> b.status==='pending' && rooms.has(b.roomId));
+  const groups = {};
+  pending.forEach(b=>{
+    const key = b.seriesId ? ('s:'+b.seriesId) : ('b:'+b.id);
+    if(!groups[key]) groups[key] = { key, seriesId:b.seriesId, instances:[] };
+    groups[key].instances.push(b);
+  });
+  return Object.values(groups).map(g=>{ g.instances.sort((a,b)=>a.date.localeCompare(b.date)); return g; });
+}
+function myGroupsFor(user){
+  const mine = St.bookings.filter(b=>b.requesterId===user.id);
+  const groups = {};
+  mine.forEach(b=>{
+    const key = b.seriesId ? ('s:'+b.seriesId) : ('b:'+b.id);
+    if(!groups[key]) groups[key] = { key, seriesId:b.seriesId, instances:[] };
+    groups[key].instances.push(b);
+  });
+  return Object.values(groups).map(g=>{ g.instances.sort((a,b)=>a.date.localeCompare(b.date)); return g; }).sort((a,b)=> b.instances[0].createdAt.localeCompare(a.instances[0].createdAt));
+}
+
+/* ======================= ACTIONS ======================= */
+window.doLogin = function(userId){
+  St.currentUserId = userId;
+  const u = currentUser();
+  St.view = u.role==='requisitante' ? 'request' : 'approvals';
+  render();
+};
+window.doLogout = function(){ St.currentUserId=null; St.view='login'; render(); };
+window.goView = function(v){ St.view=v; render(); };
+window.openTV = function(){ St.view='tv'; render(); };
+window.closeTV = function(){ St.view = currentUser() ? (currentUser().role==='requisitante'?'request':'approvals') : 'login'; render(); };
+
+window.toggleReqDay = function(d){
+  const arr = St.transient.reqDays;
+  const i = arr.indexOf(d);
+  if(i>-1) arr.splice(i,1); else arr.push(d);
+  render();
+};
+window.setReqMode = function(m){ St.transient.requestMode = m; render(); };
+
+window.submitRequest = async function(ev){
+  ev.preventDefault();
+  const f = ev.target;
+  const user = currentUser();
+  const roomId = f.roomId.value;
+  const title = f.title.value.trim();
+  const responsavel = f.responsavel.value.trim() || user.name;
+  const turmaSize = parseInt(f.turmaSize.value||'0',10);
+  const room = roomById(roomId);
+  const errBox = document.getElementById('req-error');
+  errBox.textContent='';
+
+  if(!title){ errBox.textContent='Informe o nome da aula ou atividade.'; return; }
+  if(room && turmaSize > room.capacity){
+    errBox.textContent = `A turma informada (${turmaSize} alunos) não cabe nesta sala — capacidade máxima: ${room.capacity}. Escolha outra sala ou ajuste o número de alunos.`;
+    return;
+  }
+
+  const mode = St.transient.requestMode;
+  const now = new Date().toISOString();
+
+  if(mode==='pontual'){
+    const date = f.date.value, startTime=f.startTime.value, endTime=f.endTime.value;
+    if(!date || !startTime || !endTime){ errBox.textContent='Preencha data e horário.'; return; }
+    if(startTime>=endTime){ errBox.textContent='O horário final precisa ser depois do horário inicial.'; return; }
+    St.bookings.push({ id:uid('bk'), seriesId:null, roomId, requesterId:user.id, title, responsavel, turmaSize, date, startTime, endTime, status:'pending', createdAt:now });
+    await saveBookings();
+    toast('Pedido enviado — você será avisado quando for avaliado.');
+  } else {
+    const startDate=f.startDate.value, endDate=f.endDate.value, startTime=f.startTimeR.value, endTime=f.endTimeR.value;
+    const days = St.transient.reqDays;
+    if(!startDate || !endDate){ errBox.textContent='Informe o período (data de início e de fim).'; return; }
+    if(startDate>endDate){ errBox.textContent='A data final precisa ser depois da data inicial.'; return; }
+    if(!startTime || !endTime){ errBox.textContent='Preencha o horário.'; return; }
+    if(startTime>=endTime){ errBox.textContent='O horário final precisa ser depois do horário inicial.'; return; }
+    if(days.length===0){ errBox.textContent='Selecione ao menos um dia da semana.'; return; }
+    const dates = generateSeriesDates(startDate,endDate,days);
+    if(dates.length===0){ errBox.textContent='Nenhuma data cai nos dias selecionados dentro do período informado.'; return; }
+    const seriesId = uid('series');
+    dates.forEach(date=>{
+      St.bookings.push({ id:uid('bk'), seriesId, roomId, requesterId:user.id, title, responsavel, turmaSize, date, startTime, endTime, status:'pending', createdAt:now });
+    });
+    await saveBookings();
+    toast(`Pedido enviado — ${dates.length} aula(s) serão criadas de uma vez se aprovado.`);
+  }
+  f.reset();
+  St.transient.requestMode='pontual';
+  St.transient.reqDays=[2,4];
+  render();
+};
+
+window.decideGroup = async function(groupKey){
+  const instances = St.bookings.filter(b=>{
+    if(groupKey.startsWith('s:')) return b.seriesId===groupKey.slice(2) && b.status==='pending';
+    return ('b:'+b.id)===groupKey && b.status==='pending';
+  });
+  let approvedCount=0; const conflictList=[];
+  instances.forEach(b=>{
+    const conflicts = conflictsForInstance(b, ['approved']);
+    if(conflicts.length===0){
+      b.status='approved'; b.decidedBy=St.currentUserId; b.decidedAt=new Date().toISOString(); approvedCount++;
+    } else {
+      conflictList.push({ bookingId:b.id, conflicts: conflicts.map(c=>c.id) });
+    }
+  });
+  await saveBookings();
+  if(conflictList.length===0){
+    delete St.transient.conflicts[groupKey];
+    toast(`${approvedCount} reserva(s) confirmada(s).`);
+  } else {
+    St.transient.conflicts[groupKey]=conflictList;
+    toast(`${approvedCount} confirmada(s). ${conflictList.length} com conflito de horário — revise abaixo.`,'warn');
+  }
+  render();
+};
+window.rejectGroup = async function(groupKey){
+  St.bookings.forEach(b=>{
+    const inGroup = groupKey.startsWith('s:') ? b.seriesId===groupKey.slice(2) : ('b:'+b.id)===groupKey;
+    if(inGroup && b.status==='pending'){ b.status='rejected'; b.decidedBy=St.currentUserId; b.decidedAt=new Date().toISOString(); }
+  });
+  delete St.transient.conflicts[groupKey];
+  await saveBookings();
+  toast('Pedido rejeitado.');
+  render();
+};
+window.forceApprove = async function(bookingId, groupKey){
+  const b = St.bookings.find(x=>x.id===bookingId);
+  if(b){ b.status='approved'; b.decidedBy=St.currentUserId; b.decidedAt=new Date().toISOString(); }
+  if(St.transient.conflicts[groupKey]) St.transient.conflicts[groupKey] = St.transient.conflicts[groupKey].filter(c=>c.bookingId!==bookingId);
+  await saveBookings();
+  toast('Confirmada mesmo com conflito — os grupos envolvidos foram sobrepostos.', 'warn');
+  render();
+};
+window.rejectInstance = async function(bookingId, groupKey){
+  const b = St.bookings.find(x=>x.id===bookingId);
+  if(b){ b.status='rejected'; b.decidedBy=St.currentUserId; b.decidedAt=new Date().toISOString(); }
+  if(groupKey && St.transient.conflicts[groupKey]) St.transient.conflicts[groupKey] = St.transient.conflicts[groupKey].filter(c=>c.bookingId!==bookingId);
+  await saveBookings();
+  toast('Este dia foi rejeitado.');
+  render();
+};
+
+window.cancelInstance = async function(bookingId){
+  const b = St.bookings.find(x=>x.id===bookingId);
+  if(b){ b.status='cancelled'; }
+  await saveBookings();
+  toast('Reserva cancelada.');
+  render();
+};
+window.cancelGroupFuture = async function(seriesId){
+  const today = todayStr();
+  St.bookings.forEach(b=>{
+    if(b.seriesId===seriesId && b.date>=today && (b.status==='pending'||b.status==='approved')) b.status='cancelled';
+  });
+  await saveBookings();
+  toast('As próximas aulas dessa série foram canceladas.');
+  render();
+};
+
+window.setCalDate = function(v){ St.transient.calDate = v; render(); };
+
+/* rooms admin */
+window.toggleAddRoom = function(){ St.transient.showAddRoom = !St.transient.showAddRoom; St.transient.editRoomId=null; render(); };
+window.editRoom = function(id){ St.transient.editRoomId = id; St.transient.showAddRoom=false; render(); };
+window.cancelRoomEdit = function(){ St.transient.editRoomId=null; St.transient.showAddRoom=false; render(); };
+window.submitRoom = async function(ev, existingId){
+  ev.preventDefault();
+  const f = ev.target;
+  const name = f.name.value.trim();
+  const floor = f.floor.value.trim();
+  const capacity = parseInt(f.capacity.value||'0',10);
+  const description = f.description.value.trim();
+  const resourceIds = Array.from(f.querySelectorAll('input[name=resource]:checked')).map(i=>i.value);
+  if(!name || !floor || !capacity){ toast('Preencha nome, andar e capacidade.','err'); return; }
+  if(existingId){
+    const r = roomById(existingId);
+    Object.assign(r, { name, floor, capacity, description, resourceIds });
+    toast('Sala atualizada.');
+  } else {
+    St.rooms.push({ id:uid('room'), name, floor, capacity, description, resourceIds, active:true });
+    toast('Sala cadastrada.');
+  }
+  St.transient.showAddRoom=false; St.transient.editRoomId=null;
+  await saveCatalog();
+  render();
+};
+window.toggleRoomActive = async function(id){
+  const r = roomById(id); if(r) r.active = !r.active;
+  await saveCatalog();
+  toast(r.active ? 'Sala reativada.' : 'Sala desativada — o histórico de reservas foi mantido.');
+  render();
+};
+window.addResourceType = async function(ev){
+  ev.preventDefault();
+  const input = document.getElementById('new-resource-name');
+  const name = input.value.trim();
+  if(!name) return;
+  St.resources.push({ id:uid('res'), name });
+  input.value='';
+  await saveCatalog();
+  render();
+};
+
+/* users admin */
+window.toggleAddUser = function(){ St.transient.showAddUser = !St.transient.showAddUser; St.transient.editUserId=null; render(); };
+window.editUser = function(id){ St.transient.editUserId = id; St.transient.showAddUser=false; render(); };
+window.cancelUserEdit = function(){ St.transient.editUserId=null; St.transient.showAddUser=false; render(); };
+window.submitUser = async function(ev, existingId){
+  ev.preventDefault();
+  const f = ev.target;
+  const name = f.name.value.trim();
+  const email = f.email.value.trim();
+  const role = f.role.value;
+  const floors = Array.from(f.querySelectorAll('input[name=floor]:checked')).map(i=>i.value);
+  if(!name || !email){ toast('Preencha nome e e-mail.','err'); return; }
+  if(existingId){
+    const u = userById(existingId);
+    Object.assign(u, { name, email, role, floors: role==='coordenador'?floors:[] });
+    toast('Usuário atualizado.');
+  } else {
+    St.users.push({ id:uid('user'), name, email, role, floors: role==='coordenador'?floors:[], active:true });
+    toast('Usuário cadastrado.');
+  }
+  St.transient.showAddUser=false; St.transient.editUserId=null;
+  await saveUsers();
+  render();
+};
+window.toggleUserActive = async function(id){
+  const u = userById(id); if(u) u.active = !u.active;
+  await saveUsers();
+  toast(u.active ? 'Acesso reativado.' : 'Acesso desativado — as reservas já feitas por essa pessoa foram mantidas.');
+  render();
+};
+
+/* ======================= RENDER: SHELL ======================= */
+function render(){
+  const app = document.getElementById('app');
+  if(St.view==='tv'){ app.innerHTML = renderTV(); attachTVTimer(); return; }
+  if(!St.currentUserId){ app.innerHTML = renderLogin(); return; }
+  const user = currentUser();
+  app.innerHTML = renderShell(user);
+}
+
+function renderLogin(){
+  const active = St.users.filter(u=>u.active);
+  return `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="brandmark"><span class="dot"></span><span>Senac Joinville</span></div>
+      <h1>Ocupa</h1>
+      <p class="sub">Reserva de salas do prédio — pedidos, aprovação, disponibilidade em tempo real e o painel do corredor, tudo num lugar só. Os dados abaixo são compartilhados com toda a equipe.</p>
+      <div class="userlist">
+        ${active.map(u=>`
+          <button class="user-btn" onclick="doLogin('${u.id}')">
+            <div>
+              <div class="name">${esc(u.name)}</div>
+              <div class="role">${roleLabel(u.role)}${u.role==='coordenador'?' · '+u.floors.join(', '):''}</div>
+            </div>
+            <span class="arrow">entrar →</span>
+          </button>`).join('')}
+      </div>
+      <button class="tv-link" onclick="openTV()">📺 Abrir painel público (sem login)</button>
+    </div>
+  </div>`;
+}
+
+function roleLabel(role){
+  return { admin:'Coordenação geral', coordenador:'Coordenador(a) delegado(a)', requisitante:'Professor(a) / colaborador(a)' }[role] || role;
+}
+
+function renderShell(user){
+  const tabs = [];
+  if(user.role==='requisitante'){
+    tabs.push(['request','Solicitar sala'], ['my','Minhas solicitações']);
+  }
+  if(user.role==='coordenador' || user.role==='admin'){
+    tabs.push(['approvals','Aprovações'], ['calendar','Calendário'], ['request','Solicitar sala'], ['my','Minhas solicitações']);
+  }
+  if(user.role==='admin' || user.role==='coordenador'){
+    tabs.push(['rooms','Salas e recursos']);
+  }
+  if(user.role==='admin'){
+    tabs.push(['users','Usuários']);
+  }
+  const view = tabs.find(t=>t[0]===St.view) ? St.view : tabs[0][0];
+
+  let content;
+  if(view==='request') content = renderRequestView(user);
+  else if(view==='my') content = renderMyView(user);
+  else if(view==='approvals') content = renderApprovalsView(user);
+  else if(view==='calendar') content = renderCalendarView(user);
+  else if(view==='rooms') content = renderRoomsView(user);
+  else if(view==='users') content = renderUsersView(user);
+  else content = renderRequestView(user);
+
+  return `
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand"><span class="dot"></span><b>Ocupa</b></div>
+      <nav class="tabs">
+        ${tabs.map(([v,label])=>`<button class="${v===view?'active':''}" onclick="goView('${v}')">${label}</button>`).join('')}
+      </nav>
+      <div class="topbar-right">
+        <button class="icon-btn" onclick="openTV()">📺 TV</button>
+        <div class="who"><span class="n">${esc(user.name)}</span><span class="r">${roleLabel(user.role)}</span></div>
+        <button class="icon-btn warn" onclick="doLogout()">Sair</button>
+      </div>
+    </div>
+  </header>
+  <main><div class="container">${content}</div></main>`;
+}
+
+/* ======================= RENDER: REQUEST ======================= */
+function renderRequestView(user){
+  const rooms = St.rooms.filter(r=>r.active);
+  const mode = St.transient.requestMode;
+  const days = St.transient.reqDays;
+  return `
+  <div class="page-head">
+    <h2>Solicitar uma sala</h2>
+    <p>Preencha os dados do pedido. Ele fica pendente até a coordenação aprovar — você acompanha o status em "Minhas solicitações".</p>
+  </div>
+  <form class="card" onsubmit="submitRequest(event)">
+    <div class="grid-2">
+      <div class="field">
+        <label>Nome da aula ou atividade</label>
+        <input type="text" name="title" placeholder="Ex.: Programação Web II" required>
+      </div>
+      <div class="field">
+        <label>Responsável</label>
+        <input type="text" name="responsavel" placeholder="${esc(user.name)}" value="${esc(user.name)}">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Sala</label>
+        <select name="roomId" required onchange="render()" id="room-select">
+          ${rooms.map(r=>`<option value="${r.id}">${esc(r.name)} — ${esc(r.floor)} (até ${r.capacity} alunos)</option>`).join('')}
+        </select>
+        ${renderRoomSelectHint(rooms[0])}
+      </div>
+      <div class="field">
+        <label>Quantidade de alunos / participantes</label>
+        <input type="number" name="turmaSize" min="1" placeholder="Ex.: 25" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tipo de pedido</label>
+      <div class="chip-row">
+        <button type="button" class="chip ${mode==='pontual'?'on':''}" onclick="setReqMode('pontual')">Pontual (uma data)</button>
+        <button type="button" class="chip ${mode==='recorrente'?'on':''}" onclick="setReqMode('recorrente')">Recorrente (se repete)</button>
+      </div>
+    </div>
+
+    ${mode==='pontual' ? `
+      <div class="grid-2">
+        <div class="field"><label>Data</label><input type="date" name="date" required></div>
+        <div class="field"><div class="grid-2" style="gap:8px">
+          <div><label>Início</label><input type="time" name="startTime" required></div>
+          <div><label>Fim</label><input type="time" name="endTime" required></div>
+        </div></div>
+      </div>
+    ` : `
+      <div class="field">
+        <label>Dias da semana</label>
+        <div class="day-toggle">
+          ${DAY_NAMES.map((d,i)=>`<button type="button" class="${days.includes(i)?'on':''}" onclick="toggleReqDay(${i})">${d}</button>`).join('')}
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>De</label><input type="date" name="startDate" required></div>
+        <div class="field"><label>Até</label><input type="date" name="endDate" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Início</label><input type="time" name="startTimeR" required></div>
+        <div class="field"><label>Fim</label><input type="time" name="endTimeR" required></div>
+      </div>
+      <p class="hint">O sistema cria automaticamente todas as aulas desse período — você não precisa cadastrar uma por uma.</p>
+    `}
+
+    <div id="req-error" class="error-text"></div>
+    <div class="btn-row"><button type="submit" class="btn primary">Enviar pedido</button></div>
+  </form>`;
+}
+function renderRoomSelectHint(room){
+  if(!room) return '';
+  const sel = document.getElementById('room-select');
+  const id = sel ? sel.value : room.id;
+  const r = roomById(id) || room;
+  const names = resourceNames(r.resourceIds);
+  return `<p class="hint">${esc(r.description||'')}${names.length?' · Recursos: '+esc(names.join(', ')):''}</p>`;
+}
+
+/* ======================= RENDER: MY REQUESTS ======================= */
+function renderMyView(user){
+  const groups = myGroupsFor(user);
+  if(groups.length===0){
+    return `<div class="page-head"><h2>Minhas solicitações</h2></div><div class="empty"><b>Nenhum pedido ainda</b>Peça uma sala na aba "Solicitar sala" para ver o status aqui.</div>`;
+  }
+  return `
+  <div class="page-head"><h2>Minhas solicitações</h2><p>Acompanhe o status dos seus pedidos e cancele o que não precisar mais.</p></div>
+  ${groups.map(g=>renderMyGroupCard(g)).join('')}
+  `;
+}
+function statusCounts(instances){
+  const c = {pending:0,approved:0,rejected:0,cancelled:0};
+  instances.forEach(b=>c[b.status]++);
+  return c;
+}
+function renderMyGroupCard(g){
+  const first = g.instances[0];
+  const room = roomById(first.roomId);
+  const c = statusCounts(g.instances);
+  const isSeries = !!g.seriesId;
+  const summary = isSeries ? `${g.instances.length} aula(s) · ${first.startTime}–${first.endTime}` : `${fmtBR(first.date)} · ${first.startTime}–${first.endTime}`;
+  return `
+  <div class="card">
+    <div class="row-between">
+      <div>
+        <div class="row-between" style="gap:8px;align-items:center;margin-bottom:4px;">
+          <h3 style="font-size:16px;">${esc(first.title)}</h3>
+          ${badgeSummary(c)}
+        </div>
+        <div class="meta-line">${esc(room?room.name:'Sala removida')} ${room?'· '+esc(room.floor):''} · ${summary}</div>
+        <div class="meta-line">Responsável: ${esc(first.responsavel)} · ${first.turmaSize} pessoa(s)</div>
+      </div>
+    </div>
+    ${isSeries ? renderInstanceMini(g.instances) : ''}
+    <div class="btn-row">
+      ${isSeries
+        ? `<button class="btn danger small" onclick="cancelGroupFuture('${g.seriesId}')">Cancelar próximas aulas</button>`
+        : (first.status==='pending'||first.status==='approved') ? `<button class="btn danger small" onclick="cancelInstance('${first.id}')">Cancelar</button>` : ''
+      }
+    </div>
+  </div>`;
+}
+function badgeSummary(c){
+  const parts=[];
+  if(c.pending) parts.push(`<span class="badge pending">${c.pending} pendente${c.pending>1?'s':''}</span>`);
+  if(c.approved) parts.push(`<span class="badge approved">${c.approved} confirmada${c.approved>1?'s':''}</span>`);
+  if(c.rejected) parts.push(`<span class="badge rejected">${c.rejected} rejeitada${c.rejected>1?'s':''}</span>`);
+  if(c.cancelled) parts.push(`<span class="badge cancelled">${c.cancelled} cancelada${c.cancelled>1?'s':''}</span>`);
+  return `<div class="chip-row" style="gap:5px">${parts.join('')}</div>`;
+}
+function renderInstanceMini(instances){
+  const upcoming = instances.filter(b=>b.date>=todayStr()).slice(0,6);
+  if(upcoming.length===0) return '';
+  return `<div class="meta-line" style="margin-top:8px;">
+    ${upcoming.map(b=>`<span class="chip" style="margin:2px 4px 0 0;">${fmtBR(b.date)} <span class="badge ${b.status}" style="margin-left:4px;">${statusLabel(b.status)}</span></span>`).join('')}
+  </div>`;
+}
+function statusLabel(s){ return {pending:'Pendente',approved:'Confirmada',rejected:'Rejeitada',cancelled:'Cancelada'}[s]||s; }
+
+/* ======================= RENDER: APPROVALS ======================= */
+function renderApprovalsView(user){
+  const groups = pendingGroupsFor(user);
+  const scopeNote = user.role==='coordenador' ? `<p class="hint">Você aprova apenas para: ${esc(user.floors.join(', '))}.</p>` : '';
+  if(groups.length===0){
+    return `<div class="page-head"><h2>Aprovações</h2>${scopeNote}</div><div class="empty"><b>Tudo em dia</b>Não há pedidos aguardando decisão no momento.</div>`;
+  }
+  // FYI: flag pending groups that overlap with OTHER pending groups (heads-up before approving both)
+  return `
+  <div class="page-head"><h2>Aprovações pendentes</h2><p>Revise, confira conflitos de horário e aprove ou rejeite.</p>${scopeNote}</div>
+  ${groups.map(g=>renderApprovalCard(g, groups)).join('')}
+  `;
+}
+function renderApprovalCard(g, allGroups){
+  const first = g.instances[0];
+  const room = roomById(first.roomId);
+  const requester = userById(first.requesterId);
+  const isSeries = !!g.seriesId;
+  const rangeLabel = isSeries
+    ? `${g.instances.length} aula(s) de ${fmtBR(g.instances[0].date)} a ${fmtBR(g.instances[g.instances.length-1].date)} · ${daysLabelFromInstances(g.instances)} · ${first.startTime}–${first.endTime}`
+    : `${fmtBR(first.date)} · ${first.startTime}–${first.endTime}`;
+
+  // FYI against other pending groups
+  const fyi = [];
+  g.instances.forEach(b=>{
+    const otherPendingConflicts = St.bookings.filter(o=> o.status==='pending' && o.roomId===b.roomId && o.date===b.date && o.id!==b.id && timeOverlap(b.startTime,b.endTime,o.startTime,o.endTime) && (!b.seriesId || o.seriesId!==b.seriesId));
+    otherPendingConflicts.forEach(o=>{ const req=userById(o.requesterId); fyi.push(`${fmtBR(b.date)}: também disputado por "${esc(o.title)}" (${esc(req?req.name:'—')})`); });
+  });
+  const fyiUniq = [...new Set(fyi)];
+
+  const conflictData = St.transient.conflicts[g.key];
+
+  return `
+  <div class="card">
+    <div class="row-between">
+      <div>
+        <h3 style="font-size:16px;margin-bottom:4px;">${esc(first.title)}</h3>
+        <div class="meta-line">${esc(room?room.name:'—')} ${room?'· '+esc(room.floor)+' · até '+room.capacity+' pessoas':''}</div>
+        <div class="meta-line">${rangeLabel}</div>
+        <div class="meta-line">Solicitado por: ${esc(requester?requester.name:'—')} · Responsável: ${esc(first.responsavel)} · ${first.turmaSize} pessoa(s)${room && first.turmaSize>room.capacity ? ' <span style="color:var(--danger)">⚠ acima da capacidade</span>' : ''}</div>
+      </div>
+      <span class="badge pending">Pendente</span>
+    </div>
+    ${fyiUniq.length ? `<div class="fyi">⚠ ${fyiUniq.join(' · ')}</div>` : ''}
+    ${conflictData && conflictData.length ? renderConflictBox(conflictData, g.key) : ''}
+    <div class="btn-row">
+      <button class="btn teal" onclick="decideGroup('${g.key}')">Aprovar ${isSeries?'todas ('+g.instances.length+')':''}</button>
+      <button class="btn danger" onclick="rejectGroup('${g.key}')">Rejeitar ${isSeries?'todas':''}</button>
+    </div>
+  </div>`;
+}
+function renderConflictBox(conflictData, groupKey){
+  return `<div class="conflict-box">
+    <div class="title">Conflito com reserva já confirmada</div>
+    ${conflictData.map(cd=>{
+      const b = St.bookings.find(x=>x.id===cd.bookingId);
+      const others = cd.conflicts.map(cid=>St.bookings.find(x=>x.id===cid)).filter(Boolean);
+      return `<div class="conflict-item">
+        <div>
+          <div class="d">${fmtBR(b.date)} · ${b.startTime}–${b.endTime}</div>
+          <div class="who">Já ocupada por: ${others.map(o=>esc(o.title)+' ('+esc(o.responsavel)+')').join(', ')}</div>
+        </div>
+        <div class="btn-row" style="margin:0">
+          <button class="btn small" onclick="forceApprove('${b.id}','${groupKey}')">Aprovar mesmo assim</button>
+          <button class="btn danger small" onclick="rejectInstance('${b.id}','${groupKey}')">Rejeitar este dia</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function daysLabelFromInstances(instances){
+  const days = [...new Set(instances.map(b=> new Date(b.date+'T00:00:00').getDay()))].sort();
+  return days.map(d=>DAY_NAMES[d]).join('/');
+}
+
+/* ======================= RENDER: CALENDAR ======================= */
+function renderCalendarView(user){
+  const rooms = sortedFloors(visibleRoomsFor(user).map(r=>r.floor)).flatMap(fl => visibleRoomsFor(user).filter(r=>r.floor===fl));
+  const date = St.transient.calDate;
+  const dayBookings = St.bookings.filter(b=> b.date===date && rooms.some(r=>r.id===b.roomId) && b.status!=='cancelled' && b.status!=='rejected');
+
+  let currentFloor = null;
+  let rows = '';
+  rooms.forEach(r=>{
+    if(r.floor!==currentFloor){ rows += `<div class="tv-floor-label" style="margin-top:16px;">${esc(r.floor)}</div>`; currentFloor=r.floor; }
+    const items = dayBookings.filter(b=>b.roomId===r.id).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+    // detect overlaps within this room/day
+    const conflictIds = new Set();
+    items.forEach((a,i)=>items.forEach((b,j)=>{ if(i<j && timeOverlap(a.startTime,a.endTime,b.startTime,b.endTime)){ conflictIds.add(a.id); conflictIds.add(b.id);} }));
+    rows += `<div class="card">
+      <div class="row-between"><h3 style="font-size:15px;">${esc(r.name)} <span class="mono" style="color:var(--text-faint);font-size:12px;">até ${r.capacity}</span></h3></div>
+      ${items.length===0 ? `<div class="meta-line" style="margin-top:6px;">Sem reservas nesta data.</div>` : items.map(b=>{
+        const req = userById(b.requesterId);
+        return `<div class="row-between" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+          <div>
+            <div style="font-size:13.5px;font-weight:600;">${esc(b.title)} ${conflictIds.has(b.id)?'<span style="color:var(--danger);font-weight:700;">⚠ conflito</span>':''}</div>
+            <div class="meta-line">${b.startTime}–${b.endTime} · ${esc(b.responsavel)} · pedido de ${esc(req?req.name:'—')}</div>
+          </div>
+          <span class="badge ${b.status}">${statusLabel(b.status)}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+
+  return `
+  <div class="page-head"><h2>Calendário do prédio</h2><p>Veja tudo que está reservado num dia, por sala, e identifique sobreposições antes que virem problema na porta.</p></div>
+  <div class="card" style="margin-bottom:14px;">
+    <div class="field" style="margin-bottom:0;max-width:220px;">
+      <label>Data</label>
+      <input type="date" value="${date}" onchange="setCalDate(this.value)">
+    </div>
+  </div>
+  ${rows || `<div class="empty"><b>Nenhuma sala disponível</b></div>`}
+  `;
+}
+
+/* ======================= RENDER: ROOMS ======================= */
+function renderRoomsView(user){
+  const allowedFloors = user.role==='admin' ? sortedFloors(St.rooms.map(r=>r.floor)) : user.floors;
+  const rooms = user.role==='admin' ? St.rooms : St.rooms.filter(r=>user.floors.includes(r.floor));
+
+  return `
+  <div class="page-head"><h2>Salas e recursos</h2><p>Capacidade e recursos corretos evitam alocar turma grande em sala pequena, ou marcar aula sem o equipamento certo.</p></div>
+
+  <div class="card">
+    <div class="row-between">
+      <h3 style="font-size:15px;">Recursos cadastrados</h3>
+    </div>
+    <div class="chip-row" style="margin-top:10px;">
+      ${St.resources.map(r=>`<span class="chip">${esc(r.name)}</span>`).join('')}
+    </div>
+    ${user.role==='admin' ? `
+    <form onsubmit="addResourceType(event)" style="margin-top:12px;display:flex;gap:8px;max-width:360px;">
+      <input type="text" id="new-resource-name" placeholder="Novo recurso (ex.: Microfone)">
+      <button class="btn small" type="submit">Adicionar</button>
+    </form>` : ''}
+  </div>
+
+  <div class="row-between" style="margin-top:18px;margin-bottom:4px;">
+    <h3 style="font-size:16px;">Salas</h3>
+    <button class="btn primary small" onclick="toggleAddRoom()">${St.transient.showAddRoom?'Fechar':'+ Nova sala'}</button>
+  </div>
+
+  ${St.transient.showAddRoom ? renderRoomForm(null, allowedFloors) : ''}
+
+  ${sortedFloors(rooms.map(r=>r.floor)).map(floor=>`
+    <div class="tv-floor-label" style="margin-top:14px;">${esc(floor)}</div>
+    ${rooms.filter(r=>r.floor===floor).map(r=> St.transient.editRoomId===r.id ? renderRoomForm(r, allowedFloors) : renderRoomRow(r)).join('')}
+  `).join('')}
+  `;
+}
+function renderRoomRow(r){
+  const names = resourceNames(r.resourceIds);
+  return `<div class="card">
+    <div class="row-between">
+      <div>
+        <div style="font-weight:600;font-size:14.5px;">${esc(r.name)} ${!r.active?'<span class="badge cancelled">Desativada</span>':''}</div>
+        <div class="meta-line">Capacidade: ${r.capacity} pessoas ${r.description?'· '+esc(r.description):''}</div>
+        ${names.length? `<div class="chip-row" style="margin-top:6px;">${names.map(n=>`<span class="chip">${esc(n)}</span>`).join('')}</div>` : ''}
+      </div>
+      <div class="btn-row" style="margin:0;">
+        <button class="btn small" onclick="editRoom('${r.id}')">Editar</button>
+        <button class="btn small ${r.active?'danger':''}" onclick="toggleRoomActive('${r.id}')">${r.active?'Desativar':'Reativar'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function renderRoomForm(room, allowedFloors){
+  const isEdit = !!room;
+  return `<form class="card" onsubmit="submitRoom(event, ${isEdit?`'${room.id}'`:'null'})" style="border-color:var(--accent-dim);">
+    <div class="grid-3">
+      <div class="field"><label>Nome</label><input type="text" name="name" value="${isEdit?esc(room.name):''}" required></div>
+      <div class="field"><label>Andar</label>
+        <input type="text" name="floor" list="floor-list" value="${isEdit?esc(room.floor):(allowedFloors[0]||'')}" required>
+        <datalist id="floor-list">${sortedFloors([...FLOOR_ORDER, ...St.rooms.map(r=>r.floor)]).map(f=>`<option value="${esc(f)}">`).join('')}</datalist>
+      </div>
+      <div class="field"><label>Capacidade (alunos)</label><input type="number" name="capacity" min="1" value="${isEdit?room.capacity:''}" required></div>
+    </div>
+    <div class="field"><label>Descrição</label><textarea name="description">${isEdit?esc(room.description||''):''}</textarea></div>
+    <div class="field">
+      <label>Recursos disponíveis</label>
+      <div class="chip-row">
+        ${St.resources.map(res=>`<label class="chip" style="cursor:pointer;display:inline-flex;gap:6px;align-items:center;">
+          <input type="checkbox" name="resource" value="${res.id}" ${isEdit && room.resourceIds.includes(res.id)?'checked':''} style="width:auto;"> ${esc(res.name)}
+        </label>`).join('')}
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="submit" class="btn primary">${isEdit?'Salvar alterações':'Cadastrar sala'}</button>
+      <button type="button" class="btn ghost" onclick="cancelRoomEdit()">Cancelar</button>
+    </div>
+  </form>`;
+}
+
+/* ======================= RENDER: USERS ======================= */
+function renderUsersView(user){
+  const floors = sortedFloors(St.rooms.map(r=>r.floor));
+  return `
+  <div class="page-head"><h2>Usuários</h2><p>Cadastre quem pode usar o sistema, defina o papel de cada um e desative sem perder o histórico quando alguém sai.</p></div>
+  <div class="row-between" style="margin-bottom:10px;">
+    <div></div>
+    <button class="btn primary small" onclick="toggleAddUser()">${St.transient.showAddUser?'Fechar':'+ Novo usuário'}</button>
+  </div>
+  ${St.transient.showAddUser ? renderUserForm(null, floors) : ''}
+  ${St.users.map(u=> St.transient.editUserId===u.id ? renderUserForm(u, floors) : renderUserRow(u)).join('')}
+  `;
+}
+function renderUserRow(u){
+  return `<div class="card">
+    <div class="row-between">
+      <div>
+        <div style="font-weight:600;font-size:14.5px;">${esc(u.name)} ${!u.active?'<span class="badge cancelled">Desativado</span>':''}</div>
+        <div class="meta-line">${esc(u.email)} · <span class="badge role">${roleLabel(u.role)}</span>${u.role==='coordenador'?' · '+esc(u.floors.join(', ')):''}</div>
+      </div>
+      <div class="btn-row" style="margin:0;">
+        <button class="btn small" onclick="editUser('${u.id}')">Editar</button>
+        <button class="btn small ${u.active?'danger':''}" onclick="toggleUserActive('${u.id}')">${u.active?'Desativar':'Reativar'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function renderUserForm(u, floors){
+  const isEdit = !!u;
+  return `<form class="card" onsubmit="submitUser(event, ${isEdit?`'${u.id}'`:'null'})" style="border-color:var(--accent-dim);" id="user-form">
+    <div class="grid-2">
+      <div class="field"><label>Nome</label><input type="text" name="name" value="${isEdit?esc(u.name):''}" required></div>
+      <div class="field"><label>E-mail</label><input type="email" name="email" value="${isEdit?esc(u.email):''}" required></div>
+    </div>
+    <div class="field">
+      <label>Papel</label>
+      <select name="role" onchange="this.form.querySelector('.floor-block').style.display = this.value==='coordenador' ? 'block' : 'none'">
+        <option value="requisitante" ${isEdit&&u.role==='requisitante'?'selected':''}>Professor(a) / colaborador(a) — só pode pedir salas</option>
+        <option value="coordenador" ${isEdit&&u.role==='coordenador'?'selected':''}>Coordenador(a) delegado(a) — aprova só nos andares dele(a)</option>
+        <option value="admin" ${isEdit&&u.role==='admin'?'selected':''}>Coordenação geral — acesso completo</option>
+      </select>
+    </div>
+    <div class="field floor-block" style="display:${isEdit&&u.role==='coordenador'?'block':'none'};">
+      <label>Andares sob responsabilidade</label>
+      <div class="chip-row">
+        ${floors.map(f=>`<label class="chip" style="cursor:pointer;display:inline-flex;gap:6px;align-items:center;">
+          <input type="checkbox" name="floor" value="${esc(f)}" ${isEdit && u.floors.includes(f)?'checked':''} style="width:auto;"> ${esc(f)}
+        </label>`).join('')}
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="submit" class="btn primary">${isEdit?'Salvar alterações':'Cadastrar usuário'}</button>
+      <button type="button" class="btn ghost" onclick="cancelUserEdit()">Cancelar</button>
+    </div>
+  </form>`;
+}
+
+/* ======================= RENDER: TV ======================= */
+let tvTimerHandle = null;
+function attachTVTimer(){
+  if(tvTimerHandle) clearInterval(tvTimerHandle);
+  tvTimerHandle = setInterval(async ()=>{
+    // refresh clock every tick; re-pull shared data periodically to reflect changes from other sessions
+    const clockEl = document.getElementById('tv-clock');
+    if(clockEl) clockEl.textContent = hhmm(new Date())+':'+pad(new Date().getSeconds());
+    if(new Date().getSeconds()===0){
+      St.bookings = await loadKey(KEYS.bookings, seedBookings);
+      render();
+    }
+  }, 1000);
+}
+function renderTV(){
+  const now = new Date();
+  const date = todayStr();
+  const shift = getShift(now);
+  const rooms = St.rooms.filter(r=>r.active);
+  const floors = sortedFloors(rooms.map(r=>r.floor));
+  const todays = St.bookings.filter(b=>b.date===date && b.status==='approved');
+
+  const body = floors.map(floor=>{
+    const floorRooms = rooms.filter(r=>r.floor===floor);
+    return `<div>
+      <div class="tv-floor-label">${esc(floor)}</div>
+      <div class="tv-grid">
+        ${floorRooms.map(r=>renderTVCard(r, todays, now)).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="tv-body">
+    <button class="icon-btn tv-exit" onclick="closeTV()">Sair do modo TV ✕</button>
+    <div class="tv-head">
+      <div class="left">
+        <span class="dot"></span>
+        <div>
+          <h1>Ocupa · O que está rolando agora</h1>
+          <div class="shift">Turno da ${shift.toLowerCase()}</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div class="clock" id="tv-clock">${hhmm(now)}:${pad(now.getSeconds())}</div>
+        <div class="datestr">${fmtLongBR(date)}</div>
+      </div>
+    </div>
+    <div class="tv-floors">${body}</div>
+  </div>`;
+}
+function renderTVCard(room, todays, now){
+  const nowStr = hhmm(now);
+  const items = todays.filter(b=>b.roomId===room.id).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+  const live = items.find(b=> b.startTime<=nowStr && nowStr<b.endTime);
+  const next = !live ? items.find(b=> b.startTime>nowStr) : null;
+  return `<div class="tv-card ${live?'live':''}">
+    <div class="room-row">
+      <span class="room-name">${esc(room.name)}</span>
+      <span class="cap">ATÉ ${room.capacity}</span>
+    </div>
+    ${live ? `
+      <div class="status-live"><span class="pulse"></span> AO VIVO</div>
+      <div class="activity" style="margin-top:6px;">${esc(live.title)}</div>
+      <div class="resp">${esc(live.responsavel)}</div>
+      <div class="time">${live.startTime} – ${live.endTime}</div>
+    ` : `
+      <div class="free">— livre agora —</div>
+      ${next ? `<div class="next">Próxima: ${esc(next.title)} às ${next.startTime}</div>` : ''}
+    `}
+  </div>`;
+}
+
+/* ======================= BOOT ======================= */
+async function boot(){
+  St.users = await loadKey(KEYS.users, seedUsers);
+  const cat = await loadKey(KEYS.catalog, seedCatalog);
+  St.rooms = cat.rooms; St.resources = cat.resources;
+  St.bookings = await loadKey(KEYS.bookings, seedBookings);
+  St.loaded = true;
+  render();
+}
+boot();
+</script>
+</body>
+</html>
