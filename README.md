@@ -1,5 +1,17 @@
 # Projeto-Integrador2
 
+## Testes do backend
+
+O primeiro incremento do domínio está especificado em testes unitários xUnit, sem dependência de rede ou do Supabase. Eles servem como contrato para a implementação do backend em C# e cobrem solicitações pendentes, recorrência semanal, aprovação autorizada, conflitos de horário, capacidade da sala, cancelamento pelo proprietário e histórico.
+
+Para executar:
+
+```powershell
+dotnet test tests/Projeto-Integrador2.Tests/Projeto-Integrador2.Tests.csproj
+```
+
+A persistência no Supabase deve ser adicionada atrás de uma camada de repositório; as regras de negócio não devem acessar o banco diretamente.
+
 ---
 
 ## 🔗 Links Úteis do Projeto

@@ -1,0 +1,15 @@
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\Projeto-Integrador2.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\Projeto-Integrador2.AssemblyInfoInputs.cache
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\Projeto-Integrador2.AssemblyInfo.cs
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\Projeto-Integrador2.csproj.CoreCompileInputs.cache
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\Projeto-Integrador2.sourcelink.json
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\bin\Debug\net10.0\Projeto-Integrador2.deps.json
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\bin\Debug\net10.0\Projeto-Integrador2.dll
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\bin\Debug\net10.0\Projeto-Integrador2.pdb
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\Projeto-Integrador2.dll
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\refint\Projeto-Integrador2.dll
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\Projeto-Integrador2.pdb
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\ref\Projeto-Integrador2.dll
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\bin\Debug\net10.0\Projeto-Integrador2.exe
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\bin\Debug\net10.0\Projeto-Integrador2.runtimeconfig.json
+C:\Users\rodrigo62289216\Desktop\Projeto-Integrador2\obj\Debug\net10.0\Projeto-Integrador2.genruntimeconfig.cache
