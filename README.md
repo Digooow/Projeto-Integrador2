@@ -138,13 +138,21 @@ Eu queria um sistema onde:
 
 ---
 
-⭐ Aprovação de reservas
-O professor faz a solicitação:
+## ⭐ Aprovação de reservas
+
+**O professor faz a solicitação:**
+<br>
+<br>
 Professor solicita → sistema verifica conflito → administrador aprova → sala é reservada → professor/alunos recebem notificação.
+<br>
 Isso deixaria o projeto mais completo.
 E vocês podem transformar o backlog em User Stories, por exemplo:
-👨‍🏫 Como professor, quero visualizar as salas disponíveis para poder reservar uma sala para minha aula.
-👨‍🎓 Como aluno, quero consultar minha sala para saber onde acontecerá minha próxima aula.
-👨‍💼 Como administrador, quero cadastrar e bloquear salas para manter o sistema atualizado.
-🔔 Como usuário, quero receber uma notificação quando minha sala for alterada ou a aula for cancelada.
+<br>
+
+ - 👨‍🏫 Como professor, quero visualizar as salas disponíveis para poder reservar uma sala para minha aula.
+ - 👨‍🎓 Como aluno, quero consultar minha sala para saber onde acontecerá minha próxima aula.
+ - 👨‍💼 Como administrador, quero cadastrar e bloquear salas para manter o sistema atualizado.
+ - 🔔 Como usuário, quero receber uma notificação quando minha sala for alterada ou a aula for cancelada.
+   
+<br>
 Para começar a desenvolver, eu priorizaria nesta ordem: Login → Cadastro de usuários → Cadastro de salas → Cadastro de turmas → Agenda → Disponibilidade → Reserva → Bloqueio de conflito → Cancelamento → Notificações → Histórico e relatórios. Isso já pode virar o Product Backlog oficial do trabalho.
