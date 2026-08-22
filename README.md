@@ -113,8 +113,8 @@ Na tela de criação do Web Service, em vez de usar repositório GitHub com Dock
   - Exemplo: `docker.io/rodrigofarias/projeto-integrador2:latest`
 
 #### 5️⃣ **Configure o serviço:**
-   - **Name**: `projeto-integrador2-api`
-   - **Region**: escolha a mais próxima (ex. `São Paulo`)
+   - **Name**: Digite o nome do seu serviço (ex: `projeto-integrador2-latest`)
+   - **Region**: escolha a mais próxima (ex: `São Paulo`)
    - **Instance Type**: escolha conforme sua necessidade (free tier serve para testes)
 
 #### 6️⃣ **Adicione variáveis de ambiente (CRÍTICO):**
@@ -129,23 +129,22 @@ Na tela de criação do Web Service, em vez de usar repositório GitHub com Dock
 #### 7️⃣ **Clique em "Create Web Service"**
    - Render vai fazer pull da imagem do Docker Hub
    - Inicia o container
-   - Você recebe uma URL pública (ex: `https://projeto-integrador2-api.onrender.com`)
+   - Você recebe uma URL pública (ex: `https://projeto-integrador2-latest.onrender.com`)
+   - **Anote essa URL!** Você vai usar para testes e integração
 
 ### ✅ Verificação:
 
-Teste o endpoint de saúde:
+Teste o endpoint de saúde. Substitua `projeto-integrador2-latest` pela URL do **seu serviço**:
 ```bash
-curl https://projeto-integrador2-api.onrender.com/health
+curl https://projeto-integrador2-latest.onrender.com/health
 ```
 
 Você deve receber:
 ```json
-{
-  "status": "ok",
-  "database": "connected",
-  "timestamp": "2026-08-22T10:30:45.123Z"
-}
+{"status":"ok","database":"connected","timestamp":"2026-08-22T23:45:35.6289843Z"}
 ```
+
+Se receber isso, **sua API está online e conectada ao banco!** 🎉
 
 ### 🔄 Como funciona após o setup:
 
@@ -163,8 +162,11 @@ Você deve receber:
 ### 📊 Monitoramento:
 
 - **Dashboard do Render**: Veja logs em tempo real, status do serviço, histórico de deployments
+  - Acesse: [dashboard.render.com](https://dashboard.render.com)
+  - Clique no seu serviço para ver logs
 - **Rollback rápido**: Se algo der errado, Render mantém versões anteriores da imagem (você pode voltar)
 - **Notificações**: Configure para receber alertas de falhas no email
+- **URL do seu serviço**: Procure em "Settings" se quiser mudar o nome (e consequentemente a URL)
 
 ### 💰 Economia:
 
@@ -177,7 +179,28 @@ Você deve receber:
 - Para mudar variáveis de ambiente: Painel Render → "Environment" → edite e salve
 - Para forçar redeploy: Painel Render → clique em "Deploy latest" (força pull da imagem latest)
 - Para pausar o serviço (economizar): Painel Render → "Settings" → "Pause"
+### 🚨 Erros Comuns (e como evitá-los):
 
+| Erro | Causa | Solução |
+|------|-------|---------|
+| "Image not found" no Render | Docker Hub username errado | Verifique se é `docker.io/seu-usuario/projeto-integrador2:latest` |
+| Container starts/stops | `SUPABASE_CONNECTION_STRING` inválida | Copie a connection string completa do Supabase |
+| "Connection refused" no endpoint | Porta errada | Certifique que `PORT=10000` no Render e no `Program.cs` |
+| Deploy não atualiza | Render ainda puxando tag errada | Clique "Deploy latest" no dashboard Render para forçar pull |
+| "404 Not Found" ao testar | Testando na URL errada | Use a URL gerada pelo Render (ex: `projeto-integrador2-latest.onrender.com`) |
+| "no-server" no curl | Serviço crashed ou não iniciou | Verifique Logs no Render Dashboard |
+
+### 💡 Dica de Ouro:
+
+Se tiver erro ao conectar, **primeiro teste localmente**:
+```bash
+docker run -e SUPABASE_CONNECTION_STRING="sua-string" \
+           -e PORT=5000 \
+           -p 5000:5000 \
+           seu-usuario/projeto-integrador2:latest
+```
+
+Se funcionar localmente, vai funcionar no Render também. Acesse `http://localhost:5000/health`
 ---
 
 ## �🔗 Links Úteis do Projeto
