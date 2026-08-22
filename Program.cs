@@ -3,7 +3,17 @@ using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Projeto_Integrador2.Domain;
 using Projeto_Integrador2.Persistence;
 
-var builder = WebApplication.CreateBuilder(args);
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    
+    EnvironmentName = Environments.Production
+});
+
+
+builder.Configuration.Sources.Clear();
+
+builder.Configuration.AddEnvironmentVariables();
 
 
 var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
@@ -22,15 +32,12 @@ var app = builder.Build();
 
 app.UseCors();
 
-
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "ok",
     database = "connected",
     timestamp = DateTime.UtcNow
 }));
-
-
 
 app.MapGet("/api/rooms", async (ReservationDbContext db, CancellationToken cancellationToken) =>
 {
@@ -193,8 +200,6 @@ app.MapPost("/api/reservations/{id:guid}/cancel", async (Guid id, DecideReservat
 });
 
 app.Run();
-
-
 
 public sealed record CreateReservationRequest(
     string RequesterId,
