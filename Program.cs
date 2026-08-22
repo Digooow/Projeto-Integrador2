@@ -3,23 +3,16 @@ using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Projeto_Integrador2.Domain;
 using Projeto_Integrador2.Persistence;
 
+// Usa WebApplication.CreateBuilder para ter acesso aos métodos do ASP.NET Core
+var builder = WebApplication.CreateBuilder(args);
 
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-{
-    
-    EnvironmentName = Environments.Production
-});
-
-
+// Remove todas as fontes de configuração padrão (inclusive appsettings.json) – isso elimina o erro de inotify
 builder.Configuration.Sources.Clear();
-
 builder.Configuration.AddEnvironmentVariables();
 
-
-var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
-
-if (string.IsNullOrWhiteSpace(connectionString))
-    throw new InvalidOperationException("Connection string não configurada. Defina SUPABASE_CONNECTION_STRING.");
+// Lê a connection string da variável de ambiente
+var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING")
+    ?? throw new InvalidOperationException("Connection string não configurada. Defina SUPABASE_CONNECTION_STRING.");
 
 builder.Services.AddDbContext<ReservationDbContext>(options =>
     options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
@@ -29,6 +22,10 @@ builder.Services.AddCors(options =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
+
+// Configura a URL para escutar em todas as interfaces e na porta fornecida pelo Render (variável PORT)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.UseCors();
 
