@@ -70,64 +70,113 @@ O projeto utiliza **GitHub Actions** para automação contínua de integração 
 
 ---
 
-## 🚀 Deploy no Render via GitHub
+## 🚀 Deploy no Render via Docker Hub (Otimizado)
 
-O **Render** é uma plataforma de hosting moderna que se integra diretamente com repositórios GitHub, permitindo deploy automático sem necessidade de configurar Docker, kubernets ou infraestrutura complexa.
+A estratégia de deploy é **otimizada para evitar redundância**:
 
-### Como funciona:
+- **GitHub Actions**: Testa, constrói e faz push da imagem Docker **uma única vez**
+- **Render**: Puxa a imagem pronta do Docker Hub e faz deploy (sem rebuild)
 
-**Conexão GitHub → Render:**
-1. Você conecta seu repositório GitHub ao Render
-2. Toda vez que há um push na branch `main`, o Render detecta automaticamente
-3. O Render puxa o código, lê o `Dockerfile`, constrói a imagem e faz deploy
+Isso resulta em **deploy mais rápido** e **uso eficiente de recursos**.
 
-**Passo a passo para configurar:**
+### Fluxo Completo:
 
-1. **Acesse [render.com](https://render.com) e faça login**
-   - Se não tem conta, crie uma (pode usar GitHub)
+```
+push na main
+    ↓
+GitHub Actions: Testa + Constrói Docker + Push Hub (docker-build-push)
+    ↓
+Render: Detecta imagem nova + Puxa do Hub + Deploy
+    ↓
+API online na URL do Render
+```
 
-2. **Clique em "New+" e selecione "Web Service"**
+### Passo a passo para configurar o Render:
 
-3. **Conecte seu repositório GitHub**
-   - Render vai pedir permissão para acessar seu repo
-   - Autorize e selecione `Projeto-Integrador2`
+#### 1️⃣ **Acesse [render.com](https://render.com) e faça login**
+   - Se não tem conta, crie uma (pode usar GitHub para facilitar)
 
-4. **Configure o serviço:**
-   - **Name**: ex. `projeto-integrador2-api`
-   - **Environment**: `Docker`
+#### 2️⃣ **Crie um novo Web Service**
+   - Clique em "New+" → "Web Service"
+
+#### 3️⃣ **Conecte seu repositório GitHub** (opcional)
+   - Você pode conectar o repo, mas **não é obrigatório** para esse setup
+   - Se conectar, facilita gerenciamento de deployments via Render dashboard
+
+#### 4️⃣ **Configure para usar Docker Hub (IMPORTANTE)**
+
+Na tela de criação do Web Service, em vez de usar repositório GitHub com Dockerfile:
+
+- **Selecione**: "Docker image" (não "GitHub repository")
+- **Image URL**: `docker.io/seu-usuario-dockerhub/projeto-integrador2:latest`
+  - Substitua `seu-usuario-dockerhub` pelo seu usuário real no Docker Hub
+  - Exemplo: `docker.io/rodrigofarias/projeto-integrador2:latest`
+
+#### 5️⃣ **Configure o serviço:**
+   - **Name**: `projeto-integrador2-api`
    - **Region**: escolha a mais próxima (ex. `São Paulo`)
-   - **Branch**: `main` (ou `develop` se preferir)
-   - **Dockerfile path**: deixe em branco (Render vai procurar na raiz automaticamente)
+   - **Instance Type**: escolha conforme sua necessidade (free tier serve para testes)
 
-5. **Adicione variáveis de ambiente:**
-   - No painel do Render, vá para "Environment"
-   - Adicione:
+#### 6️⃣ **Adicione variáveis de ambiente (CRÍTICO):**
+   - No painel, vá para **"Environment"**
+   - Adicione as seguintes variáveis:
      ```
-     SUPABASE_CONNECTION_STRING = sua-connection-string-do-supabase
-     PORT = 10000 (ou outra porta que o Render fornecer)
+     SUPABASE_CONNECTION_STRING = postgresql://user:password@...
+     PORT = 10000
      ```
+   - ⚠️ **IMPORTANTE**: O `PORT` deve estar em sintonia com a variável de ambiente do seu `Program.cs`
 
-6. **Deploy inicial:**
-   - Clique em "Create Web Service"
-   - Render vai fazer o primeiro deploy automaticamente
+#### 7️⃣ **Clique em "Create Web Service"**
+   - Render vai fazer pull da imagem do Docker Hub
+   - Inicia o container
    - Você recebe uma URL pública (ex: `https://projeto-integrador2-api.onrender.com`)
 
-**Após o setup inicial:**
-- Toda vez que você fizer `push` na branch `main`, o Render automaticamente:
-  1. Faz pull do novo código
-  2. Constrói a imagem Docker
-  3. Reinicia o serviço com a nova versão
-  4. Seu app fica online na URL do Render
+### ✅ Verificação:
 
-**Monitoramento:**
-- No dashboard do Render, você vê logs em tempo real
-- Se houver erro no build ou no deploy, recebe notificação
-- Pode ver o histórico de deployments e fazer rollback se necessário
+Teste o endpoint de saúde:
+```bash
+curl https://projeto-integrador2-api.onrender.com/health
+```
 
-**Economia:**
-- Render oferece um tier gratuito (com limitações)
-- Para produção, você paga apenas pelos recursos que usa
-- Pode pausar o serviço manualmente para economizar
+Você deve receber:
+```json
+{
+  "status": "ok",
+  "database": "connected",
+  "timestamp": "2026-08-22T10:30:45.123Z"
+}
+```
+
+### 🔄 Como funciona após o setup:
+
+1. Você faz `git push` na branch `main`
+2. GitHub Actions:
+   - ✅ Testa (`dotnet test`)
+   - ✅ Constrói a imagem Docker
+   - ✅ Faz push para Docker Hub com tags `latest` e hash do commit
+3. Render:
+   - Detecta que nova imagem foi disponibilizada no Docker Hub
+   - Faz pull da imagem `latest`
+   - Reinicia o container com a nova versão
+   - Seu app está online em questão de segundos (sem rebuild!)
+
+### 📊 Monitoramento:
+
+- **Dashboard do Render**: Veja logs em tempo real, status do serviço, histórico de deployments
+- **Rollback rápido**: Se algo der errado, Render mantém versões anteriores da imagem (você pode voltar)
+- **Notificações**: Configure para receber alertas de falhas no email
+
+### 💰 Economia:
+
+- GitHub Actions: Oferece 2,000 minutos/mês gratuitamente (enough para este projeto)
+- Render: Tier gratuito com limitações ou pague conforme uso
+- **Vantagem**: Sem desperdício de rebuild - economia de tempo e créditos
+
+### ⚙️ Se precisar de ajustes depois:
+
+- Para mudar variáveis de ambiente: Painel Render → "Environment" → edite e salve
+- Para forçar redeploy: Painel Render → clique em "Deploy latest" (força pull da imagem latest)
+- Para pausar o serviço (economizar): Painel Render → "Settings" → "Pause"
 
 ---
 
