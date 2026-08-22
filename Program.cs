@@ -5,14 +5,11 @@ using Projeto_Integrador2.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Desabilita o recarregamento de arquivos para evitar o erro de inotify no Render
-builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
-var connectionString = builder.Configuration.GetConnectionString("Supabase")
-    ?? Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
+var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
 
 if (string.IsNullOrWhiteSpace(connectionString))
-    throw new InvalidOperationException("Connection string não configurada.");
+    throw new InvalidOperationException("Connection string não configurada. Defina SUPABASE_CONNECTION_STRING.");
 
 builder.Services.AddDbContext<ReservationDbContext>(options =>
     options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
@@ -25,7 +22,7 @@ var app = builder.Build();
 
 app.UseCors();
 
-// Endpoint de saúde
+
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "ok",
@@ -33,7 +30,7 @@ app.MapGet("/health", () => Results.Ok(new
     timestamp = DateTime.UtcNow
 }));
 
-// ---- Endpoints (iguais aos originais, sem fallback) ----
+
 
 app.MapGet("/api/rooms", async (ReservationDbContext db, CancellationToken cancellationToken) =>
 {
@@ -197,7 +194,7 @@ app.MapPost("/api/reservations/{id:guid}/cancel", async (Guid id, DecideReservat
 
 app.Run();
 
-// ---- Records (mantidos) ----
+
 
 public sealed record CreateReservationRequest(
     string RequesterId,
