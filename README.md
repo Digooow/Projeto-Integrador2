@@ -1,5 +1,15 @@
 # Projeto-Integrador2
 
+## Backend com Supabase
+
+O backend usa ASP.NET Core Minimal API, Entity Framework Core e Npgsql. O Supabase fornece o PostgreSQL; o ORM acessa o banco pela connection string, sem colocar credenciais no código.
+
+1. Crie um projeto no Supabase e copie a connection string em `.env.example` para a variável `SUPABASE_CONNECTION_STRING`.
+2. Execute `supabase/migrations/001_initial.sql` no SQL Editor do Supabase.
+3. Inicie a API com `dotnet run`.
+
+Endpoints principais: `GET /api/rooms`, `GET /api/reservations`, `POST /api/reservations`, `POST /api/reservations/{id}/approve` e `POST /api/reservations/{id}/cancel`. O endpoint público `GET /api/reservations?status=Approved` pode alimentar o painel da TV.
+
 ## Testes do backend
 
 O primeiro incremento do domínio está especificado em testes unitários xUnit, sem dependência de rede ou do Supabase. Eles servem como contrato para a implementação do backend em C# e cobrem solicitações pendentes, recorrência semanal, aprovação autorizada, conflitos de horário, capacidade da sala, cancelamento pelo proprietário e histórico.
