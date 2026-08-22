@@ -24,7 +24,114 @@ A persistência no Supabase deve ser adicionada atrás de uma camada de reposit�
 
 ---
 
-## 🔗 Links Úteis do Projeto
+## � GitHub Actions - CI/CD Automatizado
+
+O projeto utiliza **GitHub Actions** para automação contínua de integração e entrega. O fluxo de trabalho é definido em `.github/workflows/dotnet.yml` e realiza as seguintes etapas automaticamente:
+
+### Como funciona:
+
+**Acionadores (Triggers):**
+- Toda vez que há um `push` nas branches `main` ou `develop`
+- Toda vez que há um `pull request` para a branch `main`
+
+**Job 1: Build e Testes (`build-and-test`)**
+- Executa em uma máquina Ubuntu fornecida pelo GitHub
+- Etapas:
+  1. Faz checkout do código
+  2. Configura o .NET 8.0.x
+  3. Restaura as dependências NuGet (`dotnet restore`)
+  4. Compila o projeto em modo Release (`dotnet build`)
+  5. Executa todos os testes unitários (`dotnet test`)
+- ✅ Se todas as etapas passarem, o job é bem-sucedido
+- ❌ Se alguma etapa falhar, o fluxo é interrompido e ninguém recebe notificação de deploy
+
+**Job 2: Build e Push da Imagem Docker (`docker-build-push`)**
+- Depende do sucesso do `build-and-test`
+- Executa **apenas** quando há push na branch `main` (proteção contra deployments acidentais)
+- Etapas:
+  1. Faz checkout do código
+  2. Autentica no Docker Hub usando secrets do GitHub
+  3. Constrói a imagem Docker usando o `Dockerfile`
+  4. Faz push da imagem com duas tags:
+     - `latest` (versão mais recente)
+     - Hash do commit (`${{ github.sha }}`) (rastreabilidade)
+
+### O que você precisa fazer para ativar:
+
+1. **Criar secrets no GitHub:**
+   - `DOCKER_USERNAME`: seu usuário do Docker Hub
+   - `DOCKER_PASSWORD`: token de acesso do Docker Hub (nunca coloque a senha real)
+
+2. **Estrutura de segredos (Settings → Secrets and variables → Actions):**
+   ```
+   DOCKER_USERNAME = seu-usuario-dockerhub
+   DOCKER_PASSWORD = seu-token-dockerhub
+   ```
+
+---
+
+## 🚀 Deploy no Render via GitHub
+
+O **Render** é uma plataforma de hosting moderna que se integra diretamente com repositórios GitHub, permitindo deploy automático sem necessidade de configurar Docker, kubernets ou infraestrutura complexa.
+
+### Como funciona:
+
+**Conexão GitHub → Render:**
+1. Você conecta seu repositório GitHub ao Render
+2. Toda vez que há um push na branch `main`, o Render detecta automaticamente
+3. O Render puxa o código, lê o `Dockerfile`, constrói a imagem e faz deploy
+
+**Passo a passo para configurar:**
+
+1. **Acesse [render.com](https://render.com) e faça login**
+   - Se não tem conta, crie uma (pode usar GitHub)
+
+2. **Clique em "New+" e selecione "Web Service"**
+
+3. **Conecte seu repositório GitHub**
+   - Render vai pedir permissão para acessar seu repo
+   - Autorize e selecione `Projeto-Integrador2`
+
+4. **Configure o serviço:**
+   - **Name**: ex. `projeto-integrador2-api`
+   - **Environment**: `Docker`
+   - **Region**: escolha a mais próxima (ex. `São Paulo`)
+   - **Branch**: `main` (ou `develop` se preferir)
+   - **Dockerfile path**: deixe em branco (Render vai procurar na raiz automaticamente)
+
+5. **Adicione variáveis de ambiente:**
+   - No painel do Render, vá para "Environment"
+   - Adicione:
+     ```
+     SUPABASE_CONNECTION_STRING = sua-connection-string-do-supabase
+     PORT = 10000 (ou outra porta que o Render fornecer)
+     ```
+
+6. **Deploy inicial:**
+   - Clique em "Create Web Service"
+   - Render vai fazer o primeiro deploy automaticamente
+   - Você recebe uma URL pública (ex: `https://projeto-integrador2-api.onrender.com`)
+
+**Após o setup inicial:**
+- Toda vez que você fizer `push` na branch `main`, o Render automaticamente:
+  1. Faz pull do novo código
+  2. Constrói a imagem Docker
+  3. Reinicia o serviço com a nova versão
+  4. Seu app fica online na URL do Render
+
+**Monitoramento:**
+- No dashboard do Render, você vê logs em tempo real
+- Se houver erro no build ou no deploy, recebe notificação
+- Pode ver o histórico de deployments e fazer rollback se necessário
+
+**Economia:**
+- Render oferece um tier gratuito (com limitações)
+- Para produção, você paga apenas pelos recursos que usa
+- Pode pausar o serviço manualmente para economizar
+
+---
+
+## �🔗 Links Úteis do Projeto
 
 <p><strong>📋 Whiteboard</strong><br>
 <a href="https://whiteboard.cloud.microsoft.com/me/whiteboards/p/c3BvOmh0dHBzOi8vc2VuYWNzYzc1NC1teS5zaGFyZXBvaW50LmNvbS9wZXJzb25hbC9tYXVyaWNpbzYxMTg0Njg2X2FsdW5vc19zY19zZW5hY19icg%3D%3D/b!COjkxJBZCkW-sK41v2rjLH2P3dB-AepJvkIe8dv8y2u42NcfHc1DRL1W0f5SeIKZ/012GH7RIN3AK4RIIEXNJBIXXMSM2VXNABF?lng=pt-br&ref=oib-09dc32fc-45b8-4913-a439-1a70f7a9ddfe" target="_blank">Clique aqui para acessar o Whiteboard</a></p>
