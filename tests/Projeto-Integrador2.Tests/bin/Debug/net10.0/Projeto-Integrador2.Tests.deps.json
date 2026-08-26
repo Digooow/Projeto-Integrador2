@@ -16,15 +16,15 @@
           "Projeto-Integrador2.Tests.dll": {}
         }
       },
-      "EFCore.NamingConventions/10.0.0": {
+      "EFCore.NamingConventions/8.0.0": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "10.0.1",
-          "Microsoft.EntityFrameworkCore.Relational": "10.0.1"
+          "Microsoft.EntityFrameworkCore": "8.0.10",
+          "Microsoft.EntityFrameworkCore.Relational": "8.0.4"
         },
         "runtime": {
-          "lib/net10.0/EFCore.NamingConventions.dll": {
-            "assemblyVersion": "10.0.0.0",
-            "fileVersion": "10.0.0.0"
+          "lib/net8.0/EFCore.NamingConventions.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.0.0"
           }
         }
       },
@@ -36,33 +36,33 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore/10.0.1": {
+      "Microsoft.EntityFrameworkCore/8.0.10": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Abstractions": "10.0.1"
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.10"
         },
         "runtime": {
-          "lib/net10.0/Microsoft.EntityFrameworkCore.dll": {
-            "assemblyVersion": "10.0.1.0",
-            "fileVersion": "10.0.125.57005"
+          "lib/net8.0/Microsoft.EntityFrameworkCore.dll": {
+            "assemblyVersion": "8.0.10.0",
+            "fileVersion": "8.0.1024.46708"
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Abstractions/10.0.1": {
+      "Microsoft.EntityFrameworkCore.Abstractions/8.0.10": {
         "runtime": {
-          "lib/net10.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
-            "assemblyVersion": "10.0.1.0",
-            "fileVersion": "10.0.125.57005"
+          "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
+            "assemblyVersion": "8.0.10.0",
+            "fileVersion": "8.0.1024.46708"
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Relational/10.0.1": {
+      "Microsoft.EntityFrameworkCore.Relational/8.0.4": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "10.0.1"
+          "Microsoft.EntityFrameworkCore": "8.0.10"
         },
         "runtime": {
-          "lib/net10.0/Microsoft.EntityFrameworkCore.Relational.dll": {
-            "assemblyVersion": "10.0.1.0",
-            "fileVersion": "10.0.125.57005"
+          "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll": {
+            "assemblyVersion": "8.0.4.0",
+            "fileVersion": "8.0.424.16902"
           }
         }
       },
@@ -323,24 +323,25 @@
           }
         }
       },
-      "Npgsql/10.0.0": {
+      "Npgsql/8.0.3": {
         "runtime": {
-          "lib/net10.0/Npgsql.dll": {
-            "assemblyVersion": "10.0.0.0",
-            "fileVersion": "10.0.0.0"
+          "lib/net8.0/Npgsql.dll": {
+            "assemblyVersion": "8.0.3.0",
+            "fileVersion": "8.0.3.0"
           }
         }
       },
-      "Npgsql.EntityFrameworkCore.PostgreSQL/10.0.0": {
+      "Npgsql.EntityFrameworkCore.PostgreSQL/8.0.4": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "10.0.1",
-          "Microsoft.EntityFrameworkCore.Relational": "10.0.1",
-          "Npgsql": "10.0.0"
+          "Microsoft.EntityFrameworkCore": "8.0.10",
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.10",
+          "Microsoft.EntityFrameworkCore.Relational": "8.0.4",
+          "Npgsql": "8.0.3"
         },
         "runtime": {
-          "lib/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll": {
-            "assemblyVersion": "10.0.0.0",
-            "fileVersion": "10.0.0.0"
+          "lib/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll": {
+            "assemblyVersion": "8.0.4.0",
+            "fileVersion": "8.0.4.0"
           }
         }
       },
@@ -396,9 +397,9 @@
       },
       "Projeto-Integrador2/1.0.0": {
         "dependencies": {
-          "EFCore.NamingConventions": "10.0.0",
-          "Microsoft.EntityFrameworkCore": "10.0.1",
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0"
+          "EFCore.NamingConventions": "8.0.0",
+          "Microsoft.EntityFrameworkCore": "8.0.10",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.4"
         },
         "runtime": {
           "Projeto-Integrador2.dll": {
@@ -415,12 +416,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "EFCore.NamingConventions/10.0.0": {
+    "EFCore.NamingConventions/8.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-gEJLy60tsQaPT69vkNFtyYKd2WcBcPB71vE2IKqAuJfP4UrC3gh4DAMR9+TpUpxGCQyRQ3IOO4SzIb+KfjTw6Q==",
-      "path": "efcore.namingconventions/10.0.0",
-      "hashPath": "efcore.namingconventions.10.0.0.nupkg.sha512"
+      "sha512": "sha512-XxnNDNRO3Y3VaEEj/McLnITiZyQbcVMtp2De7k14C7pveKRWk6QHrMfiurb5VCMaDvB/uF65b+geInJH1SZFsQ==",
+      "path": "efcore.namingconventions/8.0.0",
+      "hashPath": "efcore.namingconventions.8.0.0.nupkg.sha512"
     },
     "Microsoft.CodeCoverage/17.14.1": {
       "type": "package",
@@ -429,26 +430,26 @@
       "path": "microsoft.codecoverage/17.14.1",
       "hashPath": "microsoft.codecoverage.17.14.1.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore/10.0.1": {
+    "Microsoft.EntityFrameworkCore/8.0.10": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-QsXvZ8G7Dl7x09rlq0b2dye7QqfReMq8yGdl7Mffi3Ip+aTa+JUMixBZ4lhCs9Ygjz2e9tiUACstxI+ADkwaFg==",
-      "path": "microsoft.entityframeworkcore/10.0.1",
-      "hashPath": "microsoft.entityframeworkcore.10.0.1.nupkg.sha512"
+      "sha512": "sha512-PPkQdIqfR1nU3n6YgGGDk8G+eaYbaAKM1AzIQtlPNTKf10Osg3N9T+iK9AlnSA/ujsK00flPpFHVfJrbuBFS1A==",
+      "path": "microsoft.entityframeworkcore/8.0.10",
+      "hashPath": "microsoft.entityframeworkcore.8.0.10.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Abstractions/10.0.1": {
+    "Microsoft.EntityFrameworkCore.Abstractions/8.0.10": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-sp6Uq8Oc3RVGtmxLS3ZgzVeFHrpLNymsMudoeqRmB9pRTWgvq2S903sF5OnaaZmh4Bz6kpq7FwofE+DOhKJYvg==",
-      "path": "microsoft.entityframeworkcore.abstractions/10.0.1",
-      "hashPath": "microsoft.entityframeworkcore.abstractions.10.0.1.nupkg.sha512"
+      "sha512": "sha512-FV0QlcX9INY4kAD2o72uPtyOh0nZut2jB11Jf9mNYBtHay8gDLe+x4AbXFwuQg+eSvofjT7naV82e827zGfyMg==",
+      "path": "microsoft.entityframeworkcore.abstractions/8.0.10",
+      "hashPath": "microsoft.entityframeworkcore.abstractions.8.0.10.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Relational/10.0.1": {
+    "Microsoft.EntityFrameworkCore.Relational/8.0.4": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-8/5kYGwKN6wtc89QqcPTOZDAJSMX8MzKCf5OmYjIfAHWTfsUEpGKYrdtfNk4X36rQ0BiU3n57Y4rbtnerzJN0Q==",
-      "path": "microsoft.entityframeworkcore.relational/10.0.1",
-      "hashPath": "microsoft.entityframeworkcore.relational.10.0.1.nupkg.sha512"
+      "sha512": "sha512-aWLT6e9a8oMzXgF0YQpYYa3mDeU+yb2UQSQ+RrIgyGgSpzPfSKgpA7v2kOVDuZr2AQ6NNAlWPaBG7wZuKQI96w==",
+      "path": "microsoft.entityframeworkcore.relational/8.0.4",
+      "hashPath": "microsoft.entityframeworkcore.relational.8.0.4.nupkg.sha512"
     },
     "Microsoft.NET.Test.Sdk/17.14.1": {
       "type": "package",
@@ -478,19 +479,19 @@
       "path": "newtonsoft.json/13.0.3",
       "hashPath": "newtonsoft.json.13.0.3.nupkg.sha512"
     },
-    "Npgsql/10.0.0": {
+    "Npgsql/8.0.3": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-xZAYhPOU2rUIFpV48xsqhCx9vXs6Y+0jX2LCoSEfDFYMw9jtAOUk3iQsCnDLrFIv9NT3JGMihn7nnuZsPKqJmA==",
-      "path": "npgsql/10.0.0",
-      "hashPath": "npgsql.10.0.0.nupkg.sha512"
+      "sha512": "sha512-6WEmzsQJCZAlUG1pThKg/RmeF6V+I0DmBBBE/8YzpRtEzhyZzKcK7ulMANDm5CkxrALBEC8H+5plxHWtIL7xnA==",
+      "path": "npgsql/8.0.3",
+      "hashPath": "npgsql.8.0.3.nupkg.sha512"
     },
-    "Npgsql.EntityFrameworkCore.PostgreSQL/10.0.0": {
+    "Npgsql.EntityFrameworkCore.PostgreSQL/8.0.4": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-E2+uSWxSB8LdsUVwPaqRWOcGOP92biry2JEwc0KJMdLJF+aZdczeIdEXVwEyv4nSVMQJH0o8tLhyAMiR6VF0lw==",
-      "path": "npgsql.entityframeworkcore.postgresql/10.0.0",
-      "hashPath": "npgsql.entityframeworkcore.postgresql.10.0.0.nupkg.sha512"
+      "sha512": "sha512-/hHd9MqTRVDgIpsToCcxMDxZqla0HAQACiITkq1+L9J2hmHKV6lBAPlauF+dlNSfHpus7rrljWx4nAanKD6qAw==",
+      "path": "npgsql.entityframeworkcore.postgresql/8.0.4",
+      "hashPath": "npgsql.entityframeworkcore.postgresql.8.0.4.nupkg.sha512"
     },
     "xunit/2.9.3": {
       "type": "package",

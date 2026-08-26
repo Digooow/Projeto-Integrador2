@@ -1313,3 +1313,22 @@ Após implementar todas as fases:
 **Complexidade:** Médio (não afeta DB, foco em organização de código)
 **Risco:** Baixo (mudanças refatoração, lógica se mantém igual)
 
+## Registro de implementação — 26/08/2026
+
+### Status verificável
+
+- ✅ Dependências e target dos testes alinhados ao .NET 8.
+- ✅ Build da API aprovado.
+- ✅ 7 testes unitários do domínio aprovados.
+- ✅ Paginação implementada na API e adaptada no frontend.
+- ✅ Políticas RLS complementares adicionadas de forma idempotente na migration 002.
+- ⏳ Interfaces de repositório, FluentValidation, Serilog, middleware global e refatoração completa do `Program.cs` ainda não foram aplicados; permanecem no backlog deste guia.
+
+### Próximo cronograma
+
+| Período | Trabalho | Status |
+|---|---|---|
+| 27–29/08 | JWT e credenciais reais | ⏳ Planejado |
+| 30/08–02/09 | Interfaces, validação e middleware | ⏳ Planejado |
+| 03–06/09 | Serilog, testes E2E e refatoração de endpoints | ⏳ Planejado |
+

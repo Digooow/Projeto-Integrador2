@@ -848,3 +848,25 @@ Métricas:
 **Próxima revisão:** Segunda-feira, 25/08/2026
 
 **Atualizado:** 22/08/2026 às 23:45
+
+## Atualização de execução — 26/08/2026
+
+### Entregas concluídas
+
+- [x] Integração frontend/backend, incluindo CRUD de usuários, salas e recursos.
+- [x] Aprovação, rejeição, cancelamento e recorrência por ocorrência.
+- [x] Paginação de reservas com limite máximo de 100 itens.
+- [x] Migration RLS complementar idempotente para operações autenticadas.
+- [x] Correção do projeto de testes para `net8.0`.
+- [x] Validação local: build da API aprovado e 7 testes aprovados.
+
+### Cronograma atualizado
+
+| Data | Frente | Status |
+|---|---|---|
+| 26/08 | Estabilização, paginação, RLS e testes | ✅ Completo |
+| 27–29/08 | JWT com credenciais reais e claims | ⏳ Em planejamento |
+| 30/08–02/09 | E2E, CORS, fuso horário e segurança de produção | ⏳ Planejado |
+| 03–06/09 | Logging, rate limiting e observabilidade | ⏳ Planejado |
+
+O login por seleção de usuário continua sendo uma demonstração; a Fase 1 de segurança só poderá ser marcada como completa após a implementação e os testes de JWT.

@@ -827,3 +827,16 @@ Projeto-Integrador2/
 **Documento versão:** 1.0  
 **Última atualização:** 22/08/2026  
 **Próxima revisão:** 29/08/2026
+
+## Atualização de status — 26/08/2026
+
+Itens entregues pelo colaborador e verificados localmente:
+
+- ✅ Integração do frontend com a API, incluindo usuários, salas, recursos e decisões de reservas.
+- ✅ Paginação determinística em `/api/reservations`, com `page`, `pageSize`, `total` e `totalPages`.
+- ✅ Frontend compatível com a resposta paginada.
+- ✅ Migration complementar com políticas RLS reexecutáveis para operações autenticadas.
+- ✅ Build da API e 7 testes unitários passando.
+- ✅ Correção de target dos testes para `net8.0` e alinhamento das dependências do PostgreSQL.
+
+Itens ainda não concluídos: JWT com credenciais reais, CORS restrito, testes E2E, logging estruturado, rate limiting, tratamento explícito de fuso horário e validação de infraestrutura Supabase/Render. A porcentagem geral e o bloqueador de produção devem permanecer conservadores até a autenticação real ser entregue.

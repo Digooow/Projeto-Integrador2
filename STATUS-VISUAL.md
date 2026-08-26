@@ -312,3 +312,25 @@ Histórias: /HISTORIA-DO-USUARIO.md
 
 **Gerado em:** 22/08/2026 23:45  
 **Próxima atualização:** 25/08/2026 (fim da Semana 1)
+
+## Atualização verificada — 26/08/2026
+
+### Status das entregas do colaborador
+
+| Item | Status atual |
+|---|---|
+| Integração frontend/backend | ✅ Completa |
+| Paginação de reservas | ✅ Completa |
+| RLS complementar na migration 002 | ✅ Implementada; validar no projeto Supabase |
+| Build da API | ✅ Aprovado |
+| Testes unitários | ✅ 7/7 aprovados |
+| Autenticação JWT real | ⏳ Pendente e ainda bloqueia produção |
+
+### Cronograma
+
+- **26/08:** estabilização do backend, paginação, RLS e testes — ✅ completo.
+- **27–29/08:** JWT com credenciais e proteção por claims — ⏳ planejado.
+- **30/08–02/09:** E2E, CORS restrito e revisão de datas/fuso — ⏳ planejado.
+- **03–06/09:** logging, rate limiting e observabilidade — ⏳ planejado.
+
+O painel visual anterior é preservado; esta seção registra a atualização mais recente e evita declarar produção pronta antes da autenticação real.

@@ -925,3 +925,27 @@ E vocês podem transformar o backlog em User Stories, por exemplo:
    
 <br>
 Para começar a desenvolver, eu priorizaria nesta ordem: Login → Cadastro de usuários → Cadastro de salas → Cadastro de turmas → Agenda → Disponibilidade → Reserva → Bloqueio de conflito → Cancelamento → Notificações → Histórico e relatórios. Isso já pode virar o Product Backlog oficial do trabalho.
+
+## Atualização de execução — 26/08/2026
+
+Status do colaborador: **integração frontend/backend concluída**, com endpoints de usuários, salas, recursos e decisões de reservas; a tela também possui fallback offline para demonstração.
+
+Entregas validadas nesta atualização:
+
+- Correção da compilação: a cópia duplicada de `ReservationDbContext.cs` permanece preservada, mas deixou de ser compilada.
+- Paginação de `GET /api/reservations?page=1&pageSize=20`, limitada a 100 itens, com metadados `data` e `pagination`.
+- Frontend adaptado ao novo envelope paginado.
+- Migration `002_frontend_integration.sql` ampliada com políticas RLS idempotentes e permissões para usuários autenticados.
+- Projeto de testes alinhado ao .NET 8; **7 testes passando**.
+
+Pendências que continuam abertas: autenticação real com credenciais e JWT, CORS restrito em produção, testes E2E e tratamento explícito de fuso horário. O login atual por seleção de usuário é apenas demonstração e não deve ser considerado autenticação de produção.
+
+### Cronograma de evolução
+
+| Período | Entrega | Status |
+|---|---|---|
+| 22/08 | Integração inicial frontend/backend e migration 002 | ✅ Concluído |
+| 26/08 | Correção de build, paginação, RLS complementar e testes .NET 8 | ✅ Concluído |
+| 27–29/08 | JWT com credenciais, claims e proteção dos endpoints de escrita | ⏳ Planejado |
+| 30/08–02/09 | Testes E2E, CORS de produção e revisão de fuso horário | ⏳ Planejado |
+| 03–06/09 | Observabilidade, rate limiting e validação de deploy | ⏳ Planejado |

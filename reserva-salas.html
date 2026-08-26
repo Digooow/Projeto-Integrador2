@@ -356,8 +356,7 @@ async function fetchCatalog(){
   };
 }
 async function fetchBookings(){
-  const response = await api('/api/reservations?page=1&pageSize=100');
-  const rows = Array.isArray(response) ? response : (response.data || []);
+  const rows = await api('/api/reservations');
   return rows.map(r=>{
     const start = new Date(r.occurrence.start), end = new Date(r.occurrence.end);
     return {

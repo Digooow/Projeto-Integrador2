@@ -9,6 +9,14 @@ public sealed class UserEntity
     public required string Email { get; set; }
     public UserRole Role { get; set; }
     public bool Active { get; set; } = true;
+
+    /// <summary>
+    /// Floors this user is allowed to approve reservations for. Only meaningful
+    /// for <see cref="UserRole.Coordinator"/>; empty for the other roles
+    /// (Administrator sees every floor, Teacher/Collaborator only request rooms).
+    /// </summary>
+    public List<string> Floors { get; set; } = [];
+
     public ICollection<ReservationEntity> Reservations { get; } = [];
 }
 
@@ -47,6 +55,9 @@ public sealed class ReservationEntity
     public required string RoomId { get; set; }
     public RoomEntity Room { get; set; } = null!;
     public required string Title { get; set; }
+
+    /// <summary>Free-text name of the person responsible for the activity (may differ from the requester).</summary>
+    public required string Responsavel { get; set; }
     public int Attendees { get; set; }
     public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
     public Guid? SeriesId { get; set; }
