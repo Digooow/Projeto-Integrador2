@@ -1,7 +1,31 @@
 # 🚀 ROADMAP DE AÇÕES - Sistema de Reserva de Salas
 
+## Status vigente — 26/08/2026
+
+O roadmap abaixo preserva o planejamento original da sprint de 22/08. Use esta atualização para não reabrir tarefas já entregues.
+
+### Itens concluídos nesta evolução
+
+- [x] Integração frontend/backend.
+- [x] Serving do frontend em `/` e `/reserva-salas.html` no publish da API.
+- [x] Paginação de reservas, com `pageSize` limitado a 100.
+- [x] Migration 002 com políticas RLS complementares idempotentes.
+- [x] Dependências da stack recomendada instaladas.
+- [x] Target dos testes alinhado ao .NET 8.
+- [x] Build da API e 7 testes unitários aprovados.
+
+### Próximas tarefas reais
+
+- [ ] Configurar JWT, credenciais, claims e autorização nos endpoints.
+- [ ] Configurar FluentValidation, Serilog/Application Insights e Swagger no código.
+- [ ] Aplicar a migration 002 no Supabase e validar permissões.
+- [ ] Publicar a imagem atualizada e fazer redeploy no Render.
+- [ ] Criar testes E2E e revisar CORS, fuso horário e rate limiting.
+
 **Data:** 22/08/2026  
 **Objetivo:** Guia prático para equipe saber exatamente o que fazer
+
+> **Nota de rastreabilidade — 26/08/2026:** O planejamento abaixo mantém as tarefas e checklists da sprint de 22/08. Os itens de integração, paginação, serving do frontend, dependências e testes já concluídos estão marcados no status vigente acima e não devem ser recontados como trabalho futuro.
 
 ---
 
@@ -27,6 +51,8 @@ Componentes:
 ## 🔥 FASE 1: CRÍTICA (SEMANA 1) - BLOQUEIA PRODUÇÃO
 
 ### Tarefa 1.1: Implementar Autenticação JWT
+
+> **Atualização — 26/08/2026:** As bibliotecas JWT listadas no passo de instalação já foram adicionadas ao projeto. A configuração do middleware, login por credenciais e proteção por claims continua pendente.
 
 **Status:** ❌ Não iniciado  
 **Prioridade:** 🔴 P0 CRÍTICA  
@@ -361,6 +387,8 @@ GRANT UPDATE ON reservations TO authenticated;
 ## 🟡 FASE 2: IMPORTANTE (SEMANA 2-3)
 
 ### Tarefa 2.1: Integrar Frontend com API
+
+> **Atualização — 26/08/2026:** Esta tarefa foi concluída em 26/08, incluindo cliente HTTP, CRUD, reservas, decisões, fallback e serving do HTML. O checklist abaixo é o plano original e permanece como histórico; não representa tarefas ainda não executadas.
 
 **Status:** 🟡 Iniciado  
 **Prioridade:** P1  

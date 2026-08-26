@@ -1,5 +1,16 @@
 # 💻 GUIA DE IMPLEMENTAÇÃO - REFATORAÇÃO DE BOAS PRÁTICAS
 
+## Status vigente — 26/08/2026
+
+O guia abaixo continua sendo o plano detalhado e foi mantido para preservar a rastreabilidade. O que mudou nesta data:
+
+- ✅ Dependências recomendadas instaladas e restauradas.
+- ✅ Build da API aprovado e 7 testes unitários aprovados.
+- ✅ Paginação e publicação do frontend implementadas.
+- ⏳ As fases de interfaces/repositories, validação em runtime, logging, middleware global e separação completa dos endpoints ainda precisam ser executadas.
+
+Instalar uma biblioteca não marca sua fase como concluída; a conclusão ocorrerá quando houver configuração no código e teste correspondente.
+
 **Projeto:** Projeto-Integrador2 - Sistema de Reserva de Salas  
 **Objetivo:** Passo a passo para implementar melhorias identificadas  
 **Timeline:** 1-2 sprints (6-8 semanas)
@@ -19,6 +30,8 @@
 ---
 
 ## 🚀 Pré-requisitos
+
+> **Atualização — 26/08/2026:** Os pacotes descritos nos comandos abaixo foram instalados no projeto nesta data. Esta seção permanece como histórico dos pré-requisitos e não significa que as funcionalidades já estejam configuradas no código.
 
 ```bash
 # Certifique-se que está na pasta do projeto

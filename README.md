@@ -1,5 +1,29 @@
 # Projeto-Integrador2 - Sistema de Reserva de Salas
 
+## Status vigente — 26/08/2026
+
+Esta é a situação atual do projeto. As seções e checklists abaixo, datadas de 22/08/2026, são mantidas como histórico da sprint anterior; quando houver diferença, este quadro é a referência mais recente.
+
+### Entregas comprovadas
+
+- ✅ Backend ASP.NET Core 8, EF Core/Npgsql e domínio de reservas compilando.
+- ✅ Integração do frontend com a API, com CRUD de usuários, salas e recursos, reservas recorrentes, aprovação, rejeição e cancelamento.
+- ✅ Frontend publicado pelo backend nas rotas `/` e `/reserva-salas.html`.
+- ✅ Paginação em `GET /api/reservations?page=1&pageSize=20`, limitada a 100 registros.
+- ✅ Migration 002 com campos de integração e políticas RLS complementares idempotentes.
+- ✅ Stack recomendada instalada: FluentValidation, Serilog, sinks, JWT, JwtBearer e Swashbuckle.
+- ✅ Build aprovado e 7 testes unitários aprovados.
+
+### Pendências reais
+
+- ⏳ Configurar JWT no pipeline, login com credenciais e proteção dos endpoints.
+- ⏳ Configurar efetivamente FluentValidation, Serilog/Application Insights e Swagger.
+- ⏳ Aplicar e validar a migration 002 no Supabase.
+- ⏳ Publicar a imagem atualizada e fazer redeploy no Render; a imagem pública ainda está desatualizada.
+- ⏳ Criar testes E2E, restringir CORS, revisar fuso horário e adicionar rate limiting.
+
+O cronograma de evolução deve usar este status como ponto de partida. Nenhum item pendente desta seção deve ser tratado como concluído apenas porque o pacote ou o exemplo foi adicionado.
+
 > **Status:** 42% Completo | **Ambiente:** Backend pronto, Frontend em desenvolvimento | **Data:** 22/08/2026
 
 ---
@@ -11,6 +35,8 @@
 Este é um **Sistema Completo de Reserva de Salas** para instituições de ensino. Permite que professores e colaboradores solicitem salas de aula com suporte a recorrência semanal, coordenadores aprovem solicitações com detecção automática de conflitos, e alunos visualizem em tempo real qual sala está sendo usada através de painel público em TV.
 
 ### Tecnologia & Arquitetura
+
+> **Nota de rastreabilidade — 26/08/2026:** A tabela abaixo é o retrato original de 22/08. Desde então, o frontend foi integrado e passou a ser servido pela API; a autenticação real continua pendente.
 
 | Aspecto | Tecnologia | Status |
 |---------|-----------|--------|
@@ -208,6 +234,8 @@ Este projeto possui documentação técnica abrangente. **Comece aqui** para ent
 ---
 
 ## 📋 ESTRUTURA DE ARQUIVOS DO PROJETO
+
+> **Nota de rastreabilidade — 26/08/2026:** As descrições de “frontend sem JS” e “20% integrado” que aparecem nos blocos históricos abaixo correspondem ao estado anterior à integração. A entrega atual está registrada no status vigente no início deste README.
 
 ```
 Projeto-Integrador2/

@@ -29,6 +29,10 @@ app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.UseCors();
 
+var frontendPath = Path.Combine(app.Environment.ContentRootPath, "frontend", "reserva-salas.html");
+app.MapGet("/", () => Results.File(frontendPath, "text/html; charset=utf-8"));
+app.MapGet("/reserva-salas.html", () => Results.File(frontendPath, "text/html; charset=utf-8"));
+
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "ok",

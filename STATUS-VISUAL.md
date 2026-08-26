@@ -1,5 +1,20 @@
 # 📊 STATUS VISUAL DO PROJETO
 
+## Status vigente — 26/08/2026
+
+| Componente | Situação atual | Evidência |
+|---|---|---|
+| Backend e domínio | ✅ Funcional | Build aprovado |
+| Frontend | ✅ Integrado e servido pela API | Rotas `/` e `/reserva-salas.html` |
+| Paginação | ✅ Concluída | API e cliente frontend adaptados |
+| RLS complementar | ✅ Implementado no arquivo SQL | Ainda requer aplicação no Supabase |
+| Dependências recomendadas | ✅ Instaladas | Restore aprovado |
+| Testes | ✅ 7/7 aprovados | xUnit em .NET 8 |
+| JWT/autorização | ⏳ Pendente | Continua bloqueando produção |
+| Deploy remoto | ⏳ Desatualizado | Render responde health, mas não os recursos atuais |
+
+Este quadro é o status vigente. O painel original abaixo permanece como histórico da sprint de 22/08; suas tarefas concluídas não devem ser contadas novamente.
+
 **Última atualização:** 22/08/2026 às 23:45
 
 ---
@@ -17,6 +32,8 @@ O que é entrega final:       ✅ Sim (Fase 1-3)
 ---
 
 ## 📋 COMPONENTES - TABELA RÁPIDA
+
+> **Nota de rastreabilidade — 26/08/2026:** Os percentuais e status desta tabela são a fotografia de 22/08. O frontend e a paginação foram entregues em 26/08; consulte o quadro “Status vigente” no início deste arquivo para o estado atual.
 
 | Componente | Status | % Completo | Bloqueador | Próximo |
 |---|---|---|---|---|
@@ -103,6 +120,8 @@ O que é entrega final:       ✅ Sim (Fase 1-3)
 ## 🟡 IMPORTANTES (SEMANA 2-3)
 
 ### Importante 1: Frontend Não Integrado
+
+> **Atualização — 26/08/2026:** O título e o checklist abaixo descrevem o problema antes da entrega. A integração frontend/backend e o serving das rotas `/` e `/reserva-salas.html` foram concluídos em 26/08.
 
 ```
 ┌─────────────────────────────────────────────┐

@@ -1,5 +1,26 @@
 # 📋 Análise Completa do Projeto - Sistema de Reserva de Salas
 
+## Status vigente — 26/08/2026
+
+Este quadro foi atualizado após a análise da implementação atual. O conteúdo posterior, com data de 22/08/2026, permanece como registro da análise original e não deve ser interpretado como um status mais recente.
+
+### Concluído e validado
+
+- ✅ Integração frontend/backend e serving do HTML em `/` e `/reserva-salas.html`.
+- ✅ Paginação de reservas com metadados e limite máximo de 100 registros.
+- ✅ Migration 002 com integração frontend e políticas RLS complementares idempotentes.
+- ✅ Dependências recomendadas adicionadas ao projeto, incluindo `JwtBearer`.
+- ✅ Build da API aprovado e 7 testes unitários aprovados.
+
+### Ainda pendente
+
+- ⏳ Configuração e uso efetivo de JWT, login por credenciais e autorização por claims.
+- ⏳ Configuração efetiva de FluentValidation, Serilog, Application Insights e Swagger.
+- ⏳ Aplicação/validação da migration no Supabase e redeploy da imagem atual no Render.
+- ⏳ Testes E2E, CORS restrito, fuso horário explícito e rate limiting.
+
+As listas históricas abaixo devem ser lidas como o plano e o diagnóstico da sprint de 22/08. As entregas acima são os incrementos registrados em 26/08, preservando a linha do tempo.
+
 **Data:** 22/08/2026  
 **Versão:** 1.0  
 **Status:** Em desenvolvimento - Etapa final
@@ -58,6 +79,8 @@
 ```
 
 #### Endpoints REST Implementados:
+
+> **Nota de rastreabilidade — 26/08/2026:** O item “Paginação: Não (TODO)” logo abaixo pertence ao diagnóstico de 22/08. A paginação foi implementada em 26/08; a resposta atual possui `data` e `pagination` e é consumida pelo frontend.
 ```
 ✅ GET    /health
    └─ Retorna status: ok, database: connected, timestamp
@@ -368,6 +391,8 @@ Tempo estimado: 3 horas
 ---
 
 ### 🟡 **IMPORTANTE (Deve ser feito em breve)**
+
+> **Nota de rastreabilidade — 26/08/2026:** O bloco sobre frontend não integrado é histórico da sprint de 22/08. A integração foi implementada em 26/08; permanecem pendentes apenas autenticação real, E2E e validação do deploy remoto.
 
 #### 5. **Frontend NÃO está integrado**
 ```
@@ -712,6 +737,8 @@ TOTAL:              ~42% (aceitável para etapa 1)
 ```
 
 ### Dependências:
+
+> **Nota de rastreabilidade — 26/08/2026:** A lista “Faltando” abaixo é o inventário original de 22/08. Os pacotes foram instalados em 26/08; a configuração efetiva dos recursos ainda está pendente.
 ```
 ✅ Seguras:
 ├─ Microsoft.EntityFrameworkCore 8.0.10 (LTS)
@@ -728,6 +755,8 @@ TOTAL:              ~42% (aceitável para etapa 1)
 ```
 
 ### Débitos Técnicos:
+
+> **Nota de rastreabilidade — 26/08/2026:** “Sem paginação” e “Frontend desintegrado” são débitos registrados em 22/08 e resolvidos em 26/08. Os débitos atuais estão no bloco “Status vigente” no início deste arquivo.
 ```
 🔴 Críticos:
 ├─ Falta autenticação (bloqueia produção)
@@ -840,3 +869,13 @@ Itens entregues pelo colaborador e verificados localmente:
 - ✅ Correção de target dos testes para `net8.0` e alinhamento das dependências do PostgreSQL.
 
 Itens ainda não concluídos: JWT com credenciais reais, CORS restrito, testes E2E, logging estruturado, rate limiting, tratamento explícito de fuso horário e validação de infraestrutura Supabase/Render. A porcentagem geral e o bloqueador de produção devem permanecer conservadores até a autenticação real ser entregue.
+
+### Atualização de dependências — 26/08/2026
+
+- ✅ FluentValidation 11.11.0
+- ✅ Serilog 4.2.0, com sinks de Console e Application Insights
+- ✅ System.IdentityModel.Tokens.Jwt 8.3.1 e Microsoft.IdentityModel.Tokens 8.3.1
+- ✅ Microsoft.AspNetCore.Authentication.JwtBearer 8.0.10, necessário para integrar JWT ao ASP.NET Core
+- ✅ Swashbuckle.AspNetCore 6.6.2 para Swagger
+
+As bibliotecas foram restauradas e a compilação/testes foram validados. A instalação não ativa automaticamente os recursos: ainda é necessário configurar middleware, validações, logging e documentação OpenAPI no código.

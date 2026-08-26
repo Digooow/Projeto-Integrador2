@@ -1,5 +1,9 @@
 # História do Usuário — Sistema de Reserva de Salas
 
+## Registro de execução — 26/08/2026
+
+O frontend desta história já possui integração com a API, formulário de reserva, recorrência, decisões, cadastro administrativo e painel de TV. O login ainda é demonstrativo, e a integração publicada depende do redeploy do Render e da aplicação da migration 002.
+
 ## Quem está contando essa história
 
 Meu nome é Renata, sou coordenadora administrativa de uma unidade do Senac Joinville. Entre outras coisas, eu cuido da organização das salas de aula do prédio: quem usa cada uma, em qual horário, e resolvo os problemas quando duas turmas acabam batendo na mesma sala.

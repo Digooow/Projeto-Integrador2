@@ -1,5 +1,14 @@
 # 🚀 Melhorias do CI/CD - Detalhes Técnicos
 
+## Status vigente — 26/08/2026
+
+- ✅ As otimizações descritas neste documento continuam presentes no workflow.
+- ✅ O projeto local compila e os testes passam antes do build da imagem.
+- ⏳ O redeploy da imagem atualizada no Render ainda não foi validado nesta sprint.
+- ⏳ Permanecem como melhorias futuras: alertas, scan de vulnerabilidades e confirmação automática do deploy remoto.
+
+Este registro é complementar; as explicações abaixo permanecem como histórico técnico das melhorias do pipeline.
+
 Este documento explica as 5 otimizações implementadas no pipeline `.github/workflows/dotnet.yml`.
 
 ---

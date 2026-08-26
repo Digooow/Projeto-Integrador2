@@ -1,5 +1,16 @@
 # 📋 ANÁLISE DE BOAS PRÁTICAS DE PROGRAMAÇÃO
 
+## Status vigente — 26/08/2026
+
+Esta análise original é preservada. Desde então, as dependências recomendadas foram instaladas, mas ainda não foram configuradas no código.
+
+- ✅ FluentValidation, Serilog, sinks, JWT, JwtBearer e Swashbuckle adicionados ao projeto.
+- ✅ Paginação e serving do frontend implementados.
+- ✅ Build e 7 testes unitários aprovados.
+- ⏳ Interfaces/repositories, FluentValidation em execução, logging, middleware global e refatoração completa de `Program.cs` continuam pendentes.
+
+Os percentuais e checklists posteriores refletem a fotografia anterior; as instalações de pacotes não devem ser confundidas com a implementação dos recursos.
+
 **Projeto:** Projeto-Integrador2 - Sistema de Reserva de Salas  
 **Data:** 22/08/2026  
 **Análise:** SOLID, Clean Code, DRY, e Padrões de Desenvolvimento

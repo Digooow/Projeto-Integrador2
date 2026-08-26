@@ -1,5 +1,9 @@
 # História do Usuário — Sistema de Reserva de Salas
 
+## Registro de execução — 26/08/2026
+
+Este arquivo permanece como a história de usuário original. As entregas atuais que atendem parcialmente esta necessidade são: solicitação de reservas, recorrência semanal, aprovação/rejeição/cancelamento, cadastro de salas/recursos/usuários e painel público no frontend. Autenticação real, notificações e validação em ambiente publicado continuam pendentes.
+
 ## Quem está contando essa história
 
 Meu nome é Renata, sou coordenadora administrativa de uma unidade do Senac Joinville. Entre outras coisas, eu cuido da organização das salas de aula do prédio: quem usa cada uma, em qual horário, e resolvo os problemas quando duas turmas acabam batendo na mesma sala.

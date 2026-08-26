@@ -1,5 +1,15 @@
 # Integração Frontend ↔ Backend
 
+## Status vigente — 26/08/2026
+
+- ✅ Frontend integrado ao backend e servido pela própria API em `/` e `/reserva-salas.html`.
+- ✅ Cliente adaptado à paginação de reservas.
+- ✅ Build e 7 testes unitários aprovados.
+- ⏳ A URL pública do Render ainda precisa receber uma nova imagem e a migration 002 precisa ser aplicada no Supabase.
+- ⏳ Autenticação JWT real permanece pendente; o login atual por seleção de usuário é demonstração.
+
+O restante deste documento registra a integração entregue e suas limitações na ordem em que foram documentadas.
+
 Este documento descreve o trabalho feito para conectar `frontend/reserva-salas.html`
 ao backend ASP.NET Core (`Program.cs` + `Domain/` + `Persistence/`), que antes
 existiam lado a lado no repositório sem nenhuma chamada de rede entre eles.
@@ -110,6 +120,8 @@ parse manualmente dentro do endpoint.
 
 ## O que ficou de fora (limitações conhecidas)
 
+> **Atualização — 26/08/2026:** A referência a “sem paginação” abaixo era válida antes da sprint de 26/08. A paginação foi implementada e está descrita na atualização de execução ao final deste documento.
+
 Estas já eram lacunas documentadas em `ANALISE-PROJETO.md` antes desta
 integração, e continuam valendo:
 
@@ -129,3 +141,9 @@ integração, e continuam valendo:
 A limitação de paginação acima foi resolvida: `GET /api/reservations` agora aceita `page` e `pageSize` (máximo 100) e retorna `data` com `pagination`. O frontend solicita a primeira página de até 100 registros e mantém compatibilidade com a resposta antiga para fallback.
 
 Também foram concluídos o build limpo da API e os 7 testes unitários do domínio. Permanecem pendentes a autenticação JWT real, o tratamento explícito de fuso horário e a validação E2E contra uma instância real do Supabase/Render.
+
+## Diagnóstico de acesso remoto — 26/08/2026
+
+O serviço atualmente publicado no Render responde `200` em `/health`, mas retorna `404` em `/` e `/api/users`, além de `500` em `/api/rooms` e `/api/reservations`. Isso indica que a imagem em produção não corresponde ao estado atual do repositório e/ou não recebeu a migration 002.
+
+Foi corrigido no código o problema de publicação do frontend: `frontend/reserva-salas.html` agora é incluído no publish e fica disponível em `/` e `/reserva-salas.html`. Para refletir essa correção no link público, é necessário publicar uma nova imagem no Docker Hub e fazer o redeploy no Render. Depois, execute `supabase/migrations/002_frontend_integration.sql` no SQL Editor e teste `/health`, `/api/users` e `/api/rooms` novamente.
