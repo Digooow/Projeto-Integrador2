@@ -18,6 +18,7 @@ public sealed class ReservationDbContext(DbContextOptions<ReservationDbContext> 
         {
             entity.ToTable("users");
             entity.HasKey(user => user.Id);
+            entity.Property(user => user.PasswordHash);
             entity.Property(user => user.Role).HasConversion<string>();
             entity.Property(user => user.Floors).HasColumnType("text[]");
             entity.HasIndex(user => user.Email).IsUnique();

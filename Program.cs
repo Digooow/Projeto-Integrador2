@@ -1,7 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Projeto_Integrador2.Domain;
 using Projeto_Integrador2.Persistence;
+using Projeto_Integrador2.Security;
 
 // Usa WebApplication.CreateBuilder para ter acesso aos métodos do ASP.NET Core
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +24,33 @@ var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_S
 builder.Services.AddDbContext<ReservationDbContext>(options =>
     options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
 
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? throw new InvalidOperationException("JWT_SECRET_KEY não configurada. Use uma chave aleatória com pelo menos 32 caracteres.");
+
+if (Encoding.UTF8.GetByteCount(jwtSecret) < 32)
+    throw new InvalidOperationException("JWT_SECRET_KEY precisa ter pelo menos 32 bytes.");
+
+const string jwtIssuer = "projeto-integrador2";
+const string jwtAudience = "projeto-integrador2-users";
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = signingKey,
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+            ValidateAudience = true,
+            ValidAudience = jwtAudience,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
+builder.Services.AddAuthorization();
+
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
@@ -28,6 +62,8 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 var frontendPath = Path.Combine(app.Environment.ContentRootPath, "frontend", "reserva-salas.html");
 app.MapGet("/", () => Results.File(frontendPath, "text/html; charset=utf-8"));
@@ -40,10 +76,44 @@ app.MapGet("/health", () => Results.Ok(new
     timestamp = DateTime.UtcNow
 }));
 
+app.MapPost("/auth/login", async (LoginRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(input.Email) || string.IsNullOrWhiteSpace(input.Password))
+        return Results.BadRequest(new { error = "Informe e-mail e senha." });
+
+    var user = await db.Users.SingleOrDefaultAsync(u => u.Email == input.Email && u.Active, cancellationToken);
+    if (user is null || user.PasswordHash is null || !PasswordHasher.Verify(input.Password, user.PasswordHash))
+        return Results.Unauthorized();
+
+    var expiresAt = DateTime.UtcNow.AddHours(8);
+    var claims = new[]
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Name, user.Name),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role, user.Role.ToString())
+    };
+    var token = new JwtSecurityToken(
+        issuer: jwtIssuer,
+        audience: jwtAudience,
+        claims: claims,
+        expires: expiresAt,
+        signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256));
+
+    return Results.Ok(new LoginResponse(
+        new JwtSecurityTokenHandler().WriteToken(token),
+        expiresAt,
+        new UserResponse(user.Id, user.Name, user.Email, user.Role.ToString(), user.Active, user.Floors.ToArray())));
+});
+
 // ===================== ROOMS =====================
 
-app.MapGet("/api/rooms", async (ReservationDbContext db, bool? includeInactive, CancellationToken cancellationToken) =>
+app.MapGet("/api/rooms", async (ReservationDbContext db, ClaimsPrincipal principal, bool? includeInactive, CancellationToken cancellationToken) =>
 {
+    if (includeInactive == true && !principal.IsInRole(UserRole.Administrator.ToString()))
+        return Results.Forbid();
+
     var query = db.Rooms
         .AsNoTracking()
         .Include(room => room.Resources)
@@ -93,7 +163,7 @@ app.MapPost("/api/rooms", async (UpsertRoomRequest input, ReservationDbContext d
     await db.SaveChangesAsync(cancellationToken);
 
     return Results.Created($"/api/rooms/{room.Id}", new { room.Id });
-});
+}).RequireAuthorization();
 
 app.MapPut("/api/rooms/{id}", async (string id, UpsertRoomRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
@@ -114,7 +184,7 @@ app.MapPut("/api/rooms/{id}", async (string id, UpsertRoomRequest input, Reserva
 
     await db.SaveChangesAsync(cancellationToken);
     return Results.Ok(new { room.Id });
-});
+}).RequireAuthorization();
 
 app.MapPost("/api/rooms/{id}/toggle-active", async (string id, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
@@ -125,7 +195,7 @@ app.MapPost("/api/rooms/{id}/toggle-active", async (string id, ReservationDbCont
     room.Active = !room.Active;
     await db.SaveChangesAsync(cancellationToken);
     return Results.Ok(new { room.Id, room.Active });
-});
+}).RequireAuthorization(new AuthorizeAttribute { Roles = UserRole.Administrator.ToString() });
 
 // ===================== RESOURCES =====================
 
@@ -152,7 +222,7 @@ app.MapPost("/api/resources", async (UpsertResourceRequest input, ReservationDbC
     await db.SaveChangesAsync(cancellationToken);
 
     return Results.Created($"/api/resources/{input.Id}", new { input.Id });
-});
+}).RequireAuthorization(new AuthorizeAttribute { Roles = UserRole.Administrator.ToString() });
 
 // ===================== USERS =====================
 
@@ -165,7 +235,7 @@ app.MapGet("/api/users", async (ReservationDbContext db, CancellationToken cance
         .ToListAsync(cancellationToken);
 
     return Results.Ok(users);
-});
+}).RequireAuthorization();
 
 app.MapPost("/api/users", async (UpsertUserRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
@@ -178,11 +248,15 @@ app.MapPost("/api/users", async (UpsertUserRequest input, ReservationDbContext d
     if (await db.Users.AnyAsync(u => u.Id == input.Id || u.Email == input.Email, cancellationToken))
         return Results.Conflict(new { error = "Já existe um usuário com esse identificador ou e-mail." });
 
+    if (string.IsNullOrWhiteSpace(input.Password))
+        return Results.BadRequest(new { error = "Informe uma senha." });
+
     db.Users.Add(new UserEntity
     {
         Id = input.Id,
         Name = input.Name,
         Email = input.Email,
+        PasswordHash = PasswordHasher.Hash(input.Password),
         Role = role,
         Active = true,
         Floors = role == UserRole.Coordinator ? (input.Floors ?? []).ToList() : []
@@ -190,7 +264,7 @@ app.MapPost("/api/users", async (UpsertUserRequest input, ReservationDbContext d
     await db.SaveChangesAsync(cancellationToken);
 
     return Results.Created($"/api/users/{input.Id}", new { input.Id });
-});
+}).RequireAuthorization(new AuthorizeAttribute { Roles = UserRole.Administrator.ToString() });
 
 app.MapPut("/api/users/{id}", async (string id, UpsertUserRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
@@ -211,7 +285,7 @@ app.MapPut("/api/users/{id}", async (string id, UpsertUserRequest input, Reserva
 
     await db.SaveChangesAsync(cancellationToken);
     return Results.Ok(new { user.Id });
-});
+}).RequireAuthorization(new AuthorizeAttribute { Roles = UserRole.Administrator.ToString() });
 
 app.MapPost("/api/users/{id}/toggle-active", async (string id, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
@@ -222,7 +296,7 @@ app.MapPost("/api/users/{id}/toggle-active", async (string id, ReservationDbCont
     user.Active = !user.Active;
     await db.SaveChangesAsync(cancellationToken);
     return Results.Ok(new { user.Id, user.Active });
-});
+}).RequireAuthorization(new AuthorizeAttribute { Roles = UserRole.Administrator.ToString() });
 
 // ===================== RESERVATIONS =====================
 // Each occurrence (a single date+time slot) is stored as its own reservation
@@ -230,8 +304,11 @@ app.MapPost("/api/users/{id}/toggle-active", async (string id, ReservationDbCont
 // SeriesId. That is what lets the UI approve/reject one date of a series
 // independently of the others.
 
-app.MapGet("/api/reservations", async (ReservationDbContext db, ReservationStatus? status, int? page, int? pageSize, CancellationToken cancellationToken) =>
+app.MapGet("/api/reservations", async (ReservationDbContext db, ClaimsPrincipal principal, ReservationStatus? status, int? page, int? pageSize, CancellationToken cancellationToken) =>
 {
+    if (status != ReservationStatus.Approved && principal.Identity?.IsAuthenticated != true)
+        return Results.Unauthorized();
+
     var currentPage = Math.Max(page ?? 1, 1);
     var currentPageSize = Math.Clamp(pageSize ?? 20, 1, 100);
     var query = db.Reservations
@@ -275,9 +352,11 @@ app.MapGet("/api/reservations", async (ReservationDbContext db, ReservationStatu
         }
     });
 });
-
-app.MapPost("/api/reservations", async (CreateReservationRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+app.MapPost("/api/reservations", async (CreateReservationRequest input, ClaimsPrincipal principal, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
+    var authenticatedUserId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (authenticatedUserId is null || authenticatedUserId != input.RequesterId)
+        return Results.Forbid();
     var room = await db.Rooms
         .AsNoTracking()
         .SingleOrDefaultAsync(r => r.Id == input.RoomId && r.Active, cancellationToken);
@@ -350,10 +429,9 @@ app.MapPost("/api/reservations", async (CreateReservationRequest input, Reservat
     });
 });
 
-app.MapPost("/api/reservations/{id:guid}/approve", async (Guid id, bool? force, DecideReservationRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+app.MapPost("/api/reservations/{id:guid}/approve", async (Guid id, bool? force, ClaimsPrincipal principal, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
-    if (!Enum.TryParse<UserRole>(input.Role, ignoreCase: true, out var deciderRole) || deciderRole is not (UserRole.Coordinator or UserRole.Administrator))
-        return Results.Forbid();
+    var deciderId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
     var reservation = await db.Reservations
         .Include(r => r.Occurrences)
@@ -382,19 +460,16 @@ app.MapPost("/api/reservations/{id:guid}/approve", async (Guid id, bool? force, 
     }
 
     reservation.Status = ReservationStatus.Approved;
-    reservation.DecidedBy = input.UserId;
+    reservation.DecidedBy = deciderId;
     reservation.DecidedAt = DateTime.UtcNow;
 
     await db.SaveChangesAsync(cancellationToken);
 
     return Results.Ok(new { reservation.Id, status = reservation.Status.ToString() });
-});
+}).RequireAuthorization(new AuthorizeAttribute { Roles = $"{UserRole.Coordinator},{UserRole.Administrator}" });
 
-app.MapPost("/api/reservations/{id:guid}/reject", async (Guid id, DecideReservationRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+app.MapPost("/api/reservations/{id:guid}/reject", async (Guid id, ClaimsPrincipal principal, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
-    if (!Enum.TryParse<UserRole>(input.Role, ignoreCase: true, out var deciderRole) || deciderRole is not (UserRole.Coordinator or UserRole.Administrator))
-        return Results.Forbid();
-
     var reservation = await db.Reservations.SingleOrDefaultAsync(r => r.Id == id, cancellationToken);
     if (reservation is null)
         return Results.NotFound();
@@ -403,14 +478,14 @@ app.MapPost("/api/reservations/{id:guid}/reject", async (Guid id, DecideReservat
         return Results.BadRequest(new { error = "Este pedido já foi decidido." });
 
     reservation.Status = ReservationStatus.Rejected;
-    reservation.DecidedBy = input.UserId;
+    reservation.DecidedBy = principal.FindFirstValue(ClaimTypes.NameIdentifier);
     reservation.DecidedAt = DateTime.UtcNow;
 
     await db.SaveChangesAsync(cancellationToken);
     return Results.Ok(new { reservation.Id, status = reservation.Status.ToString() });
-});
+}).RequireAuthorization(new AuthorizeAttribute { Roles = $"{UserRole.Coordinator},{UserRole.Administrator}" });
 
-app.MapPost("/api/reservations/{id:guid}/cancel", async (Guid id, DecideReservationRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+app.MapPost("/api/reservations/{id:guid}/cancel", async (Guid id, ClaimsPrincipal principal, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
     var reservation = await db.Reservations
         .SingleOrDefaultAsync(r => r.Id == id, cancellationToken);
@@ -418,8 +493,9 @@ app.MapPost("/api/reservations/{id:guid}/cancel", async (Guid id, DecideReservat
     if (reservation is null)
         return Results.NotFound();
 
-    var isOwner = reservation.RequesterId == input.UserId;
-    var canOverride = Enum.TryParse<UserRole>(input.Role, ignoreCase: true, out var deciderRole) && deciderRole is (UserRole.Coordinator or UserRole.Administrator);
+    var authenticatedUserId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+    var isOwner = reservation.RequesterId == authenticatedUserId;
+    var canOverride = principal.IsInRole(UserRole.Coordinator.ToString()) || principal.IsInRole(UserRole.Administrator.ToString());
     if (!isOwner && !canOverride)
         return Results.Forbid();
 
@@ -427,7 +503,7 @@ app.MapPost("/api/reservations/{id:guid}/cancel", async (Guid id, DecideReservat
     await db.SaveChangesAsync(cancellationToken);
 
     return Results.Ok(new { reservation.Id, status = reservation.Status.ToString() });
-});
+}).RequireAuthorization();
 
 app.Run();
 
@@ -472,6 +548,10 @@ static IReadOnlyList<(DateTime Start, DateTime End)> ExpandOccurrences(DateTime 
 // straight from its day-picker without translating anything.
 public sealed record WeeklyRecurrenceRequest(int[] Days, DateTime Until);
 
+public sealed record LoginRequest(string Email, string Password);
+
+public sealed record LoginResponse(string AccessToken, DateTime ExpiresAt, UserResponse User);
+
 public sealed record CreateReservationRequest(
     string RequesterId,
     string RoomId,
@@ -482,16 +562,11 @@ public sealed record CreateReservationRequest(
     int Attendees,
     WeeklyRecurrenceRequest? Recurrence);
 
-// Role is a plain string (e.g. "Administrator") rather than the UserRole enum
-// directly, because System.Text.Json's default enum handling expects numbers
-// in request bodies — parsing it ourselves keeps the wire format readable.
-public sealed record DecideReservationRequest(string UserId, string Role);
-
 public sealed record UpsertRoomRequest(string? Id, string Name, string Floor, int Capacity, string? Description, string[] ResourceIds);
 
 public sealed record UpsertResourceRequest(string? Id, string Name);
 
-public sealed record UpsertUserRequest(string? Id, string Name, string Email, string Role, string[]? Floors);
+public sealed record UpsertUserRequest(string? Id, string Name, string Email, string Role, string[]? Floors, string? Password);
 
 public sealed record RoomResponse(
     string Id,
