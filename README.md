@@ -14,9 +14,15 @@ Esta é a situação atual do projeto. As seções e checklists abaixo, datadas 
 - ✅ Stack recomendada instalada: FluentValidation, Serilog, sinks, JWT, JwtBearer e Swashbuckle.
 - ✅ Build aprovado e 7 testes unitários aprovados.
 
+### Autenticação JWT
+
+A API expõe `POST /auth/login` com `{ "email": "...", "password": "..." }` e retorna um token Bearer válido por 8 horas. Configure `JWT_SECRET_KEY` com pelo menos 32 bytes antes de iniciar a aplicação.
+
+Usuários novos devem ser criados por um administrador em `POST /api/users` informando `password`; a migration 003 fornece `Troque-me-123!` apenas para os usuários demo e essa senha deve ser trocada em produção. Operações administrativas e reservas exigem o token JWT.
+
 ### Pendências reais
 
-- ⏳ Configurar JWT no pipeline, login com credenciais e proteção dos endpoints.
+- ✅ Configurar JWT no pipeline, login com credenciais e proteção dos endpoints.
 - ⏳ Configurar efetivamente FluentValidation, Serilog/Application Insights e Swagger.
 - ⏳ Aplicar e validar a migration 002 no Supabase.
 - ⏳ Publicar a imagem atualizada e fazer redeploy no Render; a imagem pública ainda está desatualizada.
