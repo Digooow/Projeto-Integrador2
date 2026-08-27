@@ -2717,23 +2717,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Rodrigo\\.nuget\\packages\\": {},
+    "C:\\Users\\rodrigo62289216\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador2\\tests\\Projeto-Integrador2.Tests\\Projeto-Integrador2.Tests.csproj",
+      "projectUniqueName": "C:\\Users\\rodrigo62289216\\Desktop\\Projeto-Integrador2\\tests\\Projeto-Integrador2.Tests\\Projeto-Integrador2.Tests.csproj",
       "projectName": "Projeto-Integrador2.Tests",
-      "projectPath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador2\\tests\\Projeto-Integrador2.Tests\\Projeto-Integrador2.Tests.csproj",
-      "packagesPath": "C:\\Users\\Rodrigo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador2\\tests\\Projeto-Integrador2.Tests\\obj\\",
+      "projectPath": "C:\\Users\\rodrigo62289216\\Desktop\\Projeto-Integrador2\\tests\\Projeto-Integrador2.Tests\\Projeto-Integrador2.Tests.csproj",
+      "packagesPath": "C:\\Users\\rodrigo62289216\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\rodrigo62289216\\Desktop\\Projeto-Integrador2\\tests\\Projeto-Integrador2.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Rodrigo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\rodrigo62289216\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -2750,8 +2750,8 @@
           "framework": "net8.0",
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador2\\Projeto-Integrador2.csproj": {
-              "projectPath": "C:\\Users\\Rodrigo\\Desktop\\Projetos\\Projeto-Integrador2\\Projeto-Integrador2.csproj"
+            "C:\\Users\\rodrigo62289216\\Desktop\\Projeto-Integrador2\\Projeto-Integrador2.csproj": {
+              "projectPath": "C:\\Users\\rodrigo62289216\\Desktop\\Projeto-Integrador2\\Projeto-Integrador2.csproj"
             }
           }
         }
@@ -2803,7 +2803,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.303/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

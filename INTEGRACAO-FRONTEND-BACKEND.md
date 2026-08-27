@@ -98,19 +98,26 @@ parse manualmente dentro do endpoint.
 
 ## Como rodar localmente
 
-1. **Backend**
+1. **Crie o banco no Supabase**
+  - Crie um projeto em [supabase.com](https://supabase.com) e abra o **SQL Editor**.
+  - Execute nesta ordem os arquivos `supabase/migrations/001_initial.sql` e `supabase/migrations/002_frontend_integration.sql`.
+  - Em **Project Settings > Database**, copie a connection string de **URI** ou de **ADO.NET**. A aplicação aceita os dois formatos.
+
+2. **Backend local**
    ```bash
-   export SUPABASE_CONNECTION_STRING="postgresql://usuario:senha@host:5432/postgres"
+  # PowerShell
+  $env:SUPABASE_CONNECTION_STRING = "postgresql://postgres:SENHA@db.PROJETO.supabase.co:5432/postgres?sslmode=require"
    dotnet run
    ```
-   Isso sobe a API em `http://localhost:5000` (ou na porta da variável `PORT`).
+  Isso sobe a API em `http://localhost:5000` (ou na porta da variável `PORT`). Teste `http://localhost:5000/health`: o campo `database` precisa ser `connected`.
 
-2. **Aplicar a nova migration no Supabase** (SQL editor do projeto, ou `psql`):
+3. **Aplicar as migrations via `psql` (alternativa ao SQL Editor)**
    ```bash
-   psql "$SUPABASE_CONNECTION_STRING" -f supabase/migrations/002_frontend_integration.sql
+  psql "$SUPABASE_CONNECTION_STRING" -f supabase/migrations/001_initial.sql
+  psql "$SUPABASE_CONNECTION_STRING" -f supabase/migrations/002_frontend_integration.sql
    ```
 
-3. **Frontend**: abra `frontend/reserva-salas.html` diretamente no navegador.
+4. **Frontend**: abra `frontend/reserva-salas.html` diretamente no navegador.
    Como o backend já roda em `localhost:5000` por padrão no ambiente local, não
    precisa de nenhum parâmetro extra. Para apontar para outra API (ex.: a
    instância no Render), abra assim:

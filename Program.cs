@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Projeto_Integrador2.Domain;
 using Projeto_Integrador2.Persistence;
@@ -11,8 +12,10 @@ builder.Configuration.Sources.Clear();
 builder.Configuration.AddEnvironmentVariables();
 
 // Lê a connection string da variável de ambiente
-var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING")
+var rawConnectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING")
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL")
     ?? throw new InvalidOperationException("Connection string não configurada. Defina SUPABASE_CONNECTION_STRING.");
+var connectionString = NormalizeConnectionString(rawConnectionString);
 
 builder.Services.AddDbContext<ReservationDbContext>(options =>
     options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
@@ -33,12 +36,13 @@ var frontendPath = Path.Combine(app.Environment.ContentRootPath, "frontend", "re
 app.MapGet("/", () => Results.File(frontendPath, "text/html; charset=utf-8"));
 app.MapGet("/reserva-salas.html", () => Results.File(frontendPath, "text/html; charset=utf-8"));
 
-app.MapGet("/health", () => Results.Ok(new
+app.MapGet("/health", async (ReservationDbContext db, CancellationToken cancellationToken) =>
 {
-    status = "ok",
-    database = "connected",
-    timestamp = DateTime.UtcNow
-}));
+    var databaseConnected = await db.Database.CanConnectAsync(cancellationToken);
+    return databaseConnected
+        ? Results.Ok(new { status = "ok", database = "connected", timestamp = DateTime.UtcNow })
+        : Results.Json(new { status = "degraded", database = "disconnected", timestamp = DateTime.UtcNow }, statusCode: StatusCodes.Status503ServiceUnavailable);
+});
 
 // ===================== ROOMS =====================
 
@@ -430,6 +434,30 @@ app.MapPost("/api/reservations/{id:guid}/cancel", async (Guid id, DecideReservat
 });
 
 app.Run();
+
+static string NormalizeConnectionString(string value)
+{
+    if (!value.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) &&
+        !value.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+        return value;
+
+    var uri = new Uri(value);
+    var separator = uri.UserInfo.IndexOf(':');
+    if (separator < 0)
+        throw new InvalidOperationException("A URI do Supabase precisa conter usuário e senha.");
+
+    var builder = new NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.IsDefaultPort ? 5432 : uri.Port,
+        Database = uri.AbsolutePath.Trim('/'),
+        Username = Uri.UnescapeDataString(uri.UserInfo[..separator]),
+        Password = Uri.UnescapeDataString(uri.UserInfo[(separator + 1)..]),
+        SslMode = SslMode.Require
+    };
+
+    return builder.ConnectionString;
+}
 
 static async Task SyncRoomResourcesAsync(RoomEntity room, IReadOnlyCollection<string>? resourceIds, ReservationDbContext db, CancellationToken cancellationToken)
 {
