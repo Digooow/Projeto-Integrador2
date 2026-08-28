@@ -1,56 +1,150 @@
 # Integração Frontend ↔ Backend
 
-## Estado vigente — 28/08/2026
+## Status vigente — 28/08/2026
 
-O frontend em `frontend/reserva-salas.html` é servido pelo backend ASP.NET nas
-rotas `/` e `/reserva-salas.html` e usa a API publicada no Render. O Supabase
-próprio está configurado e as migrations `001`, `002` e `003` foram executadas.
+- ✅ Frontend integrado ao backend e servido pela própria API em `/` e `/reserva-salas.html`.
+- ✅ Cliente adaptado à paginação de reservas.
+- ✅ Build e 9 testes aprovados: 7 unitários e 2 E2E.
+- ⏳ A URL pública do Render ainda precisa receber uma nova imagem e a migration 002 precisa ser aplicada no Supabase.
+- ✅ Autenticação JWT real configurada no backend.
+- ✅ Login JWT integrado ao frontend; o usuário informa a senha e o token Bearer é enviado nas chamadas protegidas.
 
-Salas e reservas retornam `200`. O login envia e-mail e senha para
-`/auth/login`, guarda o JWT na sessão e envia `Authorization: Bearer` nas
-operações protegidas.
+O restante deste documento registra a integração entregue e suas limitações na ordem em que foram documentadas.
 
-## Funcionalidades integradas
+Este documento descreve o trabalho feito para conectar `frontend/reserva-salas.html`
+ao backend ASP.NET Core (`Program.cs` + `Domain/` + `Persistence/`), que antes
+existiam lado a lado no repositório sem nenhuma chamada de rede entre eles.
 
-- reservas pontuais e recorrentes;
-- aprovação, rejeição e cancelamento;
-- cadastro e edição administrativa de usuários;
-- cadastro de salas e recursos;
-- cadastro público de requisitantes;
-- paginação de reservas;
-- painel público sem login.
+## O que havia antes
 
-## Endpoints principais
+- **Backend**: expunha só `/health`, `GET /api/rooms` e `GET/POST /api/reservations`
+  (+ approve/cancel), já ligado a um schema Postgres no Supabase
+  (`supabase/migrations/001_initial.sql`).
+- **Frontend**: um app completo (login, pedido de sala, aprovações, calendário,
+  cadastro de salas/recursos/usuários, painel de TV) — mas toda a persistência
+  usava `window.storage`, uma API que só existe dentro do ambiente de artifacts
+  do Claude. Fora dali, o arquivo simplesmente não teria onde salvar nada.
 
-| Método | Rota | Finalidade |
+Ou seja: nenhum dos dois nunca conversou com o outro.
+
+## O que foi mudado
+
+### Backend (`Program.cs`, `Persistence/Entities.cs`, `Persistence/ReservationDbContext.cs`)
+
+Endpoints novos, para cobrir o que o frontend já fazia na tela:
+
+| Método | Rota | Para quê |
 |---|---|---|
-| `POST` | `/auth/login` | Login por e-mail e senha |
-| `POST` | `/auth/register` | Cadastro público de requisitante |
-| `GET` | `/api/users` | Listar usuários (admin) |
-| `POST` | `/api/users` | Criar usuário (admin) |
-| `PUT` | `/api/users/{id}` | Editar usuário (admin) |
-| `GET` | `/api/rooms` | Listar salas |
-| `GET` | `/api/resources` | Listar recursos |
-| `POST` | `/api/reservations` | Criar reserva |
-| `POST` | `/api/reservations/{id}/approve` | Aprovar reserva |
-| `POST` | `/api/reservations/{id}/reject` | Rejeitar reserva |
-| `POST` | `/api/reservations/{id}/cancel` | Cancelar reserva |
+| `GET`  | `/api/users` | lista de usuários (tela de login e admin) |
+| `POST` | `/api/users` | cadastrar usuário |
+| `PUT`  | `/api/users/{id}` | editar usuário (nome, e-mail, papel, andares) |
+| `POST` | `/api/users/{id}/toggle-active` | ativar/desativar acesso |
+| `GET`  | `/api/resources` | lista de recursos (projetor, ar-condicionado...) |
+| `POST` | `/api/resources` | cadastrar novo tipo de recurso |
+| `GET`  | `/api/rooms?includeInactive=true` | agora retorna `resourceIds`, `active`; parâmetro opcional para telas de admin verem salas desativadas |
+| `POST` | `/api/rooms` | cadastrar sala |
+| `PUT`  | `/api/rooms/{id}` | editar sala |
+| `POST` | `/api/rooms/{id}/toggle-active` | ativar/desativar sala |
+| `POST` | `/api/reservations/{id}/reject` | rejeitar pedido pendente |
+| `POST` | `/api/reservations/{id}/approve?force=true` | aprovar mesmo com conflito de horário |
 
-## Persistência e segurança
+Mudança de modelo importante: **antes**, um pedido recorrente virava *uma* linha
+em `reservations` com várias linhas em `reservation_occurrences`. O frontend,
+porém, foi desenhado para aprovar/rejeitar **cada aula de uma série
+individualmente** (inclusive "aprovar mesmo com conflito" só para aquele dia).
+Por isso, `POST /api/reservations` agora cria **uma linha por ocorrência**,
+todas compartilhando o mesmo `SeriesId` — isso é o que permite ao painel de
+aprovações tratar cada data separadamente.
 
-O backend usa EF Core/Npgsql para o PostgreSQL do Supabase. A connection string
-fica exclusivamente como segredo do serviço no Render; não deve ser copiada
-para este repositório ou para arquivos locais.
+Também foi adicionado:
+- `Responsavel` (texto livre) em `ReservationEntity` — o nome de quem
+  efetivamente vai usar a sala, que pode ser diferente de quem fez o pedido.
+- `Floors` (`text[]`) em `UserEntity` — os andares que um coordenador tem
+  permissão de aprovar (usado só quando `Role == Coordinator`).
 
-O fallback local do frontend serve apenas para demonstração quando a API não
-responde e não é evidência de disponibilidade do ambiente publicado.
+Ver `supabase/migrations/002_frontend_integration.sql` para as alterações de
+schema (`alter table ... add column`) e o seed de 4 usuários de demonstração
+(os mesmos que já apareciam na tela de login do frontend).
 
-## Execução local
+**Por que os campos de decisão (`Role`) viraram `string` em vez do enum
+`UserRole`:** o `System.Text.Json` do ASP.NET Core, por padrão, espera número
+ao desserializar enums vindos do corpo da requisição — não o nome ("Administrator").
+Configurar um conversor global mexeria em todos os enums da API (inclusive o
+`DayOfWeek` da recorrência, que o frontend já envia como número 0-6, igual
+`Date.getDay()` do JavaScript). Para não quebrar nada e manter o código legível
+nos dois lados, esses dois casos recebem `string`/`int` simples e fazem o
+parse manualmente dentro do endpoint.
 
-```powershell
-dotnet run
-dotnet test tests/Projeto-Integrador2.Tests/Projeto-Integrador2.Tests.csproj
-```
+### Frontend (`frontend/reserva-salas.html`)
 
-Para detalhes do estado e das próximas melhorias, consulte o
-[roadmap atual](./ROADMAP-ATUAL.md).
+- Todo o bloco `STORAGE` (`window.storage`, `loadKey`, `saveUsers`,
+  `saveCatalog`, `saveBookings`) foi substituído por um cliente HTTP simples
+  (`api(path, options)`) que fala com o backend.
+- `API_BASE` é configurável sem editar o arquivo:
+  - `http://localhost:5000` por padrão quando aberto em `localhost`;
+  - `https://projeto-integrador2-latest.onrender.com` em qualquer outro host
+    (ajuste esse valor se o seu serviço no Render tiver outro nome);
+  - pode ser sobrescrito com `?api=https://sua-api.exemplo.com` na URL, ou
+    definindo `window.OCUPA_API_BASE` antes de carregar o arquivo.
+- Duas tabelas fazem a tradução de vocabulário entre os dois lados:
+  `ROLE_FRONT_TO_BACK`/`ROLE_BACK_TO_FRONT` (papéis) e `STATUS_BACK_TO_FRONT`
+  (status de reserva).
+- Todas as ações que antes só mexiam em `St.*` e chamavam `saveX()` agora
+  chamam a API e, ao terminar, recarregam os dados do servidor
+  (`fetchUsers`/`fetchCatalog`/`fetchBookings`) antes de re-renderizar — assim
+  a tela sempre reflete o que está realmente salvo no banco.
+- Se a API não responder (endereço errado, CORS, servidor fora do ar), o
+  `boot()` cai para os dados de demonstração locais (os mesmos seeds que já
+  existiam) e mostra um aviso, em vez de deixar a tela em branco.
+
+## Como rodar localmente
+
+1. **Backend**
+   ```bash
+   export SUPABASE_CONNECTION_STRING="postgresql://usuario:senha@host:5432/postgres"
+   dotnet run
+   ```
+   Isso sobe a API em `http://localhost:5000` (ou na porta da variável `PORT`).
+
+2. **Aplicar a nova migration no Supabase** (SQL editor do projeto, ou `psql`):
+   ```bash
+   psql "$SUPABASE_CONNECTION_STRING" -f supabase/migrations/002_frontend_integration.sql
+   ```
+
+3. **Frontend**: abra `frontend/reserva-salas.html` diretamente no navegador.
+   Como o backend já roda em `localhost:5000` por padrão no ambiente local, não
+   precisa de nenhum parâmetro extra. Para apontar para outra API (ex.: a
+   instância no Render), abra assim:
+   ```
+   frontend/reserva-salas.html?api=https://projeto-integrador2-latest.onrender.com
+   ```
+
+## O que ficou de fora (limitações conhecidas)
+
+> **Atualização — 26/08/2026:** A referência a “sem paginação” abaixo era válida antes da sprint de 26/08. A paginação foi implementada e está descrita na atualização de execução ao final deste documento.
+
+Estas já eram lacunas documentadas em `ANALISE-PROJETO.md` antes desta
+integração, e continuam valendo:
+
+- **Integração de autenticação concluída no cliente.** A API possui `/auth/login`,
+  valida credenciais e protege endpoints com JWT. O frontend solicita a senha,
+  armazena o token na sessão e envia `Authorization: Bearer`. Ainda faltam
+  testes E2E e validação do ambiente publicado.
+- **Fuso horário não tratado explicitamente.** Datas/horas viajam como texto
+  local (`2026-08-25T14:00:00`) sem indicação de fuso; o Postgres grava em
+  colunas `timestamptz`. Funciona para um único fuso (Brasil), mas não é
+  robusto para múltiplos fusos.
+- A paginação de `/api/reservations` já foi implementada; permanecem pendentes
+  o tratamento explícito de fuso horário e a validação E2E contra Supabase/Render.
+
+## Atualização de execução — 26/08/2026
+
+A limitação de paginação acima foi resolvida: `GET /api/reservations` agora aceita `page` e `pageSize` (máximo 100) e retorna `data` com `pagination`. O frontend solicita a primeira página de até 100 registros e mantém compatibilidade com a resposta antiga para fallback.
+
+Também foram concluídos o build limpo da API e os 9 testes locais: 7 unitários e 2 E2E da API. Permanece pendente a validação E2E contra uma instância real do Supabase/Render, além do tratamento explícito de fuso horário.
+
+## Diagnóstico de acesso remoto — 26/08/2026
+
+O serviço atualmente publicado no Render responde `200` em `/health`, mas retorna `404` em `/` e `/api/users`, além de `500` em `/api/rooms` e `/api/reservations`. Isso indica que a imagem em produção não corresponde ao estado atual do repositório e/ou não recebeu a migration 002.
+
+Foi corrigido no código o problema de publicação do frontend: `frontend/reserva-salas.html` agora é incluído no publish e fica disponível em `/` e `/reserva-salas.html`. Para refletir essa correção no link público, é necessário publicar uma nova imagem no Docker Hub e fazer o redeploy no Render. Depois, execute `supabase/migrations/002_frontend_integration.sql` no SQL Editor e teste `/health`, `/api/users` e `/api/rooms` novamente.

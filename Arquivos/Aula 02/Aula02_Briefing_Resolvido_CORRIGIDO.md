@@ -10,6 +10,6 @@
 
 **Escopo inicial:** reservas pontuais e recorrentes; aprovação, rejeição e cancelamento; cadastro de salas, recursos e usuários; calendário; histórico; painel de TV; API ASP.NET Core e PostgreSQL via Supabase.
 
-**Fora do escopo atual:** notificações por WhatsApp/e-mail/push, integração acadêmica, QR Code, relatórios avançados e integrações de calendário.
+**Fora do escopo atual:** notificações por WhatsApp/e-mail/push, integração acadêmica, QR Code, relatórios avançados, integrações de calendário e login JWT efetivamente integrado ao frontend.
 
-**Restrições:** somente usuários autorizados aprovam; o solicitante pode cancelar a própria reserva; registros históricos não são apagados; a connection string permanece exclusivamente no Render.
+**Restrições:** somente usuários autorizados aprovam; o solicitante pode cancelar a própria reserva; registros históricos não são apagados; migration e redeploy ainda precisam ser validados no ambiente publicado.

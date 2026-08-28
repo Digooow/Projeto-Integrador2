@@ -1,11 +1,10 @@
 # 🚀 Melhorias do CI/CD - Detalhes Técnicos
 
-## Status vigente — 28/08/2026
+## Status vigente — 26/08/2026
 
 - ✅ As otimizações descritas neste documento continuam presentes no workflow.
 - ✅ O projeto local compila e os testes passam antes do build da imagem.
-- ✅ O workflow publica a imagem Docker e dispara o redeploy do serviço no Render.
-- ✅ O deploy remoto usa `RENDER_API_KEY` e `RENDER_SERVICE_ID`.
+- ⏳ O redeploy da imagem atualizada no Render ainda não foi validado nesta sprint.
 - ⏳ Permanecem como melhorias futuras: alertas, scan de vulnerabilidades e confirmação automática do deploy remoto.
 
 Este registro é complementar; as explicações abaixo permanecem como histórico técnico das melhorias do pipeline.
@@ -164,18 +163,18 @@ Se quiser expandir:
       -d '{"text":"❌ Build falhou em ${{ github.ref }}"}'
 ```
 
-### B. Deploy Automático no Render (configurado)
+### B. Deploy Automático no Render
 
-O workflow dispara o redeploy depois que a imagem `latest` é publicada. Os secrets
-estão configurados em **Settings → Secrets and variables → Actions**:
+O workflow dispara o redeploy depois que a imagem `latest` é publicada. Para
+ativá-lo, crie estes secrets em **Settings → Secrets and variables → Actions**:
 
 ```text
 RENDER_SERVICE_ID = identificador do serviço no Render (sem o prefixo srv-)
 RENDER_API_KEY = chave de API do Render
 ```
 
-Se esses secrets forem removidos, o job de deploy será ignorado; build, testes e
-publicação da imagem continuam funcionando normalmente.
+Sem os dois secrets, o job de deploy é ignorado; build, testes e publicação da
+imagem continuam funcionando normalmente.
 
 ### C. Multi-platform Docker Build (ARM64, AMD64)
 ```yaml
@@ -219,8 +218,8 @@ platforms: linux/amd64,linux/arm64
 - **Secrets necessários**:
   - `DOCKER_USERNAME` ✅ (já configurado)
   - `DOCKER_PASSWORD` ✅ (já configurado)
-  - `RENDER_SERVICE_ID` ✅ (deploy automático)
-  - `RENDER_API_KEY` ✅ (deploy automático)
+  - `RENDER_SERVICE_ID` (opcional, para deploy automático)
+  - `RENDER_API_KEY` (opcional, para deploy automático)
 
 - **Cache é automático**: GitHub Actions gerencia limpeza de cache antigo
 
