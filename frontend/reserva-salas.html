@@ -509,9 +509,15 @@ function myGroupsFor(user){
 
 /* ======================= ACTIONS ======================= */
 window.doLogin = async function(userId){
+  const email = document.getElementById('login-email')?.value.trim() || '';
   const password = document.getElementById('login-password')?.value || '';
-  const selected = St.users.find(user=>user.id===userId);
-  if(!selected) return;
+  const selected = userId
+    ? St.users.find(user=>user.id===userId)
+    : St.users.find(user=>user.email.toLowerCase()===email.toLowerCase());
+  if(!selected){
+    toast('E-mail não encontrado. Confira o endereço ou selecione um perfil.', 'err');
+    return;
+  }
   if(!St.offline){
     try{
       const response = await api('/auth/login', { method:'POST', body:{ email:selected.email, password } });
@@ -786,8 +792,12 @@ function renderLogin(){
       <div class="brandmark"><span class="dot"></span><span>Senac Joinville</span></div>
       <h1>Ocupa</h1>
       <p class="sub">Reserva de salas do prédio — pedidos, aprovação, disponibilidade em tempo real e o painel do corredor, tudo num lugar só. Os dados abaixo são compartilhados com toda a equipe.</p>
+      <label class="field-label" for="login-email">E-mail</label>
+      <input id="login-email" class="text-input" type="email" autocomplete="username" placeholder="seu.email@senac.br">
       <label class="field-label" for="login-password">Senha</label>
       <input id="login-password" class="text-input" type="password" autocomplete="current-password" placeholder="Informe sua senha">
+      <button class="btn primary" onclick="doLogin()" type="button">Entrar</button>
+      <p class="hint">Ou entre usando um dos perfis listados abaixo.</p>
       <div class="userlist">
         ${active.map(u=>`
           <button class="user-btn" onclick="doLogin('${u.id}')" type="button">
