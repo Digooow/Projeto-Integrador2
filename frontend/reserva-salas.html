@@ -283,7 +283,7 @@ const St = {
   authToken: sessionStorage.getItem('ocupa_access_token') || null,
   view:'login',
   loaded:false,
-  transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, requestMode:'pontual', reqDays:[2,4], listPages:{ my:1, approvals:1 } }
+  transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, showRegister:false, requestMode:'pontual', reqDays:[2,4], listPages:{ my:1, approvals:1 } }
 };
 
 /* ======================= UTIL ======================= */
@@ -539,6 +539,22 @@ window.doLogin = async function(userId){
   St.view = u.role==='requisitante' ? 'request' : 'approvals';
   render();
 };
+window.toggleRegister = function(){ St.transient.showRegister = !St.transient.showRegister; render(); };
+window.doRegister = async function(event){
+  event.preventDefault();
+  const form = event.target;
+  const body = {
+    name: form.name.value.trim(),
+    email: form.email.value.trim(),
+    password: form.password.value
+  };
+  try{
+    await api('/auth/register', { method:'POST', body });
+    toast('Cadastro realizado. Agora entre com seu e-mail e senha.', 'ok');
+    St.transient.showRegister = false;
+    render();
+  }catch(e){ toast(e.message, 'err'); }
+};
 window.doLogout = function(){ St.currentUserId=null; St.authToken=null; sessionStorage.removeItem('ocupa_access_token'); St.view='login'; render(); };
 window.setListPage = function(view, page){ St.transient.listPages[view] = page; render(); };
 window.goView = function(v){ St.view=v; render(); };
@@ -792,11 +808,21 @@ function renderLogin(){
       <div class="brandmark"><span class="dot"></span><span>Senac Joinville</span></div>
       <h1>Ocupa</h1>
       <p class="sub">Reserva de salas do prédio — pedidos, aprovação, disponibilidade em tempo real e o painel do corredor, tudo num lugar só. Os dados abaixo são compartilhados com toda a equipe.</p>
+      ${St.transient.showRegister ? `
+      <form class="card" onsubmit="doRegister(event)" style="margin-bottom:16px;">
+        <h3 style="margin-bottom:14px;">Criar acesso</h3>
+        <div class="field"><label>Nome</label><input class="text-input" type="text" name="name" required></div>
+        <div class="field"><label>E-mail</label><input class="text-input" type="email" name="email" required></div>
+        <div class="field"><label>Senha</label><input class="text-input" type="password" name="password" minlength="8" required></div>
+        <button class="btn primary" type="submit">Cadastrar</button>
+        <button class="btn ghost" type="button" onclick="toggleRegister()">Voltar para login</button>
+      </form>` : `
       <label class="field-label" for="login-email">E-mail</label>
       <input id="login-email" class="text-input" type="email" autocomplete="username" placeholder="seu.email@senac.br">
       <label class="field-label" for="login-password">Senha</label>
       <input id="login-password" class="text-input" type="password" autocomplete="current-password" placeholder="Informe sua senha">
       <button class="btn primary" onclick="doLogin()" type="button">Entrar</button>
+      <button class="btn ghost" onclick="toggleRegister()" type="button">Cadastrar novo usuário</button>
       <p class="hint">Ou entre usando um dos perfis listados abaixo.</p>
       <div class="userlist">
         ${active.map(u=>`
@@ -804,7 +830,7 @@ function renderLogin(){
             <div>
               <div class="name">${esc(u.name)}</div>
               <div class="role">${roleLabel(u.role)}${u.role==='coordenador'?' · '+u.floors.join(', '):''}</div>
-            </div>
+            </div>`}
             <span class="arrow">entrar →</span>
           </button>`).join('')}
       </div>
