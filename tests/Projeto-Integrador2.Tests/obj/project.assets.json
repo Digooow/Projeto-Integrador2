@@ -1600,9 +1600,7 @@
           "EFCore.NamingConventions": "8.0.0",
           "FluentValidation": "11.11.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
-          "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
           "Microsoft.EntityFrameworkCore": "8.0.10",
-          "Microsoft.EntityFrameworkCore.InMemory": "8.0.10",
           "Microsoft.IdentityModel.Tokens": "8.3.1",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.10",
           "Serilog": "4.2.0",
@@ -4035,6 +4033,8 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "Microsoft.AspNetCore.Mvc.Testing >= 8.0.10",
+      "Microsoft.EntityFrameworkCore.InMemory >= 8.0.10",
       "Microsoft.NET.Test.Sdk >= 17.14.1",
       "Projeto-Integrador2 >= 1.0.0",
       "xunit >= 2.9.3",
@@ -4098,6 +4098,14 @@
         "framework": "net8.0",
         "targetAlias": "net8.0",
         "dependencies": {
+          "Microsoft.AspNetCore.Mvc.Testing": {
+            "target": "Package",
+            "version": "[8.0.10, )"
+          },
+          "Microsoft.EntityFrameworkCore.InMemory": {
+            "target": "Package",
+            "version": "[8.0.10, )"
+          },
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",
             "version": "[17.14.1, )"

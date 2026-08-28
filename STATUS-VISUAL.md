@@ -9,7 +9,7 @@
 | Paginação | ✅ Concluída | API e cliente frontend adaptados |
 | RLS complementar | ✅ Implementado no arquivo SQL | Ainda requer aplicação no Supabase |
 | Dependências recomendadas | ✅ Instaladas | Restore aprovado |
-| Testes | ✅ 8/8 aprovados | 7 unitários + 1 E2E em .NET 8 |
+| Testes | ✅ 9/9 aprovados | 7 unitários + 2 E2E em .NET 8 |
 | JWT/autorização | 🟡 Backend concluído, frontend pendente | Integrar token Bearer no HTML |
 | Deploy remoto | ⏳ Desatualizado | Render responde health, mas não os recursos atuais |
 
@@ -342,7 +342,7 @@ Histórias: /HISTORIA-DO-USUARIO.md
 | Paginação de reservas | ✅ Completa |
 | RLS complementar na migration 002 | ✅ Implementada; validar no projeto Supabase |
 | Build da API | ✅ Aprovado |
-| Testes | ✅ 8/8 aprovados |
+| Testes | ✅ 9/9 aprovados |
 | Autenticação JWT real | ⏳ Pendente e ainda bloqueia produção |
 
 ### Cronograma

@@ -12,7 +12,7 @@ O roadmap abaixo preserva o planejamento original da sprint de 22/08. Use esta a
 - [x] Migration 002 com políticas RLS complementares idempotentes.
 - [x] Dependências da stack recomendada instaladas.
 - [x] Target dos testes alinhado ao .NET 8.
-- [x] Build da API e 8 testes aprovados: 7 unitários e 1 E2E.
+- [x] Build da API e 9 testes aprovados: 7 unitários e 2 E2E.
 - [x] Login JWT integrado ao frontend, com token Bearer nas chamadas protegidas.
 
 ### Próximas tarefas reais
@@ -890,7 +890,7 @@ Métricas:
 - [x] Paginação de reservas com limite máximo de 100 itens.
 - [x] Migration RLS complementar idempotente para operações autenticadas.
 - [x] Correção do projeto de testes para `net8.0`.
-- [x] Validação local: build da API aprovado e 8 testes aprovados.
+- [x] Validação local: build da API aprovado e 9 testes aprovados.
 
 ### Cronograma atualizado
 

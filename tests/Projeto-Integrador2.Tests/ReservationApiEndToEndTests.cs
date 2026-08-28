@@ -84,6 +84,7 @@ public sealed class ReservationApiFactory : WebApplicationFactory<Program>
 {
     private const string ConnectionString = "Host=localhost;Database=e2e";
     private const string JwtSecret = "e2e-secret-key-with-at-least-32-bytes";
+    private readonly string databaseName = $"reservation-api-e2e-{Guid.NewGuid()}";
 
     public ReservationApiFactory()
     {
@@ -98,7 +99,7 @@ public sealed class ReservationApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll<DbContextOptions<ReservationDbContext>>();
             services.AddDbContext<ReservationDbContext>(options =>
-                options.UseInMemoryDatabase("reservation-api-e2e"));
+                options.UseInMemoryDatabase(databaseName));
 
             using var provider = services.BuildServiceProvider();
             using var scope = provider.CreateScope();
@@ -133,6 +134,26 @@ public sealed class ReservationApiFactory : WebApplicationFactory<Program>
                 Description = "Sala de teste",
                 Active = true
             });
+            var approvedReservation = new ReservationEntity
+            {
+                Id = Guid.NewGuid(),
+                RequesterId = "teacher-1",
+                RoomId = "room-204",
+                Title = "Aula exibida no painel",
+                Responsavel = "Fernanda Lima",
+                Attendees = 20,
+                Status = Projeto_Integrador2.Domain.ReservationStatus.Approved,
+                CreatedAt = DateTime.UtcNow,
+                DecidedBy = "admin-1",
+                DecidedAt = DateTime.UtcNow
+            };
+            approvedReservation.Occurrences.Add(new ReservationOccurrenceEntity
+            {
+                Id = Guid.NewGuid(),
+                StartsAt = new DateTime(2026, 9, 2, 19, 0, 0, DateTimeKind.Utc),
+                EndsAt = new DateTime(2026, 9, 2, 21, 0, 0, DateTimeKind.Utc)
+            });
+            db.Reservations.Add(approvedReservation);
             db.SaveChanges();
         });
     }

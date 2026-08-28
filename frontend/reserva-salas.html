@@ -283,7 +283,7 @@ const St = {
   authToken: sessionStorage.getItem('ocupa_access_token') || null,
   view:'login',
   loaded:false,
-  transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, requestMode:'pontual', reqDays:[2,4] }
+  transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, requestMode:'pontual', reqDays:[2,4], listPages:{ my:1, approvals:1 } }
 };
 
 /* ======================= UTIL ======================= */
@@ -337,6 +337,14 @@ async function api(path, options){
   });
   let data = null;
   try{ data = await res.json(); }catch(e){ /* no body */ }
+  if(res.status===401 && St.authToken){
+    St.authToken = null;
+    sessionStorage.removeItem('ocupa_access_token');
+    if(St.currentUserId){
+      St.currentUserId = null; St.view = 'login'; render();
+      toast('Sua sessão expirou. Entre novamente para continuar.', 'err');
+    }
+  }
   if(!res.ok){
     const err = new Error((data && data.error) || `Falha na comunicação com o servidor (${res.status}).`);
     err.status = res.status; err.data = data;
@@ -362,10 +370,13 @@ async function fetchCatalog(){
     rooms: rooms.map(r=>({ id:r.id, name:r.name, floor:r.floor, capacity:r.capacity, description:r.description, resourceIds:r.resourceIds, active:r.active }))
   };
 }
-async function fetchBookings(){
-  const response = await api('/api/reservations?page=1&pageSize=100');
+async function fetchBookings(status){
+  const statusQuery = status ? `&status=${encodeURIComponent(status)}` : '';
+  const response = await api(`/api/reservations?page=1&pageSize=100${statusQuery}`);
   const rows = Array.isArray(response) ? response : (response.data || []);
-  return rows.map(r=>{
+  return rows.map(mapBooking);
+}
+function mapBooking(r){
     const start = new Date(r.occurrence.start), end = new Date(r.occurrence.end);
     return {
       id:String(r.id), seriesId:r.seriesId?String(r.seriesId):null,
@@ -374,7 +385,12 @@ async function fetchBookings(){
       status:STATUS_BACK_TO_FRONT[r.status]||'pending',
       createdAt:r.createdAt, decidedBy:r.decidedBy, decidedAt:r.decidedAt
     };
-  });
+}
+async function loadPublicData(){
+  const [catalog, bookings] = await Promise.all([fetchCatalog(), fetchBookings('Approved')]);
+  St.users = seedUsers();
+  St.rooms = catalog.rooms; St.resources = catalog.resources; St.bookings = bookings;
+  St.loaded = true; St.offline = false;
 }
 async function loadRemoteData(){
   const [users, catalog, bookings] = await Promise.all([fetchUsers(), fetchCatalog(), fetchBookings()]);
@@ -518,6 +534,7 @@ window.doLogin = async function(userId){
   render();
 };
 window.doLogout = function(){ St.currentUserId=null; St.authToken=null; sessionStorage.removeItem('ocupa_access_token'); St.view='login'; render(); };
+window.setListPage = function(view, page){ St.transient.listPages[view] = page; render(); };
 window.goView = function(v){ St.view=v; render(); };
 window.openTV = function(){ St.view='tv'; render(); };
 window.closeTV = function(){ St.view = currentUser() ? (currentUser().role==='requisitante'?'request':'approvals') : 'login'; render(); };
@@ -920,10 +937,24 @@ function renderMyView(user){
   if(groups.length===0){
     return `<div class="page-head"><h2>Minhas solicitações</h2></div><div class="empty"><b>Nenhum pedido ainda</b>Peça uma sala na aba "Solicitar sala" para ver o status aqui.</div>`;
   }
+  const pageSize = 5;
+  const page = Math.min(St.transient.listPages.my, Math.max(1, Math.ceil(groups.length/pageSize)));
+  St.transient.listPages.my = page;
+  const visibleGroups = groups.slice((page-1)*pageSize, page*pageSize);
   return `
   <div class="page-head"><h2>Minhas solicitações</h2><p>Acompanhe o status dos seus pedidos e cancele o que não precisar mais.</p></div>
-  ${groups.map(g=>renderMyGroupCard(g)).join('')}
+  ${visibleGroups.map(g=>renderMyGroupCard(g)).join('')}
+  ${renderPagination('my', page, pageSize, groups.length)}
   `;
+}
+function renderPagination(view, page, pageSize, total){
+  const totalPages = Math.ceil(total/pageSize);
+  if(totalPages<=1) return '';
+  return `<div class="btn-row" style="justify-content:center;margin:18px 0 4px;">
+    <button class="btn small" ${page===1?'disabled':''} onclick="setListPage('${view}',${page-1})">Anterior</button>
+    <span class="meta-line">Página ${page} de ${totalPages}</span>
+    <button class="btn small" ${page===totalPages?'disabled':''} onclick="setListPage('${view}',${page+1})">Próxima</button>
+  </div>`;
 }
 function statusCounts(instances){
   const c = {pending:0,approved:0,rejected:0,cancelled:0};
@@ -982,9 +1013,14 @@ function renderApprovalsView(user){
     return `<div class="page-head"><h2>Aprovações</h2>${scopeNote}</div><div class="empty"><b>Tudo em dia</b>Não há pedidos aguardando decisão no momento.</div>`;
   }
   // FYI: flag pending groups that overlap with OTHER pending groups (heads-up before approving both)
+  const pageSize = 5;
+  const page = Math.min(St.transient.listPages.approvals, Math.max(1, Math.ceil(groups.length/pageSize)));
+  St.transient.listPages.approvals = page;
+  const visibleGroups = groups.slice((page-1)*pageSize, page*pageSize);
   return `
   <div class="page-head"><h2>Aprovações pendentes</h2><p>Revise, confira conflitos de horário e aprove ou rejeite.</p>${scopeNote}</div>
-  ${groups.map(g=>renderApprovalCard(g, groups)).join('')}
+  ${visibleGroups.map(g=>renderApprovalCard(g, groups)).join('')}
+  ${renderPagination('approvals', page, pageSize, groups.length)}
   `;
 }
 function renderApprovalCard(g, allGroups){
@@ -1234,7 +1270,7 @@ function attachTVTimer(){
     const clockEl = document.getElementById('tv-clock');
     if(clockEl) clockEl.textContent = hhmm(new Date())+':'+pad(new Date().getSeconds());
     if(new Date().getSeconds()===0){
-      try{ St.bookings = await fetchBookings(); }catch(e){ /* keep showing last known data */ }
+      try{ St.bookings = await fetchBookings('Approved'); }catch(e){ /* keep showing last known data */ }
       render();
     }
   }, 1000);
@@ -1301,19 +1337,25 @@ function renderTVCard(room, todays, now){
 /* ======================= BOOT ======================= */
 async function boot(){
   try{
-    await loadRemoteData();
+    await (St.authToken ? loadRemoteData() : loadPublicData());
   }catch(e){
-    // Backend unreachable (wrong API_BASE, CORS, server down...) — fall back to
-    // local demo data so the UI is still explorable instead of a blank page.
+    // Keep the public panel usable while exposing whether the API was offline
+    // or responded with a server error.
     St.users = seedUsers();
     const cat = seedCatalog(); St.rooms = cat.rooms; St.resources = cat.resources;
     St.bookings = seedBookings();
     St.loaded = true;
     St.offline = true;
+    St.serverError = e.status >= 500;
     console.error('Não foi possível conectar à API em', API_BASE, e);
   }
   render();
-  if(St.offline) toast(`Sem conexão com o servidor (${API_BASE}) — mostrando dados de demonstração locais.`, 'err');
+  if(St.offline){
+    const message = St.serverError
+      ? `O servidor respondeu com erro (${API_BASE}) — mostrando dados de demonstração locais.`
+      : `Sem conexão com o servidor (${API_BASE}) — mostrando dados de demonstração locais.`;
+    toast(message, 'err');
+  }
 }
 boot();
 </script>

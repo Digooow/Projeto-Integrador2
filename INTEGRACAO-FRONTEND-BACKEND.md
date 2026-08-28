@@ -4,7 +4,7 @@
 
 - ✅ Frontend integrado ao backend e servido pela própria API em `/` e `/reserva-salas.html`.
 - ✅ Cliente adaptado à paginação de reservas.
-- ✅ Build e 8 testes aprovados: 7 unitários e 1 E2E.
+- ✅ Build e 9 testes aprovados: 7 unitários e 2 E2E.
 - ⏳ A URL pública do Render ainda precisa receber uma nova imagem e a migration 002 precisa ser aplicada no Supabase.
 - ✅ Autenticação JWT real configurada no backend.
 - ✅ Login JWT integrado ao frontend; o usuário informa a senha e o token Bearer é enviado nas chamadas protegidas.
@@ -141,7 +141,7 @@ integração, e continuam valendo:
 
 A limitação de paginação acima foi resolvida: `GET /api/reservations` agora aceita `page` e `pageSize` (máximo 100) e retorna `data` com `pagination`. O frontend solicita a primeira página de até 100 registros e mantém compatibilidade com a resposta antiga para fallback.
 
-Também foram concluídos o build limpo da API e os 8 testes locais: 7 unitários e 1 E2E da API. Permanecem pendentes o tratamento explícito de fuso horário e a validação E2E contra uma instância real do Supabase/Render.
+Também foram concluídos o build limpo da API e os 9 testes locais: 7 unitários e 2 E2E da API. Permanece pendente a validação E2E contra uma instância real do Supabase/Render, além do tratamento explícito de fuso horário.
 
 ## Diagnóstico de acesso remoto — 26/08/2026
 
