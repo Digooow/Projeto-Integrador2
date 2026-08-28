@@ -1,6 +1,6 @@
 # Projeto-Integrador2 - Sistema de Reserva de Salas
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
 Esta é a situação atual do projeto. As seções e checklists abaixo, datadas de 22/08/2026, são mantidas como histórico da sprint anterior; quando houver diferença, este quadro é a referência mais recente.
 
@@ -12,7 +12,8 @@ Esta é a situação atual do projeto. As seções e checklists abaixo, datadas 
 - ✅ Paginação em `GET /api/reservations?page=1&pageSize=20`, limitada a 100 registros.
 - ✅ Migration 002 com campos de integração e políticas RLS complementares idempotentes.
 - ✅ Stack recomendada instalada: FluentValidation, Serilog, sinks, JWT, JwtBearer e Swashbuckle.
-- ✅ Build aprovado e 7 testes unitários aprovados.
+- ✅ Build aprovado e 9 testes aprovados: 7 unitários e 2 E2E.
+- ✅ Login JWT e autorização configurados no backend.
 
 ### Autenticação JWT
 
@@ -23,6 +24,7 @@ Usuários novos devem ser criados por um administrador em `POST /api/users` info
 ### Pendências reais
 
 - ✅ Configurar JWT no pipeline, login com credenciais e proteção dos endpoints.
+- ⏳ Integrar o login JWT ao frontend, que ainda usa seleção demonstrativa de usuário.
 - ⏳ Configurar efetivamente FluentValidation, Serilog/Application Insights e Swagger.
 - ⏳ Aplicar e validar a migration 002 no Supabase.
 - ⏳ Publicar a imagem atualizada e fazer redeploy no Render; a imagem pública ainda está desatualizada.
@@ -30,7 +32,7 @@ Usuários novos devem ser criados por um administrador em `POST /api/users` info
 
 O cronograma de evolução deve usar este status como ponto de partida. Nenhum item pendente desta seção deve ser tratado como concluído apenas porque o pacote ou o exemplo foi adicionado.
 
-> **Status:** 42% Completo | **Ambiente:** Backend pronto, Frontend em desenvolvimento | **Data:** 22/08/2026
+> **Histórico:** Status de 22/08/2026. Consulte o quadro vigente acima para a situação atual.
 
 ---
 
@@ -42,7 +44,7 @@ Este é um **Sistema Completo de Reserva de Salas** para instituições de ensin
 
 ### Tecnologia & Arquitetura
 
-> **Nota de rastreabilidade — 26/08/2026:** A tabela abaixo é o retrato original de 22/08. Desde então, o frontend foi integrado e passou a ser servido pela API; a autenticação real continua pendente.
+> **Nota de rastreabilidade:** A tabela abaixo preserva percentuais históricos de 22/08. O backend já possui JWT; a integração do token no frontend continua pendente.
 
 | Aspecto | Tecnologia | Status |
 |---------|-----------|--------|
@@ -54,7 +56,7 @@ Este é um **Sistema Completo de Reserva de Salas** para instituições de ensin
 | **CI/CD** | GitHub Actions | ✅ 100% Otimizado |
 | **Deploy** | Render + Docker Hub | ✅ Online |
 | **Frontend** | HTML/CSS/JavaScript | 🟡 20% Integrado |
-| **Segurança** | JWT + Row Level Security (RLS) | 🔴 Em desenvolvimento |
+| **Segurança** | JWT no backend + Row Level Security (RLS) | 🟡 Parcial |
 
 ### Saúde do Projeto
 
@@ -68,14 +70,14 @@ Componentes:
 ✅ CI/CD Pipeline:       █████████████████████████████░ 100%
 ✅ Deploy (Render):      █████████████████████████████░ 100%
 ✅ Documentação:         █████████████████████████████░ 100%
-🔴 Autenticação JWT:     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0%
-🟡 Frontend:             ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 20%
+🟡 Autenticação JWT:     backend pronto; integração no frontend pendente
+🟡 Frontend:             integrado à API; login JWT pendente
 🟡 Segurança (RLS):      ██████░░░░░░░░░░░░░░░░░░░░░░░░░░ 60%
 ```
 
 ### Bloqueador para Produção
 
-🔴 **Autenticação JWT não implementada** - Impede uso em produção. Qualquer pessoa pode fazer requisições POST/PUT/DELETE sem autorização.
+🔴 **Integração de autenticação incompleta** - O backend exige JWT nas operações protegidas, mas o frontend ainda usa login demonstrativo. Também faltam validação da migration no Supabase, CORS restrito e testes E2E para uso em produção.
 
 ---
 
@@ -280,7 +282,7 @@ Projeto-Integrador2/
 │
 ├─ tests/
 │  └─ Projeto-Integrador2.Tests/
-│     ├─ ReservationServiceTests.cs    ✅ 8 testes principais
+│     ├─ ReservationServiceTests.cs    ✅ 7 testes unitários + 2 E2E
 │     └─ Projeto-Integrador2.Tests.csproj
 │
 └─ frontend/
@@ -360,6 +362,10 @@ O projeto utiliza **GitHub Actions** para automação contínua de integração 
    DOCKER_USERNAME = seu-usuario-dockerhub
    DOCKER_PASSWORD = seu-token-dockerhub
    ```
+
+Para que cada imagem publicada também provoque o redeploy do serviço, adicione
+os secrets `RENDER_SERVICE_ID` (sem o prefixo `srv-`) e `RENDER_API_KEY`.
+Enquanto eles não existirem, o job de deploy será ignorado.
 
 ---
 
@@ -770,7 +776,7 @@ Banco de Dados:
 
 Testes:
   ├─ xUnit (framework)
-  ├─ 8 testes unitários principais
+  ├─ 7 testes unitários principais + 2 E2E
   └─ Cobertura: 80%
 
 DevOps:
@@ -970,7 +976,7 @@ Entregas validadas nesta atualização:
 - Paginação de `GET /api/reservations?page=1&pageSize=20`, limitada a 100 itens, com metadados `data` e `pagination`.
 - Frontend adaptado ao novo envelope paginado.
 - Migration `002_frontend_integration.sql` ampliada com políticas RLS idempotentes e permissões para usuários autenticados.
-- Projeto de testes alinhado ao .NET 8; **7 testes passando**.
+- Projeto de testes alinhado ao .NET 8; **9 testes passando (7 unitários e 2 E2E)**.
 
 Pendências que continuam abertas: autenticação real com credenciais e JWT, CORS restrito em produção, testes E2E e tratamento explícito de fuso horário. O login atual por seleção de usuário é apenas demonstração e não deve ser considerado autenticação de produção.
 
@@ -983,3 +989,41 @@ Pendências que continuam abertas: autenticação real com credenciais e JWT, CO
 | 27–29/08 | JWT com credenciais, claims e proteção dos endpoints de escrita | ⏳ Planejado |
 | 30/08–02/09 | Testes E2E, CORS de produção e revisão de fuso horário | ⏳ Planejado |
 | 03–06/09 | Observabilidade, rate limiting e validação de deploy | ⏳ Planejado |
+
+## Estado atual do projeto — 28/08/2026
+
+Esta seção complementa as atualizações históricas acima e representa o estado
+vigente do sistema. Os registros anteriores foram preservados como histórico.
+
+### Entregas concluídas desde a atualização anterior
+
+- ✅ Projeto Supabase próprio criado e conectado ao serviço Render.
+- ✅ Migrations `001_initial.sql`, `002_frontend_integration.sql` e
+  `003_jwt_authentication.sql` executadas no banco atual.
+- ✅ API publicada no Render com salas e reservas persistidas no Supabase.
+- ✅ Login JWT por e-mail e senha integrado ao frontend.
+- ✅ Cadastro público de novos usuários como requisitantes.
+- ✅ Área administrativa para criação, edição e desativação de usuários.
+- ✅ Pipeline GitHub Actions publica a imagem Docker e aciona o redeploy do Render
+  automaticamente usando `RENDER_API_KEY` e `RENDER_SERVICE_ID`.
+- ✅ Correção da tela cinza causada por erro de sintaxe no template de login.
+- ✅ Testes locais e deploy de produção validados após as alterações.
+
+### Configuração operacional atual
+
+- A connection string do Supabase fica somente nas variáveis de ambiente do
+  Render e não deve ser adicionada ao código ou ao repositório.
+- A senha `Troque-me-123!` é uma credencial temporária de demonstração definida
+  pela migration `003`; ela deve ser substituída quando o projeto deixar de ser
+  uma atividade de curso.
+- O frontend é servido pelas rotas `/` e `/reserva-salas.html`.
+
+### Pendências atuais
+
+- [ ] Criar testes E2E específicos para login, cadastro e autorização.
+- [ ] Restringir o CORS para os domínios efetivamente utilizados.
+- [ ] Implementar tratamento explícito de fuso horário.
+- [ ] Adicionar observabilidade e rate limiting para uso além da atividade.
+
+Para acompanhar a evolução sem remover o histórico deste README, consulte
+também o [roadmap complementar atual](./ROADMAP-ATUAL.md).

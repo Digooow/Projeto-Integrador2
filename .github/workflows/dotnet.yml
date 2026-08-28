@@ -102,13 +102,16 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-  # Job 3: Deploy (opcional – você pode ativar depois)
-  # deploy:
-  #   needs: docker-build-push
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main'
-  #   steps:
-  #     - name: Deploy to Render
-  #       run: |
-  #         curl -X POST https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }} \
-  #           -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+  deploy:
+    needs: docker-build-push
+    runs-on: ubuntu-latest
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+    steps:
+    - name: Trigger Render deploy
+      if: env.RENDER_API_KEY != '' && env.RENDER_SERVICE_ID != ''
+      run: |
+        curl --fail-with-body --retry 3 --silent --show-error \
+          --request POST "https://api.render.com/v1/services/srv-${RENDER_SERVICE_ID}/deploys" \
+          --header "Authorization: Bearer ${RENDER_API_KEY}"

@@ -5,6 +5,8 @@ using Npgsql;
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -84,9 +86,10 @@ app.MapGet("/health", async (ReservationDbContext db, CancellationToken cancella
         : Results.Json(new { status = "degraded", database = "disconnected", timestamp = DateTime.UtcNow }, statusCode: StatusCodes.Status503ServiceUnavailable);
 });
 
-app.MapPost("/auth/login", async (LoginRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+app.MapPost("/auth/login", async (HttpRequest request, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(input.Email) || string.IsNullOrWhiteSpace(input.Password))
+    var input = await request.ReadFromJsonAsync<LoginRequest>(cancellationToken);
+    if (input is null || string.IsNullOrWhiteSpace(input.Email) || string.IsNullOrWhiteSpace(input.Password))
         return Results.BadRequest(new { error = "Informe e-mail e senha." });
 
     var user = await db.Users.SingleOrDefaultAsync(u => u.Email == input.Email && u.Active, cancellationToken);
@@ -113,6 +116,33 @@ app.MapPost("/auth/login", async (LoginRequest input, ReservationDbContext db, C
         new JwtSecurityTokenHandler().WriteToken(token),
         expiresAt,
         new UserResponse(user.Id, user.Name, user.Email, user.Role.ToString(), user.Active, user.Floors.ToArray())));
+});
+
+app.MapPost("/auth/register", async (RegisterRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(input.Name) || string.IsNullOrWhiteSpace(input.Email) || string.IsNullOrWhiteSpace(input.Password))
+        return Results.BadRequest(new { error = "Informe nome, e-mail e senha." });
+
+    if (input.Password.Length < 8)
+        return Results.BadRequest(new { error = "A senha precisa ter pelo menos 8 caracteres." });
+
+    var email = input.Email.Trim().ToLowerInvariant();
+    if (await db.Users.AnyAsync(u => u.Email == email, cancellationToken))
+        return Results.Conflict(new { error = "Já existe um usuário com esse e-mail." });
+
+    var user = new UserEntity
+    {
+        Id = $"user_{Guid.NewGuid():N}",
+        Name = input.Name.Trim(),
+        Email = email,
+        PasswordHash = PasswordHasher.Hash(input.Password),
+        Role = UserRole.Teacher,
+        Active = true,
+        Floors = []
+    };
+    db.Users.Add(user);
+    await db.SaveChangesAsync(cancellationToken);
+    return Results.Created("/auth/register", new { user.Id });
 });
 
 // ===================== ROOMS =====================
@@ -580,7 +610,16 @@ static IReadOnlyList<(DateTime Start, DateTime End)> ExpandOccurrences(DateTime 
 // straight from its day-picker without translating anything.
 public sealed record WeeklyRecurrenceRequest(int[] Days, DateTime Until);
 
-public sealed record LoginRequest(string Email, string Password);
+public sealed class LoginRequest
+{
+    [JsonPropertyName("email")]
+    public string Email { get; init; } = "";
+
+    [JsonPropertyName("password")]
+    public string Password { get; init; } = "";
+}
+
+public sealed record RegisterRequest(string Name, string Email, string Password);
 
 public sealed record LoginResponse(string AccessToken, DateTime ExpiresAt, UserResponse User);
 
@@ -631,3 +670,5 @@ public sealed record ReservationResponse(
     string? DecidedBy,
     DateTime? DecidedAt,
     OccurrenceResponse Occurrence);
+
+public partial class Program { }

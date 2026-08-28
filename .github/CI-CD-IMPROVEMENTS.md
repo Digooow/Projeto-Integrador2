@@ -163,14 +163,18 @@ Se quiser expandir:
       -d '{"text":"❌ Build falhou em ${{ github.ref }}"}'
 ```
 
-### B. Deploy Automático no Render (quando tiver API Key)
-```yaml
-- name: Trigger Render Deploy
-  if: success()
-  run: |
-    curl -X POST https://api.render.com/deploy/srv-XXX \
-      -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+### B. Deploy Automático no Render
+
+O workflow dispara o redeploy depois que a imagem `latest` é publicada. Para
+ativá-lo, crie estes secrets em **Settings → Secrets and variables → Actions**:
+
+```text
+RENDER_SERVICE_ID = identificador do serviço no Render (sem o prefixo srv-)
+RENDER_API_KEY = chave de API do Render
 ```
+
+Sem os dois secrets, o job de deploy é ignorado; build, testes e publicação da
+imagem continuam funcionando normalmente.
 
 ### C. Multi-platform Docker Build (ARM64, AMD64)
 ```yaml
@@ -214,6 +218,7 @@ platforms: linux/amd64,linux/arm64
 - **Secrets necessários**:
   - `DOCKER_USERNAME` ✅ (já configurado)
   - `DOCKER_PASSWORD` ✅ (já configurado)
+  - `RENDER_SERVICE_ID` (opcional, para deploy automático)
   - `RENDER_API_KEY` (opcional, para deploy automático)
 
 - **Cache é automático**: GitHub Actions gerencia limpeza de cache antigo

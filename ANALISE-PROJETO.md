@@ -1,6 +1,6 @@
 # 📋 Análise Completa do Projeto - Sistema de Reserva de Salas
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
 Este quadro foi atualizado após a análise da implementação atual. O conteúdo posterior, com data de 22/08/2026, permanece como registro da análise original e não deve ser interpretado como um status mais recente.
 
@@ -10,11 +10,12 @@ Este quadro foi atualizado após a análise da implementação atual. O conteúd
 - ✅ Paginação de reservas com metadados e limite máximo de 100 registros.
 - ✅ Migration 002 com integração frontend e políticas RLS complementares idempotentes.
 - ✅ Dependências recomendadas adicionadas ao projeto, incluindo `JwtBearer`.
-- ✅ Build da API aprovado e 7 testes unitários aprovados.
+- ✅ Build da API aprovado e 9 testes aprovados: 7 unitários e 2 E2E.
 
 ### Ainda pendente
 
-- ⏳ Configuração e uso efetivo de JWT, login por credenciais e autorização por claims.
+- ✅ Configuração de JWT, login por credenciais e autorização por claims no backend.
+- ⏳ Uso efetivo do JWT no frontend, que ainda seleciona um perfil demonstrativo.
 - ⏳ Configuração efetiva de FluentValidation, Serilog, Application Insights e Swagger.
 - ⏳ Aplicação/validação da migration no Supabase e redeploy da imagem atual no Render.
 - ⏳ Testes E2E, CORS restrito, fuso horário explícito e rate limiting.
@@ -179,7 +180,7 @@ As listas históricas abaixo devem ser lidas como o plano e o diagnóstico da sp
 
 ### 3️⃣ **Testes Unitários (80% Implementados)**
 
-#### Cobertura de Testes (8 testes principais):
+#### Cobertura de Testes (9 testes: 7 unitários e 2 E2E):
 ```csharp
 ✅ Submit_creates_a_pending_request_without_reserving_the_room
    └─ Verifica: Status = Pending, aparece em PendingRequests()
@@ -548,7 +549,7 @@ Tempo estimado: 6 horas
 #### 2. **Testes Unitários** ⭐⭐⭐⭐⭐
 ```
 ✅ Cobertura abrangente:
-   ├─ 8 testes principais com casos de sucesso e falha
+   ├─ 9 testes com casos de sucesso e falha
    ├─ Sem dependência de banco de dados
    ├─ Sem dependência de rede
    ├─ Testes rodam em ~2 segundos
@@ -728,7 +729,7 @@ Operacional:
 
 ### Cobertura de Código:
 ```
-Domain Logic:        ✅ 95% (8 testes cobrindo 38 funções)
+Domain Logic:        ✅ 95% (7 testes unitários cobrindo 38 funções)
 Persistence:         ⚠️  20% (sem testes, apenas migrations)
 API Endpoints:       🟡 50% (happy path testado, erros não)
 Frontend:            ❌ 0% (sem testes automatizados)
@@ -865,7 +866,7 @@ Itens entregues pelo colaborador e verificados localmente:
 - ✅ Paginação determinística em `/api/reservations`, com `page`, `pageSize`, `total` e `totalPages`.
 - ✅ Frontend compatível com a resposta paginada.
 - ✅ Migration complementar com políticas RLS reexecutáveis para operações autenticadas.
-- ✅ Build da API e 7 testes unitários passando.
+- ✅ Build da API e 9 testes passando: 7 unitários e 2 E2E.
 - ✅ Correção de target dos testes para `net8.0` e alinhamento das dependências do PostgreSQL.
 
 Itens ainda não concluídos: JWT com credenciais reais, CORS restrito, testes E2E, logging estruturado, rate limiting, tratamento explícito de fuso horário e validação de infraestrutura Supabase/Render. A porcentagem geral e o bloqueador de produção devem permanecer conservadores até a autenticação real ser entregue.

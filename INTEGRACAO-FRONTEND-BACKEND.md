@@ -1,12 +1,13 @@
 # Integração Frontend ↔ Backend
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
 - ✅ Frontend integrado ao backend e servido pela própria API em `/` e `/reserva-salas.html`.
 - ✅ Cliente adaptado à paginação de reservas.
-- ✅ Build e 7 testes unitários aprovados.
+- ✅ Build e 9 testes aprovados: 7 unitários e 2 E2E.
 - ⏳ A URL pública do Render ainda precisa receber uma nova imagem e a migration 002 precisa ser aplicada no Supabase.
-- ⏳ Autenticação JWT real permanece pendente; o login atual por seleção de usuário é demonstração.
+- ✅ Autenticação JWT real configurada no backend.
+- ✅ Login JWT integrado ao frontend; o usuário informa a senha e o token Bearer é enviado nas chamadas protegidas.
 
 O restante deste documento registra a integração entregue e suas limitações na ordem em que foram documentadas.
 
@@ -132,22 +133,22 @@ parse manualmente dentro do endpoint.
 Estas já eram lacunas documentadas em `ANALISE-PROJETO.md` antes desta
 integração, e continuam valendo:
 
-- **Sem autenticação real.** A tela de login é "escolha seu nome na lista" —
-  não há senha nem token. Qualquer pessoa com a URL da API pode chamar
-  qualquer endpoint diretamente. Antes de qualquer uso com dados reais, vale
-  implementar algo como JWT e proteger os endpoints de escrita.
+- **Integração de autenticação concluída no cliente.** A API possui `/auth/login`,
+  valida credenciais e protege endpoints com JWT. O frontend solicita a senha,
+  armazena o token na sessão e envia `Authorization: Bearer`. Ainda faltam
+  testes E2E e validação do ambiente publicado.
 - **Fuso horário não tratado explicitamente.** Datas/horas viajam como texto
   local (`2026-08-25T14:00:00`) sem indicação de fuso; o Postgres grava em
   colunas `timestamptz`. Funciona para um único fuso (Brasil), mas não é
   robusto para múltiplos fusos.
-- **Sem paginação** em `/api/reservations` — aceitável no volume atual, mas
-  vale revisitar se o histórico crescer muito.
+- A paginação de `/api/reservations` já foi implementada; permanecem pendentes
+  o tratamento explícito de fuso horário e a validação E2E contra Supabase/Render.
 
 ## Atualização de execução — 26/08/2026
 
 A limitação de paginação acima foi resolvida: `GET /api/reservations` agora aceita `page` e `pageSize` (máximo 100) e retorna `data` com `pagination`. O frontend solicita a primeira página de até 100 registros e mantém compatibilidade com a resposta antiga para fallback.
 
-Também foram concluídos o build limpo da API e os 7 testes unitários do domínio. Permanecem pendentes a autenticação JWT real, o tratamento explícito de fuso horário e a validação E2E contra uma instância real do Supabase/Render.
+Também foram concluídos o build limpo da API e os 9 testes locais: 7 unitários e 2 E2E da API. Permanece pendente a validação E2E contra uma instância real do Supabase/Render, além do tratamento explícito de fuso horário.
 
 ## Diagnóstico de acesso remoto — 26/08/2026
 

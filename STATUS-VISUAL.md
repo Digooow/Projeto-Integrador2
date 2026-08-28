@@ -1,6 +1,6 @@
 # 📊 STATUS VISUAL DO PROJETO
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
 | Componente | Situação atual | Evidência |
 |---|---|---|
@@ -9,8 +9,8 @@
 | Paginação | ✅ Concluída | API e cliente frontend adaptados |
 | RLS complementar | ✅ Implementado no arquivo SQL | Ainda requer aplicação no Supabase |
 | Dependências recomendadas | ✅ Instaladas | Restore aprovado |
-| Testes | ✅ 7/7 aprovados | xUnit em .NET 8 |
-| JWT/autorização | ⏳ Pendente | Continua bloqueando produção |
+| Testes | ✅ 9/9 aprovados | 7 unitários + 2 E2E em .NET 8 |
+| JWT/autorização | 🟡 Backend concluído, frontend pendente | Integrar token Bearer no HTML |
 | Deploy remoto | ⏳ Desatualizado | Render responde health, mas não os recursos atuais |
 
 Este quadro é o status vigente. O painel original abaixo permanece como histórico da sprint de 22/08; suas tarefas concluídas não devem ser contadas novamente.
@@ -42,7 +42,7 @@ O que é entrega final:       ✅ Sim (Fase 1-3)
 | **Testes Unit.** | ✅ Pronto | 80% | - | Testes E2E |
 | **CI/CD** | ✅ Pronto | 100% | - | Deploy Render |
 | **Deploy (Render)** | ✅ Online | 100% | - | Autenticação |
-| **Autenticação** | ❌ Falta | 0% | 🔴 CRÍTICO | JWT (6h) |
+| **Autenticação** | 🟡 Backend pronto | Parcial | 🔴 CRÍTICO | Integrar JWT no frontend |
 | **RLS no Banco** | 🟡 Parcial | 60% | 🔴 CRÍTICO | Completar (4h) |
 | **Frontend** | 🟡 Base | 20% | 🟡 IMPORTANTE | Integração (25h) |
 | **Validações** | 🟡 Parcial | 50% | 🟡 IMPORTANTE | FluentValidation (4h) |
@@ -342,7 +342,7 @@ Histórias: /HISTORIA-DO-USUARIO.md
 | Paginação de reservas | ✅ Completa |
 | RLS complementar na migration 002 | ✅ Implementada; validar no projeto Supabase |
 | Build da API | ✅ Aprovado |
-| Testes unitários | ✅ 7/7 aprovados |
+| Testes | ✅ 9/9 aprovados |
 | Autenticação JWT real | ⏳ Pendente e ainda bloqueia produção |
 
 ### Cronograma

@@ -64,6 +64,9 @@
   .brandmark span{font-family:'IBM Plex Mono',monospace;letter-spacing:.14em;font-size:12px;color:var(--text-dim);text-transform:uppercase;}
   .login-card h1{font-size:34px;line-height:1.15;margin-bottom:10px;}
   .login-card .sub{color:var(--text-dim);font-size:15px;line-height:1.55;margin-bottom:28px;}
+  .login-card .field-label{display:block;color:var(--text-dim);font-size:12px;margin-bottom:6px;}
+  .login-card .text-input{width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;color:var(--text);margin-bottom:16px;}
+  .login-card .text-input:focus{outline:none;border-color:var(--accent);}
   .userlist{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
   .user-btn{
     display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -277,9 +280,10 @@ const FLOOR_ORDER = ['Térreo','1º andar','2º andar','3º andar','4º andar'];
 const St = {
   users:[], rooms:[], resources:[], bookings:[],
   currentUserId:null,
+  authToken: sessionStorage.getItem('ocupa_access_token') || null,
   view:'login',
   loaded:false,
-  transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, requestMode:'pontual', reqDays:[2,4] }
+  transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, showRegister:false, requestMode:'pontual', reqDays:[2,4], listPages:{ my:1, approvals:1 } }
 };
 
 /* ======================= UTIL ======================= */
@@ -324,13 +328,23 @@ const ROLE_BACK_TO_FRONT = { Teacher:'requisitante', Collaborator:'requisitante'
 const STATUS_BACK_TO_FRONT = { Pending:'pending', Approved:'approved', Rejected:'rejected', Cancelled:'cancelled' };
 
 async function api(path, options){
+  const headers = { 'Content-Type':'application/json' };
+  if(St.authToken) headers.Authorization = `Bearer ${St.authToken}`;
   const res = await fetch(API_BASE + path, {
     method: (options && options.method) || 'GET',
-    headers: { 'Content-Type':'application/json' },
+    headers,
     body: options && options.body ? JSON.stringify(options.body) : undefined
   });
   let data = null;
   try{ data = await res.json(); }catch(e){ /* no body */ }
+  if(res.status===401 && St.authToken){
+    St.authToken = null;
+    sessionStorage.removeItem('ocupa_access_token');
+    if(St.currentUserId){
+      St.currentUserId = null; St.view = 'login'; render();
+      toast('Sua sessão expirou. Entre novamente para continuar.', 'err');
+    }
+  }
   if(!res.ok){
     const err = new Error((data && data.error) || `Falha na comunicação com o servidor (${res.status}).`);
     err.status = res.status; err.data = data;
@@ -346,8 +360,9 @@ async function fetchUsers(){
   return rows.map(u=>({ id:u.id, name:u.name, email:u.email, role:ROLE_BACK_TO_FRONT[u.role]||'requisitante', floors:u.floors||[], active:u.active }));
 }
 async function fetchCatalog(){
+  const includeInactive = currentUser()?.role==='admin' ? '?includeInactive=true' : '';
   const [rooms, resources] = await Promise.all([
-    api('/api/rooms?includeInactive=true'),
+    api('/api/rooms'+includeInactive),
     api('/api/resources')
   ]);
   return {
@@ -355,10 +370,13 @@ async function fetchCatalog(){
     rooms: rooms.map(r=>({ id:r.id, name:r.name, floor:r.floor, capacity:r.capacity, description:r.description, resourceIds:r.resourceIds, active:r.active }))
   };
 }
-async function fetchBookings(){
-  const response = await api('/api/reservations?page=1&pageSize=100');
+async function fetchBookings(status){
+  const statusQuery = status ? `&status=${encodeURIComponent(status)}` : '';
+  const response = await api(`/api/reservations?page=1&pageSize=100${statusQuery}`);
   const rows = Array.isArray(response) ? response : (response.data || []);
-  return rows.map(r=>{
+  return rows.map(mapBooking);
+}
+function mapBooking(r){
     const start = new Date(r.occurrence.start), end = new Date(r.occurrence.end);
     return {
       id:String(r.id), seriesId:r.seriesId?String(r.seriesId):null,
@@ -367,7 +385,17 @@ async function fetchBookings(){
       status:STATUS_BACK_TO_FRONT[r.status]||'pending',
       createdAt:r.createdAt, decidedBy:r.decidedBy, decidedAt:r.decidedAt
     };
-  });
+}
+async function loadPublicData(){
+  const [catalog, bookings] = await Promise.all([fetchCatalog(), fetchBookings('Approved')]);
+  St.users = seedUsers();
+  St.rooms = catalog.rooms; St.resources = catalog.resources; St.bookings = bookings;
+  St.loaded = true; St.offline = false;
+}
+async function loadRemoteData(){
+  const [users, catalog, bookings] = await Promise.all([fetchUsers(), fetchCatalog(), fetchBookings()]);
+  St.users = users; St.rooms = catalog.rooms; St.resources = catalog.resources; St.bookings = bookings;
+  St.loaded = true; St.offline = false;
 }
 
 /* ======================= SEED DATA ======================= */
@@ -480,13 +508,55 @@ function myGroupsFor(user){
 }
 
 /* ======================= ACTIONS ======================= */
-window.doLogin = function(userId){
+window.doLogin = async function(userId){
+  const email = document.getElementById('login-email')?.value.trim() || '';
+  const password = document.getElementById('login-password')?.value || '';
+  const selected = userId
+    ? St.users.find(user=>user.id===userId)
+    : St.users.find(user=>user.email.toLowerCase()===email.toLowerCase());
+  if(!selected){
+    toast('E-mail não encontrado. Confira o endereço ou selecione um perfil.', 'err');
+    return;
+  }
+  if(!St.offline){
+    try{
+      const response = await api('/auth/login', { method:'POST', body:{ email:selected.email, password } });
+      St.authToken = response.accessToken;
+      sessionStorage.setItem('ocupa_access_token', St.authToken);
+      const authenticatedUser = response.user;
+      userId = authenticatedUser.id;
+      St.currentUserId = userId;
+      const index = St.users.findIndex(user=>user.id===userId);
+      St.users[index] = { ...selected, role:ROLE_BACK_TO_FRONT[authenticatedUser.role]||selected.role, floors:authenticatedUser.floors||selected.floors, active:authenticatedUser.active };
+      await loadRemoteData();
+    }catch(e){
+      toast(e.status===401 ? 'E-mail ou senha inválidos.' : e.message, 'err');
+      return;
+    }
+  }
   St.currentUserId = userId;
   const u = currentUser();
   St.view = u.role==='requisitante' ? 'request' : 'approvals';
   render();
 };
-window.doLogout = function(){ St.currentUserId=null; St.view='login'; render(); };
+window.toggleRegister = function(){ St.transient.showRegister = !St.transient.showRegister; render(); };
+window.doRegister = async function(event){
+  event.preventDefault();
+  const form = event.target;
+  const body = {
+    name: form.name.value.trim(),
+    email: form.email.value.trim(),
+    password: form.password.value
+  };
+  try{
+    await api('/auth/register', { method:'POST', body });
+    toast('Cadastro realizado. Agora entre com seu e-mail e senha.', 'ok');
+    St.transient.showRegister = false;
+    render();
+  }catch(e){ toast(e.message, 'err'); }
+};
+window.doLogout = function(){ St.currentUserId=null; St.authToken=null; sessionStorage.removeItem('ocupa_access_token'); St.view='login'; render(); };
+window.setListPage = function(view, page){ St.transient.listPages[view] = page; render(); };
 window.goView = function(v){ St.view=v; render(); };
 window.openTV = function(){ St.view='tv'; render(); };
 window.closeTV = function(){ St.view = currentUser() ? (currentUser().role==='requisitante'?'request':'approvals') : 'login'; render(); };
@@ -738,16 +808,32 @@ function renderLogin(){
       <div class="brandmark"><span class="dot"></span><span>Senac Joinville</span></div>
       <h1>Ocupa</h1>
       <p class="sub">Reserva de salas do prédio — pedidos, aprovação, disponibilidade em tempo real e o painel do corredor, tudo num lugar só. Os dados abaixo são compartilhados com toda a equipe.</p>
+      ${St.transient.showRegister ? `
+      <form class="card" onsubmit="doRegister(event)" style="margin-bottom:16px;">
+        <h3 style="margin-bottom:14px;">Criar acesso</h3>
+        <div class="field"><label>Nome</label><input class="text-input" type="text" name="name" required></div>
+        <div class="field"><label>E-mail</label><input class="text-input" type="email" name="email" required></div>
+        <div class="field"><label>Senha</label><input class="text-input" type="password" name="password" minlength="8" required></div>
+        <button class="btn primary" type="submit">Cadastrar</button>
+        <button class="btn ghost" type="button" onclick="toggleRegister()">Voltar para login</button>
+      </form>` : `
+      <label class="field-label" for="login-email">E-mail</label>
+      <input id="login-email" class="text-input" type="email" autocomplete="username" placeholder="seu.email@senac.br">
+      <label class="field-label" for="login-password">Senha</label>
+      <input id="login-password" class="text-input" type="password" autocomplete="current-password" placeholder="Informe sua senha">
+      <button class="btn primary" onclick="doLogin()" type="button">Entrar</button>
+      <button class="btn ghost" onclick="toggleRegister()" type="button">Cadastrar novo usuário</button>
+      <p class="hint">Ou entre usando um dos perfis listados abaixo.</p>
       <div class="userlist">
         ${active.map(u=>`
-          <button class="user-btn" onclick="doLogin('${u.id}')">
+          <button class="user-btn" onclick="doLogin('${u.id}')" type="button">
             <div>
               <div class="name">${esc(u.name)}</div>
               <div class="role">${roleLabel(u.role)}${u.role==='coordenador'?' · '+u.floors.join(', '):''}</div>
             </div>
             <span class="arrow">entrar →</span>
           </button>`).join('')}
-      </div>
+      </div>`}
       <button class="tv-link" onclick="openTV()">📺 Abrir painel público (sem login)</button>
     </div>
   </div>`;
@@ -887,10 +973,24 @@ function renderMyView(user){
   if(groups.length===0){
     return `<div class="page-head"><h2>Minhas solicitações</h2></div><div class="empty"><b>Nenhum pedido ainda</b>Peça uma sala na aba "Solicitar sala" para ver o status aqui.</div>`;
   }
+  const pageSize = 5;
+  const page = Math.min(St.transient.listPages.my, Math.max(1, Math.ceil(groups.length/pageSize)));
+  St.transient.listPages.my = page;
+  const visibleGroups = groups.slice((page-1)*pageSize, page*pageSize);
   return `
   <div class="page-head"><h2>Minhas solicitações</h2><p>Acompanhe o status dos seus pedidos e cancele o que não precisar mais.</p></div>
-  ${groups.map(g=>renderMyGroupCard(g)).join('')}
+  ${visibleGroups.map(g=>renderMyGroupCard(g)).join('')}
+  ${renderPagination('my', page, pageSize, groups.length)}
   `;
+}
+function renderPagination(view, page, pageSize, total){
+  const totalPages = Math.ceil(total/pageSize);
+  if(totalPages<=1) return '';
+  return `<div class="btn-row" style="justify-content:center;margin:18px 0 4px;">
+    <button class="btn small" ${page===1?'disabled':''} onclick="setListPage('${view}',${page-1})">Anterior</button>
+    <span class="meta-line">Página ${page} de ${totalPages}</span>
+    <button class="btn small" ${page===totalPages?'disabled':''} onclick="setListPage('${view}',${page+1})">Próxima</button>
+  </div>`;
 }
 function statusCounts(instances){
   const c = {pending:0,approved:0,rejected:0,cancelled:0};
@@ -949,9 +1049,14 @@ function renderApprovalsView(user){
     return `<div class="page-head"><h2>Aprovações</h2>${scopeNote}</div><div class="empty"><b>Tudo em dia</b>Não há pedidos aguardando decisão no momento.</div>`;
   }
   // FYI: flag pending groups that overlap with OTHER pending groups (heads-up before approving both)
+  const pageSize = 5;
+  const page = Math.min(St.transient.listPages.approvals, Math.max(1, Math.ceil(groups.length/pageSize)));
+  St.transient.listPages.approvals = page;
+  const visibleGroups = groups.slice((page-1)*pageSize, page*pageSize);
   return `
   <div class="page-head"><h2>Aprovações pendentes</h2><p>Revise, confira conflitos de horário e aprove ou rejeite.</p>${scopeNote}</div>
-  ${groups.map(g=>renderApprovalCard(g, groups)).join('')}
+  ${visibleGroups.map(g=>renderApprovalCard(g, groups)).join('')}
+  ${renderPagination('approvals', page, pageSize, groups.length)}
   `;
 }
 function renderApprovalCard(g, allGroups){
@@ -1201,7 +1306,7 @@ function attachTVTimer(){
     const clockEl = document.getElementById('tv-clock');
     if(clockEl) clockEl.textContent = hhmm(new Date())+':'+pad(new Date().getSeconds());
     if(new Date().getSeconds()===0){
-      try{ St.bookings = await fetchBookings(); }catch(e){ /* keep showing last known data */ }
+      try{ St.bookings = await fetchBookings('Approved'); }catch(e){ /* keep showing last known data */ }
       render();
     }
   }, 1000);
@@ -1268,21 +1373,25 @@ function renderTVCard(room, todays, now){
 /* ======================= BOOT ======================= */
 async function boot(){
   try{
-    const [users, catalog, bookings] = await Promise.all([fetchUsers(), fetchCatalog(), fetchBookings()]);
-    St.users = users; St.rooms = catalog.rooms; St.resources = catalog.resources; St.bookings = bookings;
-    St.loaded = true;
+    await (St.authToken ? loadRemoteData() : loadPublicData());
   }catch(e){
-    // Backend unreachable (wrong API_BASE, CORS, server down...) — fall back to
-    // local demo data so the UI is still explorable instead of a blank page.
+    // Keep the public panel usable while exposing whether the API was offline
+    // or responded with a server error.
     St.users = seedUsers();
     const cat = seedCatalog(); St.rooms = cat.rooms; St.resources = cat.resources;
     St.bookings = seedBookings();
     St.loaded = true;
     St.offline = true;
+    St.serverError = e.status >= 500;
     console.error('Não foi possível conectar à API em', API_BASE, e);
   }
   render();
-  if(St.offline) toast(`Sem conexão com o servidor (${API_BASE}) — mostrando dados de demonstração locais.`, 'err');
+  if(St.offline){
+    const message = St.serverError
+      ? `O servidor respondeu com erro (${API_BASE}) — mostrando dados de demonstração locais.`
+      : `Sem conexão com o servidor (${API_BASE}) — mostrando dados de demonstração locais.`;
+    toast(message, 'err');
+  }
 }
 boot();
 </script>
