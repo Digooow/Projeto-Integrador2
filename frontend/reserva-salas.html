@@ -830,10 +830,10 @@ function renderLogin(){
             <div>
               <div class="name">${esc(u.name)}</div>
               <div class="role">${roleLabel(u.role)}${u.role==='coordenador'?' · '+u.floors.join(', '):''}</div>
-            </div>`}
+            </div>
             <span class="arrow">entrar →</span>
           </button>`).join('')}
-      </div>
+      </div>`}
       <button class="tv-link" onclick="openTV()">📺 Abrir painel público (sem login)</button>
     </div>
   </div>`;
