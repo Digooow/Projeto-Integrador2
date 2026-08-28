@@ -989,3 +989,41 @@ Pendências que continuam abertas: autenticação real com credenciais e JWT, CO
 | 27–29/08 | JWT com credenciais, claims e proteção dos endpoints de escrita | ⏳ Planejado |
 | 30/08–02/09 | Testes E2E, CORS de produção e revisão de fuso horário | ⏳ Planejado |
 | 03–06/09 | Observabilidade, rate limiting e validação de deploy | ⏳ Planejado |
+
+## Estado atual do projeto — 28/08/2026
+
+Esta seção complementa as atualizações históricas acima e representa o estado
+vigente do sistema. Os registros anteriores foram preservados como histórico.
+
+### Entregas concluídas desde a atualização anterior
+
+- ✅ Projeto Supabase próprio criado e conectado ao serviço Render.
+- ✅ Migrations `001_initial.sql`, `002_frontend_integration.sql` e
+  `003_jwt_authentication.sql` executadas no banco atual.
+- ✅ API publicada no Render com salas e reservas persistidas no Supabase.
+- ✅ Login JWT por e-mail e senha integrado ao frontend.
+- ✅ Cadastro público de novos usuários como requisitantes.
+- ✅ Área administrativa para criação, edição e desativação de usuários.
+- ✅ Pipeline GitHub Actions publica a imagem Docker e aciona o redeploy do Render
+  automaticamente usando `RENDER_API_KEY` e `RENDER_SERVICE_ID`.
+- ✅ Correção da tela cinza causada por erro de sintaxe no template de login.
+- ✅ Testes locais e deploy de produção validados após as alterações.
+
+### Configuração operacional atual
+
+- A connection string do Supabase fica somente nas variáveis de ambiente do
+  Render e não deve ser adicionada ao código ou ao repositório.
+- A senha `Troque-me-123!` é uma credencial temporária de demonstração definida
+  pela migration `003`; ela deve ser substituída quando o projeto deixar de ser
+  uma atividade de curso.
+- O frontend é servido pelas rotas `/` e `/reserva-salas.html`.
+
+### Pendências atuais
+
+- [ ] Criar testes E2E específicos para login, cadastro e autorização.
+- [ ] Restringir o CORS para os domínios efetivamente utilizados.
+- [ ] Implementar tratamento explícito de fuso horário.
+- [ ] Adicionar observabilidade e rate limiting para uso além da atividade.
+
+Para acompanhar a evolução sem remover o histórico deste README, consulte
+também o [roadmap complementar atual](./ROADMAP-ATUAL.md).
