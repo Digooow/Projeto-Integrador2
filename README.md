@@ -12,7 +12,7 @@ Esta é a situação atual do projeto. As seções e checklists abaixo, datadas 
 - ✅ Paginação em `GET /api/reservations?page=1&pageSize=20`, limitada a 100 registros.
 - ✅ Migration 002 com campos de integração e políticas RLS complementares idempotentes.
 - ✅ Stack recomendada instalada: FluentValidation, Serilog, sinks, JWT, JwtBearer e Swashbuckle.
-- ✅ Build aprovado e 7 testes unitários aprovados.
+- ✅ Build aprovado e 8 testes aprovados: 7 unitários e 1 E2E.
 - ✅ Login JWT e autorização configurados no backend.
 
 ### Autenticação JWT
@@ -972,7 +972,7 @@ Entregas validadas nesta atualização:
 - Paginação de `GET /api/reservations?page=1&pageSize=20`, limitada a 100 itens, com metadados `data` e `pagination`.
 - Frontend adaptado ao novo envelope paginado.
 - Migration `002_frontend_integration.sql` ampliada com políticas RLS idempotentes e permissões para usuários autenticados.
-- Projeto de testes alinhado ao .NET 8; **7 testes passando**.
+- Projeto de testes alinhado ao .NET 8; **8 testes passando (7 unitários e 1 E2E)**.
 
 Pendências que continuam abertas: autenticação real com credenciais e JWT, CORS restrito em produção, testes E2E e tratamento explícito de fuso horário. O login atual por seleção de usuário é apenas demonstração e não deve ser considerado autenticação de produção.
 

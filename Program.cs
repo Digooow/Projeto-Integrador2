@@ -599,3 +599,5 @@ public sealed record ReservationResponse(
     string? DecidedBy,
     DateTime? DecidedAt,
     OccurrenceResponse Occurrence);
+
+public partial class Program { }

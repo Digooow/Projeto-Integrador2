@@ -6,7 +6,7 @@ Esta análise original é preservada. Desde então, as dependências recomendada
 
 - ✅ FluentValidation, Serilog, sinks, JWT, JwtBearer e Swashbuckle adicionados ao projeto.
 - ✅ Paginação e serving do frontend implementados.
-- ✅ Build e 7 testes unitários aprovados.
+- ✅ Build e 8 testes aprovados: 7 unitários e 1 E2E.
 - ⏳ Interfaces/repositories, FluentValidation em execução, logging, middleware global e refatoração completa de `Program.cs` continuam pendentes.
 
 Os percentuais e checklists posteriores refletem a fotografia anterior; as instalações de pacotes não devem ser confundidas com a implementação dos recursos.

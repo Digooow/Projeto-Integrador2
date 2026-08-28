@@ -10,7 +10,7 @@ Este quadro foi atualizado após a análise da implementação atual. O conteúd
 - ✅ Paginação de reservas com metadados e limite máximo de 100 registros.
 - ✅ Migration 002 com integração frontend e políticas RLS complementares idempotentes.
 - ✅ Dependências recomendadas adicionadas ao projeto, incluindo `JwtBearer`.
-- ✅ Build da API aprovado e 7 testes unitários aprovados.
+- ✅ Build da API aprovado e 8 testes aprovados: 7 unitários e 1 E2E.
 
 ### Ainda pendente
 
@@ -866,7 +866,7 @@ Itens entregues pelo colaborador e verificados localmente:
 - ✅ Paginação determinística em `/api/reservations`, com `page`, `pageSize`, `total` e `totalPages`.
 - ✅ Frontend compatível com a resposta paginada.
 - ✅ Migration complementar com políticas RLS reexecutáveis para operações autenticadas.
-- ✅ Build da API e 7 testes unitários passando.
+- ✅ Build da API e 8 testes passando: 7 unitários e 1 E2E.
 - ✅ Correção de target dos testes para `net8.0` e alinhamento das dependências do PostgreSQL.
 
 Itens ainda não concluídos: JWT com credenciais reais, CORS restrito, testes E2E, logging estruturado, rate limiting, tratamento explícito de fuso horário e validação de infraestrutura Supabase/Render. A porcentagem geral e o bloqueador de produção devem permanecer conservadores até a autenticação real ser entregue.

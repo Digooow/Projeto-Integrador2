@@ -12,12 +12,13 @@ O roadmap abaixo preserva o planejamento original da sprint de 22/08. Use esta a
 - [x] Migration 002 com políticas RLS complementares idempotentes.
 - [x] Dependências da stack recomendada instaladas.
 - [x] Target dos testes alinhado ao .NET 8.
-- [x] Build da API e 7 testes unitários aprovados.
+- [x] Build da API e 8 testes aprovados: 7 unitários e 1 E2E.
+- [x] Login JWT integrado ao frontend, com token Bearer nas chamadas protegidas.
 
 ### Próximas tarefas reais
 
 - [x] Configurar JWT, credenciais, claims e autorização nos endpoints.
-- [ ] Integrar o login JWT ao frontend e validar o fluxo ponta a ponta.
+- [ ] Validar o fluxo JWT ponta a ponta com testes E2E.
 - [ ] Configurar FluentValidation, Serilog/Application Insights e Swagger no código.
 - [ ] Aplicar a migration 002 no Supabase e validar permissões.
 - [ ] Publicar a imagem atualizada e fazer redeploy no Render.
@@ -53,9 +54,9 @@ Componentes:
 
 ### Tarefa 1.1: Integrar Autenticação JWT ao Frontend
 
-> **Atualização — 28/08/2026:** O backend já configura middleware, login por credenciais e proteção por claims. Falta o frontend armazenar o token retornado por `/auth/login` e enviá-lo nas chamadas protegidas.
+> **Atualização — 28/08/2026:** Backend e frontend já usam login JWT. Falta validar o fluxo completo com uma instância real do banco e testes E2E.
 
-**Status:** 🟡 Backend concluído; integração do frontend pendente
+**Status:** ✅ Implementado; validação E2E pendente
 **Prioridade:** 🔴 P0 CRÍTICA  
 **Tempo:** 6 horas  
 **Responsável:** Backend Lead
@@ -389,7 +390,7 @@ GRANT UPDATE ON reservations TO authenticated;
 
 ### Tarefa 2.1: Integrar Frontend com API
 
-> **Atualização — 26/08/2026:** Esta tarefa foi concluída em 26/08, incluindo cliente HTTP, CRUD, reservas, decisões, fallback e serving do HTML. O checklist abaixo é o plano original e permanece como histórico; não representa tarefas ainda não executadas.
+> **Atualização — 28/08/2026:** Esta tarefa foi concluída, incluindo cliente HTTP, CRUD, reservas, decisões, fallback, serving do HTML e login JWT com token Bearer. O checklist abaixo é o plano original e permanece como histórico; não representa tarefas ainda não executadas.
 
 **Status:** 🟡 Iniciado  
 **Prioridade:** P1  
@@ -611,7 +612,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 ### Tarefa 2.2: Adicionar Paginação
 
-**Status:** ❌ Não iniciado  
+**Status:** ✅ Implementado e validado
 **Prioridade:** P1  
 **Tempo:** 2 horas  
 **Responsável:** Backend
@@ -675,6 +676,8 @@ Passo 3: Testar
 
 ### Checklist de Conclusão - Fase 2
 
+> Este checklist é histórico. A situação vigente está no início deste documento; os itens ainda pendentes foram reduzidos às validações E2E, observabilidade e endurecimento operacional.
+
 ```
 ✅ Semana 2-3 - FUNCIONALIDADE
 
@@ -706,7 +709,7 @@ Testes
 
 ## 🟠 FASE 3: NICE-TO-HAVE (SEMANA 4+)
 
-### Tarefas (ordem de prioridade):
+### Tarefas futuras (ordem de prioridade):
 
 ```
 [ ] Endpoint POST /api/reservations/{id}/reject (1h)
@@ -874,7 +877,7 @@ Métricas:
 
 ---
 
-**Próxima revisão:** Segunda-feira, 25/08/2026
+**Próxima revisão:** confirmar com a equipe após migration, redeploy e primeiro teste E2E
 
 **Atualizado:** 22/08/2026 às 23:45
 
@@ -887,7 +890,7 @@ Métricas:
 - [x] Paginação de reservas com limite máximo de 100 itens.
 - [x] Migration RLS complementar idempotente para operações autenticadas.
 - [x] Correção do projeto de testes para `net8.0`.
-- [x] Validação local: build da API aprovado e 7 testes aprovados.
+- [x] Validação local: build da API aprovado e 8 testes aprovados.
 
 ### Cronograma atualizado
 
@@ -898,4 +901,4 @@ Métricas:
 | 30/08–02/09 | E2E, CORS, fuso horário e segurança de produção | ⏳ Planejado |
 | 03–06/09 | Logging, rate limiting e observabilidade | ⏳ Planejado |
 
-O login por seleção de usuário continua sendo uma demonstração; a Fase 1 de segurança só poderá ser marcada como completa após a implementação e os testes de JWT.
+O login JWT já está implementado no backend e integrado ao frontend. A conclusão operacional depende de migration aplicada, redeploy e testes E2E contra o ambiente real.

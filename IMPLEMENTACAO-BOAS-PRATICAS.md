@@ -5,7 +5,7 @@
 O guia abaixo continua sendo o plano detalhado e foi mantido para preservar a rastreabilidade. O que mudou nesta data:
 
 - ✅ Dependências recomendadas instaladas e restauradas.
-- ✅ Build da API aprovado e 7 testes unitários aprovados.
+- ✅ Build da API aprovado e 8 testes aprovados: 7 unitários e 1 E2E.
 - ✅ Paginação e publicação do frontend implementadas.
 - ⏳ As fases de interfaces/repositories, validação em runtime, logging, middleware global e separação completa dos endpoints ainda precisam ser executadas.
 
@@ -1332,7 +1332,7 @@ Após implementar todas as fases:
 
 - ✅ Dependências e target dos testes alinhados ao .NET 8.
 - ✅ Build da API aprovado.
-- ✅ 7 testes unitários do domínio aprovados.
+- ✅ 8 testes aprovados: 7 unitários do domínio e 1 E2E da API.
 - ✅ Paginação implementada na API e adaptada no frontend.
 - ✅ Políticas RLS complementares adicionadas de forma idempotente na migration 002.
 - ⏳ Interfaces de repositório, FluentValidation, Serilog, middleware global e refatoração completa do `Program.cs` ainda não foram aplicados; permanecem no backlog deste guia.

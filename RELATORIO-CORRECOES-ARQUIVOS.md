@@ -30,7 +30,7 @@ Comparação dos PDFs existentes em `Arquivos/` com o código, migrations, teste
 
 > O projeto possui backend ASP.NET Core 8, persistência PostgreSQL via Supabase, integração do frontend com a API, CRUD de usuários/salas/recursos, reservas pontuais e recorrentes, aprovação, rejeição, cancelamento, controle de capacidade, detecção de conflitos, paginação e testes unitários.
 >
-> O backend possui login JWT e proteção dos endpoints. O frontend entregue ainda não usa esse fluxo: sua tela de login seleciona um usuário da lista e as chamadas não enviam token Bearer. A migration 002 precisa ser aplicada no Supabase e o frontend publicado precisa ser atualizado no Render. CORS restrito, E2E, fuso horário explícito, notificações e integração com e-mail/WhatsApp continuam pendentes.
+> O backend possui login JWT e proteção dos endpoints. O frontend agora solicita a senha, chama `/auth/login`, guarda o token na sessão e envia Bearer nas chamadas protegidas. A migration 002 precisa ser aplicada no Supabase e o frontend publicado precisa ser atualizado no Render. CORS restrito, E2E, fuso horário explícito, notificações e integração com e-mail/WhatsApp continuam pendentes.
 
 ### 4. Funcionalidades prometidas, mas não comprovadas como entregues
 

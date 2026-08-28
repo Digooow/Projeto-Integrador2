@@ -64,6 +64,9 @@
   .brandmark span{font-family:'IBM Plex Mono',monospace;letter-spacing:.14em;font-size:12px;color:var(--text-dim);text-transform:uppercase;}
   .login-card h1{font-size:34px;line-height:1.15;margin-bottom:10px;}
   .login-card .sub{color:var(--text-dim);font-size:15px;line-height:1.55;margin-bottom:28px;}
+  .login-card .field-label{display:block;color:var(--text-dim);font-size:12px;margin-bottom:6px;}
+  .login-card .text-input{width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;color:var(--text);margin-bottom:16px;}
+  .login-card .text-input:focus{outline:none;border-color:var(--accent);}
   .userlist{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
   .user-btn{
     display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -277,6 +280,7 @@ const FLOOR_ORDER = ['Térreo','1º andar','2º andar','3º andar','4º andar'];
 const St = {
   users:[], rooms:[], resources:[], bookings:[],
   currentUserId:null,
+  authToken: sessionStorage.getItem('ocupa_access_token') || null,
   view:'login',
   loaded:false,
   transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, requestMode:'pontual', reqDays:[2,4] }
@@ -324,9 +328,11 @@ const ROLE_BACK_TO_FRONT = { Teacher:'requisitante', Collaborator:'requisitante'
 const STATUS_BACK_TO_FRONT = { Pending:'pending', Approved:'approved', Rejected:'rejected', Cancelled:'cancelled' };
 
 async function api(path, options){
+  const headers = { 'Content-Type':'application/json' };
+  if(St.authToken) headers.Authorization = `Bearer ${St.authToken}`;
   const res = await fetch(API_BASE + path, {
     method: (options && options.method) || 'GET',
-    headers: { 'Content-Type':'application/json' },
+    headers,
     body: options && options.body ? JSON.stringify(options.body) : undefined
   });
   let data = null;
@@ -346,8 +352,9 @@ async function fetchUsers(){
   return rows.map(u=>({ id:u.id, name:u.name, email:u.email, role:ROLE_BACK_TO_FRONT[u.role]||'requisitante', floors:u.floors||[], active:u.active }));
 }
 async function fetchCatalog(){
+  const includeInactive = currentUser()?.role==='admin' ? '?includeInactive=true' : '';
   const [rooms, resources] = await Promise.all([
-    api('/api/rooms?includeInactive=true'),
+    api('/api/rooms'+includeInactive),
     api('/api/resources')
   ]);
   return {
@@ -368,6 +375,11 @@ async function fetchBookings(){
       createdAt:r.createdAt, decidedBy:r.decidedBy, decidedAt:r.decidedAt
     };
   });
+}
+async function loadRemoteData(){
+  const [users, catalog, bookings] = await Promise.all([fetchUsers(), fetchCatalog(), fetchBookings()]);
+  St.users = users; St.rooms = catalog.rooms; St.resources = catalog.resources; St.bookings = bookings;
+  St.loaded = true; St.offline = false;
 }
 
 /* ======================= SEED DATA ======================= */
@@ -480,13 +492,32 @@ function myGroupsFor(user){
 }
 
 /* ======================= ACTIONS ======================= */
-window.doLogin = function(userId){
+window.doLogin = async function(userId){
+  const password = document.getElementById('login-password')?.value || '';
+  const selected = St.users.find(user=>user.id===userId);
+  if(!selected) return;
+  if(!St.offline){
+    try{
+      const response = await api('/auth/login', { method:'POST', body:{ email:selected.email, password } });
+      St.authToken = response.accessToken;
+      sessionStorage.setItem('ocupa_access_token', St.authToken);
+      const authenticatedUser = response.user;
+      userId = authenticatedUser.id;
+      St.currentUserId = userId;
+      const index = St.users.findIndex(user=>user.id===userId);
+      St.users[index] = { ...selected, role:ROLE_BACK_TO_FRONT[authenticatedUser.role]||selected.role, floors:authenticatedUser.floors||selected.floors, active:authenticatedUser.active };
+      await loadRemoteData();
+    }catch(e){
+      toast(e.status===401 ? 'E-mail ou senha inválidos.' : e.message, 'err');
+      return;
+    }
+  }
   St.currentUserId = userId;
   const u = currentUser();
   St.view = u.role==='requisitante' ? 'request' : 'approvals';
   render();
 };
-window.doLogout = function(){ St.currentUserId=null; St.view='login'; render(); };
+window.doLogout = function(){ St.currentUserId=null; St.authToken=null; sessionStorage.removeItem('ocupa_access_token'); St.view='login'; render(); };
 window.goView = function(v){ St.view=v; render(); };
 window.openTV = function(){ St.view='tv'; render(); };
 window.closeTV = function(){ St.view = currentUser() ? (currentUser().role==='requisitante'?'request':'approvals') : 'login'; render(); };
@@ -738,9 +769,11 @@ function renderLogin(){
       <div class="brandmark"><span class="dot"></span><span>Senac Joinville</span></div>
       <h1>Ocupa</h1>
       <p class="sub">Reserva de salas do prédio — pedidos, aprovação, disponibilidade em tempo real e o painel do corredor, tudo num lugar só. Os dados abaixo são compartilhados com toda a equipe.</p>
+      <label class="field-label" for="login-password">Senha</label>
+      <input id="login-password" class="text-input" type="password" autocomplete="current-password" placeholder="Informe sua senha">
       <div class="userlist">
         ${active.map(u=>`
-          <button class="user-btn" onclick="doLogin('${u.id}')">
+          <button class="user-btn" onclick="doLogin('${u.id}')" type="button">
             <div>
               <div class="name">${esc(u.name)}</div>
               <div class="role">${roleLabel(u.role)}${u.role==='coordenador'?' · '+u.floors.join(', '):''}</div>
@@ -1268,9 +1301,7 @@ function renderTVCard(room, todays, now){
 /* ======================= BOOT ======================= */
 async function boot(){
   try{
-    const [users, catalog, bookings] = await Promise.all([fetchUsers(), fetchCatalog(), fetchBookings()]);
-    St.users = users; St.rooms = catalog.rooms; St.resources = catalog.resources; St.bookings = bookings;
-    St.loaded = true;
+    await loadRemoteData();
   }catch(e){
     // Backend unreachable (wrong API_BASE, CORS, server down...) — fall back to
     // local demo data so the UI is still explorable instead of a blank page.

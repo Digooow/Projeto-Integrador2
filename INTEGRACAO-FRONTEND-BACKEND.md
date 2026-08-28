@@ -4,10 +4,10 @@
 
 - ✅ Frontend integrado ao backend e servido pela própria API em `/` e `/reserva-salas.html`.
 - ✅ Cliente adaptado à paginação de reservas.
-- ✅ Build e 7 testes unitários aprovados.
+- ✅ Build e 8 testes aprovados: 7 unitários e 1 E2E.
 - ⏳ A URL pública do Render ainda precisa receber uma nova imagem e a migration 002 precisa ser aplicada no Supabase.
 - ✅ Autenticação JWT real configurada no backend.
-- ⏳ Login JWT ainda não integrado ao frontend; a seleção de usuário continua demonstrativa.
+- ✅ Login JWT integrado ao frontend; o usuário informa a senha e o token Bearer é enviado nas chamadas protegidas.
 
 O restante deste documento registra a integração entregue e suas limitações na ordem em que foram documentadas.
 
@@ -126,10 +126,10 @@ parse manualmente dentro do endpoint.
 Estas já eram lacunas documentadas em `ANALISE-PROJETO.md` antes desta
 integração, e continuam valendo:
 
-- **Integração de autenticação incompleta.** A API possui `/auth/login`, valida
-  credenciais e protege endpoints com JWT. A tela de login ainda é "escolha seu
-  nome na lista" e o cliente não envia `Authorization: Bearer`; o fluxo precisa
-  ser integrado antes do uso com dados reais.
+- **Integração de autenticação concluída no cliente.** A API possui `/auth/login`,
+  valida credenciais e protege endpoints com JWT. O frontend solicita a senha,
+  armazena o token na sessão e envia `Authorization: Bearer`. Ainda faltam
+  testes E2E e validação do ambiente publicado.
 - **Fuso horário não tratado explicitamente.** Datas/horas viajam como texto
   local (`2026-08-25T14:00:00`) sem indicação de fuso; o Postgres grava em
   colunas `timestamptz`. Funciona para um único fuso (Brasil), mas não é
@@ -141,7 +141,7 @@ integração, e continuam valendo:
 
 A limitação de paginação acima foi resolvida: `GET /api/reservations` agora aceita `page` e `pageSize` (máximo 100) e retorna `data` com `pagination`. O frontend solicita a primeira página de até 100 registros e mantém compatibilidade com a resposta antiga para fallback.
 
-Também foram concluídos o build limpo da API e os 7 testes unitários do domínio. Permanecem pendentes a integração do JWT no frontend, o tratamento explícito de fuso horário e a validação E2E contra uma instância real do Supabase/Render.
+Também foram concluídos o build limpo da API e os 8 testes locais: 7 unitários e 1 E2E da API. Permanecem pendentes o tratamento explícito de fuso horário e a validação E2E contra uma instância real do Supabase/Render.
 
 ## Diagnóstico de acesso remoto — 26/08/2026
 
