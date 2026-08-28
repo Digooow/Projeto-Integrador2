@@ -7,6 +7,7 @@ public sealed class UserEntity
     public required string Id { get; set; }
     public required string Name { get; set; }
     public required string Email { get; set; }
+    public string? PasswordHash { get; set; }
     public UserRole Role { get; set; }
     public bool Active { get; set; } = true;
 
