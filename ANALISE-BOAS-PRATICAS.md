@@ -1,15 +1,19 @@
 # 📋 ANÁLISE DE BOAS PRÁTICAS DE PROGRAMAÇÃO
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
-Esta análise original é preservada. Desde então, as dependências recomendadas foram instaladas, mas ainda não foram configuradas no código.
+Esta análise original é preservada como referência técnica. O estado de
+execução atual deve ser consultado no [roadmap](./ROADMAP-ATUAL.md).
 
 - ✅ FluentValidation, Serilog, sinks, JWT, JwtBearer e Swashbuckle adicionados ao projeto.
 - ✅ Paginação e serving do frontend implementados.
 - ✅ Build e 9 testes aprovados: 7 unitários e 2 E2E.
-- ⏳ Interfaces/repositories, FluentValidation em execução, logging, middleware global e refatoração completa de `Program.cs` continuam pendentes.
+- ⏳ Interfaces/repositories, configuração completa de FluentValidation, logging,
+  middleware global e refatoração de `Program.cs` são melhorias técnicas futuras.
 
-Os percentuais e checklists posteriores refletem a fotografia anterior; as instalações de pacotes não devem ser confundidas com a implementação dos recursos.
+Os percentuais e checklists posteriores refletem a fotografia da análise e não
+devem ser usados para reabrir entregas já concluídas, como autenticação JWT,
+integração frontend/backend, migrations ou deploy.
 
 **Projeto:** Projeto-Integrador2 - Sistema de Reserva de Salas  
 **Data:** 22/08/2026  
@@ -1308,4 +1312,5 @@ Essas 3 ações elevarão o nível para **~90% de conformidade** com boas práti
 ---
 
 **Documento gerado em:** 22/08/2026  
-**Próxima revisão:** Após implementar Fase 1
+**Próxima revisão:** conforme necessidade; o status vigente está no
+[ROADMAP-ATUAL.md](./ROADMAP-ATUAL.md).

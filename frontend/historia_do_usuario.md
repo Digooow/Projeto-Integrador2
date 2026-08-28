@@ -1,8 +1,11 @@
 # História do Usuário — Sistema de Reserva de Salas
 
-## Registro de execução — 26/08/2026
+## Registro de execução — 28/08/2026
 
-O frontend desta história já possui integração com a API, formulário de reserva, recorrência, decisões, cadastro administrativo e painel de TV. O login ainda é demonstrativo, e a integração publicada depende do redeploy do Render e da aplicação da migration 002.
+O frontend desta história possui integração com a API publicada no Render,
+formulário de reserva, recorrência, decisões, cadastro administrativo e painel
+de TV. O login usa e-mail, senha e JWT; o cadastro público cria requisitantes.
+As migrations `001`, `002` e `003` já foram executadas no Supabase.
 
 ## Quem está contando essa história
 

@@ -1,10 +1,12 @@
 # Testes do backend
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
 - ✅ Projeto de testes alinhado ao `.NET 8`.
 - ✅ 9 testes aprovados na última execução: 7 unitários e 2 E2E da API.
-- ⏳ Testes de integração/E2E da API, autenticação e persistência real ainda não foram implementados.
+- ✅ O fluxo de autenticação JWT e a persistência publicada fazem parte da
+  aplicação; novos cenários de navegador e autorização podem ser adicionados
+  conforme o roadmap.
 
 O texto abaixo permanece como a orientação original dos testes de domínio.
 

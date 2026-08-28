@@ -1,13 +1,18 @@
 # 💻 GUIA DE IMPLEMENTAÇÃO - REFATORAÇÃO DE BOAS PRÁTICAS
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
-O guia abaixo continua sendo o plano detalhado e foi mantido para preservar a rastreabilidade. O que mudou nesta data:
+O guia abaixo continua sendo uma referência técnica para melhorias futuras. O
+estado vigente do produto está no [roadmap atual](./ROADMAP-ATUAL.md). O que já
+está entregue:
 
 - ✅ Dependências recomendadas instaladas e restauradas.
 - ✅ Build da API aprovado e 9 testes aprovados: 7 unitários e 2 E2E.
 - ✅ Paginação e publicação do frontend implementadas.
-- ⏳ As fases de interfaces/repositories, validação em runtime, logging, middleware global e separação completa dos endpoints ainda precisam ser executadas.
+- ✅ Autenticação JWT, integração frontend/backend, migrations e deploy no Render
+  estão concluídos.
+- ⏳ Interfaces/repositories, validação em runtime, logging, middleware global e
+  separação completa dos endpoints são melhorias futuras.
 
 Instalar uma biblioteca não marca sua fase como concluída; a conclusão ocorrerá quando houver configuração no código e teste correspondente.
 
@@ -1243,8 +1248,8 @@ Nos testes unitários:
 public void Services_AreRegistered()
 {
     var services = new ServiceCollection();
-    var connectionString = "Server=localhost;Database=test;...";
-    services.AddApplicationServices(connectionString);
+    // Apenas placeholder para teste de registro; nenhuma credencial é usada.
+    services.AddApplicationServices("test-placeholder");
 
     var provider = services.BuildServiceProvider();
 
@@ -1326,7 +1331,7 @@ Após implementar todas as fases:
 **Complexidade:** Médio (não afeta DB, foco em organização de código)
 **Risco:** Baixo (mudanças refatoração, lógica se mantém igual)
 
-## Registro de implementação — 26/08/2026
+## Registro de implementação — 28/08/2026
 
 ### Status verificável
 
@@ -1335,13 +1340,9 @@ Após implementar todas as fases:
 - ✅ 9 testes aprovados: 7 unitários do domínio e 2 E2E da API.
 - ✅ Paginação implementada na API e adaptada no frontend.
 - ✅ Políticas RLS complementares adicionadas de forma idempotente na migration 002.
+- ✅ Autenticação JWT por e-mail e senha integrada ao frontend e ao backend.
+- ✅ Migrations `001`, `002` e `003` executadas e deploy no Render automatizado.
 - ⏳ Interfaces de repositório, FluentValidation, Serilog, middleware global e refatoração completa do `Program.cs` ainda não foram aplicados; permanecem no backlog deste guia.
 
-### Próximo cronograma
-
-| Período | Trabalho | Status |
-|---|---|---|
-| 27–29/08 | JWT e credenciais reais | ⏳ Planejado |
-| 30/08–02/09 | Interfaces, validação e middleware | ⏳ Planejado |
-| 03–06/09 | Serilog, testes E2E e refatoração de endpoints | ⏳ Planejado |
-
+As melhorias restantes são referências técnicas, não um cronograma. O único
+roadmap do projeto está em [ROADMAP-ATUAL.md](./ROADMAP-ATUAL.md).

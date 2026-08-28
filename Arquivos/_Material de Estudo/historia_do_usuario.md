@@ -1,8 +1,13 @@
 # História do Usuário — Sistema de Reserva de Salas
 
-## Registro de execução — 26/08/2026
+## Registro de execução — 28/08/2026
 
-Este arquivo permanece como a história de usuário original. As entregas atuais que atendem parcialmente esta necessidade são: solicitação de reservas, recorrência semanal, aprovação/rejeição/cancelamento, cadastro de salas/recursos/usuários e painel público no frontend. Autenticação real, notificações e validação em ambiente publicado continuam pendentes.
+Este arquivo permanece como a história de usuário original. As entregas atuais
+que atendem a esta necessidade são: solicitação de reservas, recorrência
+semanal, aprovação/rejeição/cancelamento, cadastro de salas/recursos/usuários,
+cadastro público de requisitantes, login JWT e painel público no frontend.
+Notificações e outras evoluções de produto estão no
+[roadmap atual](../../ROADMAP-ATUAL.md).
 
 ## Quem está contando essa história
 

@@ -11,10 +11,13 @@ Aplicação web com frontend HTML/CSS/JavaScript servido por backend ASP.NET Cor
 
 Foram demonstrados: reservas pontuais e recorrentes, validação de capacidade, detecção de conflitos, aprovação, rejeição, cancelamento, cadastro de salas/recursos/usuários, calendário e painel público para TV.
 
-O painel público não exige login. O backend possui login JWT e protege operações administrativas e de reserva; o login exibido no frontend ainda é demonstrativo e precisa ser integrado ao JWT.
+O painel público não exige login. O backend e o frontend usam login JWT por
+e-mail e senha para proteger operações administrativas e de reserva.
 
-## Evoluções pendentes
-Migration 002 no Supabase, redeploy no Render, integração JWT no frontend, testes E2E, CORS restrito, fuso horário explícito, notificações, integrações externas e relatórios avançados.
+## Evoluções futuras
+Testes E2E de navegador, CORS restrito, fuso horário explícito, notificações,
+integrações externas e relatórios avançados estão no
+[roadmap atual](../../ROADMAP-ATUAL.md).
 
 ## Retrospectiva
 Preencher com fatos, dificuldades e ações realmente registrados pelo grupo. Não manter placeholders como “preencher com o grupo” na versão final.
