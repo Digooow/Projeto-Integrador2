@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -76,9 +77,9 @@ app.MapGet("/health", () => Results.Ok(new
     timestamp = DateTime.UtcNow
 }));
 
-app.MapPost("/auth/login", async ([Microsoft.AspNetCore.Mvc.FromBody] LoginRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+app.MapPost("/auth/login", async (LoginRequest? input, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
-    if (string.IsNullOrWhiteSpace(input.Email) || string.IsNullOrWhiteSpace(input.Password))
+    if (input is null || string.IsNullOrWhiteSpace(input.Email) || string.IsNullOrWhiteSpace(input.Password))
         return Results.BadRequest(new { error = "Informe e-mail e senha." });
 
     var user = await db.Users.SingleOrDefaultAsync(u => u.Email == input.Email && u.Active, cancellationToken);
@@ -548,7 +549,14 @@ static IReadOnlyList<(DateTime Start, DateTime End)> ExpandOccurrences(DateTime 
 // straight from its day-picker without translating anything.
 public sealed record WeeklyRecurrenceRequest(int[] Days, DateTime Until);
 
-public sealed record LoginRequest(string Email, string Password);
+public sealed class LoginRequest
+{
+    [JsonPropertyName("email")]
+    public string Email { get; init; } = "";
+
+    [JsonPropertyName("password")]
+    public string Password { get; init; } = "";
+}
 
 public sealed record LoginResponse(string AccessToken, DateTime ExpiresAt, UserResponse User);
 
