@@ -1,6 +1,6 @@
 # Projeto-Integrador2 - Sistema de Reserva de Salas
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
 Esta é a situação atual do projeto. As seções e checklists abaixo, datadas de 22/08/2026, são mantidas como histórico da sprint anterior; quando houver diferença, este quadro é a referência mais recente.
 
@@ -13,6 +13,7 @@ Esta é a situação atual do projeto. As seções e checklists abaixo, datadas 
 - ✅ Migration 002 com campos de integração e políticas RLS complementares idempotentes.
 - ✅ Stack recomendada instalada: FluentValidation, Serilog, sinks, JWT, JwtBearer e Swashbuckle.
 - ✅ Build aprovado e 7 testes unitários aprovados.
+- ✅ Login JWT e autorização configurados no backend.
 
 ### Autenticação JWT
 
@@ -23,6 +24,7 @@ Usuários novos devem ser criados por um administrador em `POST /api/users` info
 ### Pendências reais
 
 - ✅ Configurar JWT no pipeline, login com credenciais e proteção dos endpoints.
+- ⏳ Integrar o login JWT ao frontend, que ainda usa seleção demonstrativa de usuário.
 - ⏳ Configurar efetivamente FluentValidation, Serilog/Application Insights e Swagger.
 - ⏳ Aplicar e validar a migration 002 no Supabase.
 - ⏳ Publicar a imagem atualizada e fazer redeploy no Render; a imagem pública ainda está desatualizada.
@@ -30,7 +32,7 @@ Usuários novos devem ser criados por um administrador em `POST /api/users` info
 
 O cronograma de evolução deve usar este status como ponto de partida. Nenhum item pendente desta seção deve ser tratado como concluído apenas porque o pacote ou o exemplo foi adicionado.
 
-> **Status:** 42% Completo | **Ambiente:** Backend pronto, Frontend em desenvolvimento | **Data:** 22/08/2026
+> **Histórico:** Status de 22/08/2026. Consulte o quadro vigente acima para a situação atual.
 
 ---
 
@@ -42,7 +44,7 @@ Este é um **Sistema Completo de Reserva de Salas** para instituições de ensin
 
 ### Tecnologia & Arquitetura
 
-> **Nota de rastreabilidade — 26/08/2026:** A tabela abaixo é o retrato original de 22/08. Desde então, o frontend foi integrado e passou a ser servido pela API; a autenticação real continua pendente.
+> **Nota de rastreabilidade:** A tabela abaixo preserva percentuais históricos de 22/08. O backend já possui JWT; a integração do token no frontend continua pendente.
 
 | Aspecto | Tecnologia | Status |
 |---------|-----------|--------|
@@ -54,7 +56,7 @@ Este é um **Sistema Completo de Reserva de Salas** para instituições de ensin
 | **CI/CD** | GitHub Actions | ✅ 100% Otimizado |
 | **Deploy** | Render + Docker Hub | ✅ Online |
 | **Frontend** | HTML/CSS/JavaScript | 🟡 20% Integrado |
-| **Segurança** | JWT + Row Level Security (RLS) | 🔴 Em desenvolvimento |
+| **Segurança** | JWT no backend + Row Level Security (RLS) | 🟡 Parcial |
 
 ### Saúde do Projeto
 
@@ -68,14 +70,14 @@ Componentes:
 ✅ CI/CD Pipeline:       █████████████████████████████░ 100%
 ✅ Deploy (Render):      █████████████████████████████░ 100%
 ✅ Documentação:         █████████████████████████████░ 100%
-🔴 Autenticação JWT:     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0%
-🟡 Frontend:             ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 20%
+🟡 Autenticação JWT:     backend pronto; integração no frontend pendente
+🟡 Frontend:             integrado à API; login JWT pendente
 🟡 Segurança (RLS):      ██████░░░░░░░░░░░░░░░░░░░░░░░░░░ 60%
 ```
 
 ### Bloqueador para Produção
 
-🔴 **Autenticação JWT não implementada** - Impede uso em produção. Qualquer pessoa pode fazer requisições POST/PUT/DELETE sem autorização.
+🔴 **Integração de autenticação incompleta** - O backend exige JWT nas operações protegidas, mas o frontend ainda usa login demonstrativo. Também faltam validação da migration no Supabase, CORS restrito e testes E2E para uso em produção.
 
 ---
 

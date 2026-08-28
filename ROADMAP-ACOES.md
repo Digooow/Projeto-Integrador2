@@ -1,6 +1,6 @@
 # 🚀 ROADMAP DE AÇÕES - Sistema de Reserva de Salas
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
 O roadmap abaixo preserva o planejamento original da sprint de 22/08. Use esta atualização para não reabrir tarefas já entregues.
 
@@ -16,7 +16,8 @@ O roadmap abaixo preserva o planejamento original da sprint de 22/08. Use esta a
 
 ### Próximas tarefas reais
 
-- [ ] Configurar JWT, credenciais, claims e autorização nos endpoints.
+- [x] Configurar JWT, credenciais, claims e autorização nos endpoints.
+- [ ] Integrar o login JWT ao frontend e validar o fluxo ponta a ponta.
 - [ ] Configurar FluentValidation, Serilog/Application Insights e Swagger no código.
 - [ ] Aplicar a migration 002 no Supabase e validar permissões.
 - [ ] Publicar a imagem atualizada e fazer redeploy no Render.
@@ -50,11 +51,11 @@ Componentes:
 
 ## 🔥 FASE 1: CRÍTICA (SEMANA 1) - BLOQUEIA PRODUÇÃO
 
-### Tarefa 1.1: Implementar Autenticação JWT
+### Tarefa 1.1: Integrar Autenticação JWT ao Frontend
 
-> **Atualização — 26/08/2026:** As bibliotecas JWT listadas no passo de instalação já foram adicionadas ao projeto. A configuração do middleware, login por credenciais e proteção por claims continua pendente.
+> **Atualização — 28/08/2026:** O backend já configura middleware, login por credenciais e proteção por claims. Falta o frontend armazenar o token retornado por `/auth/login` e enviá-lo nas chamadas protegidas.
 
-**Status:** ❌ Não iniciado  
+**Status:** 🟡 Backend concluído; integração do frontend pendente
 **Prioridade:** 🔴 P0 CRÍTICA  
 **Tempo:** 6 horas  
 **Responsável:** Backend Lead

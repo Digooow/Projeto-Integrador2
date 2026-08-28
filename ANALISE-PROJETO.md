@@ -1,6 +1,6 @@
 # 📋 Análise Completa do Projeto - Sistema de Reserva de Salas
 
-## Status vigente — 26/08/2026
+## Status vigente — 28/08/2026
 
 Este quadro foi atualizado após a análise da implementação atual. O conteúdo posterior, com data de 22/08/2026, permanece como registro da análise original e não deve ser interpretado como um status mais recente.
 
@@ -14,7 +14,8 @@ Este quadro foi atualizado após a análise da implementação atual. O conteúd
 
 ### Ainda pendente
 
-- ⏳ Configuração e uso efetivo de JWT, login por credenciais e autorização por claims.
+- ✅ Configuração de JWT, login por credenciais e autorização por claims no backend.
+- ⏳ Uso efetivo do JWT no frontend, que ainda seleciona um perfil demonstrativo.
 - ⏳ Configuração efetiva de FluentValidation, Serilog, Application Insights e Swagger.
 - ⏳ Aplicação/validação da migration no Supabase e redeploy da imagem atual no Render.
 - ⏳ Testes E2E, CORS restrito, fuso horário explícito e rate limiting.
