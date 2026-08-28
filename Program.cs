@@ -76,7 +76,7 @@ app.MapGet("/health", () => Results.Ok(new
     timestamp = DateTime.UtcNow
 }));
 
-app.MapPost("/auth/login", async (LoginRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
+app.MapPost("/auth/login", async ([Microsoft.AspNetCore.Mvc.FromBody] LoginRequest input, ReservationDbContext db, CancellationToken cancellationToken) =>
 {
     if (string.IsNullOrWhiteSpace(input.Email) || string.IsNullOrWhiteSpace(input.Password))
         return Results.BadRequest(new { error = "Informe e-mail e senha." });
