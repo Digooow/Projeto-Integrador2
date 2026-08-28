@@ -363,6 +363,10 @@ O projeto utiliza **GitHub Actions** para automação contínua de integração 
    DOCKER_PASSWORD = seu-token-dockerhub
    ```
 
+Para que cada imagem publicada também provoque o redeploy do serviço, adicione
+os secrets `RENDER_SERVICE_ID` (sem o prefixo `srv-`) e `RENDER_API_KEY`.
+Enquanto eles não existirem, o job de deploy será ignorado.
+
 ---
 
 ## 🚀 Deploy no Render via Docker Hub (Otimizado)
