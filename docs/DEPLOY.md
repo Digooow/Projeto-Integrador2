@@ -1,5 +1,11 @@
 # Deploy e operação
 
+## Acesso aos serviços publicados
+
+- **Aplicação em produção:** [projeto-integrador2-latest.onrender.com](https://projeto-integrador2-latest.onrender.com/)
+- **Imagem publicada no Docker Hub:** [digooow/projeto-integrador2](https://hub.docker.com/layers/digooow/projeto-integrador2/latest)
+- **Projeto no Supabase:** [supabase.co](https://lrduzdtfknsnuzkhrsgk.supabase.co)
+
 ## Estado do deploy
 
 O repositório possui um `Dockerfile` multi-stage. O workflow constrói a imagem
@@ -43,6 +49,8 @@ qualquer mudança destrutiva. Backup automatizado ainda não está implementado.
 3. Fazer login com uma conta não demonstrativa.
 4. Validar criação, aprovação e consulta de uma reserva de teste.
 5. Conferir logs sem expor senha, token ou connection string.
+6. Confirmar que o build e os 9 testes automatizados passaram antes da
+   publicação.
 
 ## Operação segura
 

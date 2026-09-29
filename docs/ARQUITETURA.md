@@ -5,7 +5,7 @@
 O sistema atual é uma aplicação ASP.NET Core 8 que serve simultaneamente a API
 e o arquivo `frontend/reserva-salas.html`. Não existe um frontend React
 separado nem um backend Node.js: essas tecnologias aparecem em materiais
-acadêmicos antigos, não na implementação versionada.
+acadêmicos antigos, não na implementação vigente.
 
 ## Visão de componentes
 
@@ -16,8 +16,9 @@ Navegador
    │       └── /auth/login e /api/*
    │
    └── ASP.NET Core Minimal API
+           ├── Endpoints/ApplicationEndpoints.cs
+           ├── Services/
            ├── autenticação JWT e autorização por papel
-           ├── regras de reserva e recorrência
            └── Entity Framework Core / Npgsql
                    └── PostgreSQL no Supabase
 ```
@@ -28,18 +29,38 @@ reservas aprovadas alimenta o painel público.
 
 ## Camadas e responsabilidades
 
-### API e composição
+### Composição e infraestrutura
 
 `Program.cs` registra o `ReservationDbContext`, autenticação JWT, autorização,
-CORS, rotas HTTP e o middleware que serve o frontend. A API usa Minimal APIs,
-recebe DTOs via JSON e retorna respostas HTTP com objetos anônimos ou records.
+CORS, serviços e middleware. O arquivo não contém regras de negócio nem
+definições de rotas.
+
+### Endpoints
+
+`Endpoints/ApplicationEndpoints.cs` concentra o mapeamento das Minimal APIs,
+organizado por autenticação, salas, recursos, usuários e reservas. Essa camada
+recebe requests, chama os serviços e converte `ServiceResult` em respostas HTTP.
+
+### Serviços de aplicação
+
+`Services/` contém os casos de uso e regras de aplicação:
+
+- `AuthService`: login, emissão de JWT e cadastro de requisitantes.
+- `RoomService`: consulta, criação, atualização e ativação de salas.
+- `ResourceService`: consulta e criação de recursos.
+- `UserService`: consulta, criação, atualização e ativação de usuários.
+- `ReservationAppService`: consulta, criação, recorrência, aprovação,
+  rejeição e cancelamento de reservas.
+
+Os serviços não dependem de `HttpRequest`, `IResult` ou detalhes do transporte.
+`ServiceResult` padroniza estados como `Ok`, `BadRequest`, `Conflict`,
+`NotFound` e `Forbidden`.
 
 ### Domínio
 
-`Domain/ReservationDomain.cs` contém `ReservationService`, as entidades de
-domínio, estados de reserva, papéis, expansão de recorrência e regras de
-capacidade, aprovação, conflito e cancelamento. Essa camada não depende de
-PostgreSQL ou de HTTP.
+`Domain/ReservationDomain.cs` contém entidades, estados de reserva e papéis.
+As regras de aplicação são orquestradas pelos serviços, enquanto o domínio
+mantém conceitos independentes de HTTP e de PostgreSQL.
 
 ### Persistência
 
@@ -56,9 +77,12 @@ chave de assinatura são obrigatórias por variável de ambiente.
 
 ## Organização do código
 
-- `Program.cs`: composição da aplicação e endpoints HTTP.
-- `Domain/`: regras e modelos do domínio de reservas.
-- `Persistence/`: entidades e `ReservationDbContext`.
+- `Program.cs`: composição da aplicação, infraestrutura e middleware.
+- `Endpoints/ApplicationEndpoints.cs`: rotas e conversão de resultados para HTTP.
+- `Domain/`: entidades, estados e conceitos do domínio.
+- `Models/`: DTOs de entrada e saída da API.
+- `Services/`: casos de uso e regras de aplicação.
+- `Persistence/`: entidades persistentes e `ReservationDbContext`.
 - `Security/`: hash e verificação de senhas.
 - `frontend/`: interface web.
 - `supabase/migrations/`: schema, seeds e políticas RLS.
@@ -68,54 +92,30 @@ chave de assinatura são obrigatórias por variável de ambiente.
 
 1. O usuário faz login e recebe um JWT.
 2. O frontend envia o token nas operações protegidas.
-3. A API valida identidade, papel, sala, capacidade e horários.
-4. Recorrências são expandidas em ocorrências individuais ligadas por uma
-   série.
-5. A reserva é persistida e pode ser aprovada, rejeitada ou cancelada.
+3. O endpoint encaminha o request ao serviço correspondente.
+4. O serviço valida identidade, papel, sala, capacidade e horários.
+5. Recorrências são expandidas em ocorrências individuais ligadas por uma série.
+6. A reserva é persistida e pode ser aprovada, rejeitada ou cancelada.
 
-## Modelo funcional
+## Princípios de design e SOLID
 
-### Usuários
-
-- Requisitantes criam e acompanham suas reservas.
-- Coordenadores aprovam dentro do escopo de andares configurado.
-- Administradores gerenciam usuários, salas, recursos e aprovações globais.
-
-### Reservas
-
-Uma reserva possui sala, solicitante, título, responsável, participantes,
-status, decisão e uma ou mais ocorrências. O endpoint de listagem retorna
-`data` e `pagination`, com página, tamanho, total e total de páginas.
-
-### Frontend
-
-O frontend oferece login/cadastro, solicitação pontual ou recorrente, minhas
-solicitações, aprovações, calendário, salas/recursos, usuários e painel TV.
-O token fica em `sessionStorage`; o fallback local existente é uma estratégia
-de demonstração quando a API está indisponível, não uma persistência de
-produção.
-
-## Conformidade com os slides e documentos legados
-
-| Afirmação encontrada | Situação real |
-|---|---|
-| React e Node.js | Incorreto para o código atual; usa HTML/CSS/JavaScript e ASP.NET Core 8 |
-| PostgreSQL | Correto; usado via Npgsql/Supabase |
-| API REST e JSON | Correto; Minimal APIs com endpoints JSON |
-| Login e permissões | Correto; JWT e autorização por papel estão implementados |
-| Notificações por e-mail/SMS | Futuro; não implementado |
-| Relatórios avançados | Futuro; não implementado |
-| Backup e recuperação | Recomendação futura; não comprovado pelo código |
-| Proteção contra SQL injection | Parcialmente favorecida por EF Core, mas não é uma certificação de segurança |
-| Aplicação sem backend e `window.storage` | Documento técnico legado; não descreve mais o sistema atual |
-
-Os slides podem continuar como registro acadêmico da concepção, mas não devem
-ser usados como fonte de status técnico atual. O README e este documento devem
-ser a referência para a implementação.
+- **Responsabilidade única:** composição, endpoints, serviços, persistência,
+  segurança e DTOs estão separados por responsabilidade.
+- **Inversão de dependência:** serviços recebem suas dependências por injeção
+  de dependência, sem criar o contexto ou acessar infraestrutura global.
+- **Baixo acoplamento:** serviços não produzem respostas HTTP; endpoints não
+  implementam regras de negócio.
+- **Interfaces somente quando justificadas:** o projeto usa serviços concretos
+  porque ainda não existem múltiplas implementações ou uma porta externa que
+  justifique abstração. Interfaces devem ser introduzidas quando reduzirem
+  acoplamento real, não apenas para cumprir formalmente o SOLID.
+- **Extensibilidade:** novos grupos de endpoints e casos de uso devem ser
+  adicionados em arquivos próprios, mantendo `Program.cs` estável.
 
 ## Limites conhecidos
 
 CORS ainda permite configuração ampla, o tratamento de timezone precisa ser
-formalizado e a observabilidade avançada ainda está no roadmap. Não considerar
-o sistema pronto para uso real antes de concluir os itens de segurança e
-operação de [docs/ROADMAP.md](./ROADMAP.md).
+formalizado, os pacotes de validação e observabilidade ainda não estão
+configurados e o tratamento global de exceções ainda está no roadmap. O projeto
+não deve ser considerado pronto para produção antes dos itens de segurança e
+operação de [ROADMAP.md](./ROADMAP.md).

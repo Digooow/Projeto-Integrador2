@@ -17,7 +17,8 @@ O workflow em `.github/workflows/dotnet.yml`:
 5. aciona o deploy do Render quando os secrets necessários existem.
 
 O build e os testes são a barreira mínima para publicação. A imagem recebe tags
-de branch, commit e `latest`.
+de branch, commit e `latest`. A suíte atual possui 9 testes e valida o projeto
+após a separação entre endpoints e serviços.
 
 ## Gatilhos e comportamento
 
@@ -41,7 +42,7 @@ Usar tokens de acesso com o menor privilégio possível e revisar sua rotação.
 - Não valida CORS, RLS ou concorrência em banco PostgreSQL real.
 - Não faz scan de vulnerabilidades atualmente.
 - Não possui aprovação manual, rollback automático ou alertas de produção.
-- A cobertura não é coletada apesar do nome histórico de algumas etapas.
+- A cobertura ainda não é coletada apesar do nome histórico de algumas etapas.
 
 ## Evolução recomendada
 

@@ -1,5 +1,11 @@
 # Projeto-Integrador2 — Sistema de Reserva de Salas
 
+## Acesso ao projeto online
+
+- **Aplicação em produção:** [projeto-integrador2-latest.onrender.com](https://projeto-integrador2-latest.onrender.com/)
+- **Imagem no Docker Hub:** [digooow/projeto-integrador2](https://hub.docker.com/layers/digooow/projeto-integrador2/latest)
+- **Projeto no Supabase:** [supabase.co](https://lrduzdtfknsnuzkhrsgk.supabase.co)
+
 ## Visão geral
 
 Aplicação web para solicitar e administrar salas em instituições de ensino.
@@ -8,8 +14,8 @@ coordenadores e administradores aprovam, rejeitam e cancelam solicitações.
 
 O backend e o frontend estão integrados, com persistência em PostgreSQL/Supabase,
 autenticação JWT e pipeline de entrega com Docker. O projeto está funcional
-como entrega acadêmica e ainda possui pendências antes de ser tratado como
-produto de produção.
+como entrega acadêmica e ainda possui pendências operacionais antes de ser
+tratado como produto de produção.
 
 ## Funcionalidades principais
 
@@ -25,20 +31,26 @@ produto de produção.
 
 Implementado:
 
-- 7 testes unitários de domínio e 2 testes E2E da API.
+- 9 testes automatizados, incluindo testes unitários de domínio e testes E2E da API.
 - CRUD de salas, recursos e usuários administrativos.
 - Papéis de requisitante, coordenador e administrador; o domínio também mantém
   o papel de colaborador.
-- Coordenadores podem ter escopo de aprovação por andar; administradores têm
-  escopo global.
+- Autorização administrativa aplicada aos endpoints de gestão de salas,
+  recursos e usuários.
+- Coordenadores e administradores podem aprovar ou rejeitar reservas; o
+  proprietário, coordenador ou administrador pode cancelar uma reserva.
 - Migrations `001_initial.sql`, `002_frontend_integration.sql` e
   `003_jwt_authentication.sql`.
+- Regras de negócio extraídas para serviços dedicados em `Services/`.
+- Rotas extraídas para `Endpoints/ApplicationEndpoints.cs`; `Program.cs`
+  permanece responsável pela composição e infraestrutura.
+- Conflito de merge do `Program.cs` removido e build validado.
 
 Ainda não tratar como concluído:
 
 - CORS restrito, timezone formal, rate limiting e observabilidade avançada.
 - Swagger/OpenAPI, Serilog e FluentValidation efetivamente configurados; os
-  pacotes estão referenciados, mas a instalação isolada não ativa os recursos.
+  pacotes estão referenciados, mas os recursos ainda não estão ativos.
 - Cobertura E2E específica para login, cadastro e todas as permissões.
 - Backup/restore automatizado e procedimento de rollback.
 
@@ -49,17 +61,17 @@ Ainda não tratar como concluído:
 | Backend | ASP.NET Core 8 / C# / Minimal APIs |
 | Domínio | Regras de negócio organizadas com DDD |
 | Dados | Entity Framework Core 8 / Npgsql / PostgreSQL |
-| Segurança | JWT Bearer / hash de senha / RLS |
+| Segurança | JWT / hash de senha / RLS |
 | Frontend | HTML / CSS / JavaScript |
-| Qualidade | xUnit / 7 testes unitários / 2 testes E2E |
+| Qualidade | xUnit / 9 testes automatizados |
 | Entrega | Docker / GitHub Actions / Docker Hub / Render |
 
 ## Arquitetura resumida
 
-O backend ASP.NET Core serve a API e o frontend. O domínio concentra as regras
-de reservas; o Entity Framework Core persiste entidades no PostgreSQL. O
-frontend autentica no endpoint `/auth/login`, mantém o token na sessão e envia
-`Bearer` nas chamadas protegidas.
+O backend ASP.NET Core serve a API e o frontend. Os serviços de aplicação
+concentram as regras de negócio e o Entity Framework Core persiste entidades no
+PostgreSQL. O frontend autentica no endpoint `/auth/login`, mantém o token na
+sessão e envia `Bearer` nas chamadas protegidas.
 
 Veja detalhes em [docs/ARQUITETURA.md](./docs/ARQUITETURA.md).
 
@@ -71,8 +83,13 @@ Veja detalhes em [docs/ARQUITETURA.md](./docs/ARQUITETURA.md).
 | `POST /auth/login` | Emite JWT por e-mail e senha | Público |
 | `POST /auth/register` | Cadastra requisitante | Público |
 | `GET /api/rooms` | Lista salas ativas | Público; inativas exigem administrador |
+| `POST /api/rooms` | Cria sala | Administrador |
+| `PUT /api/rooms/{id}` | Atualiza sala | Administrador |
 | `GET /api/resources` | Lista recursos | Público |
+| `POST /api/resources` | Cria recurso | Administrador |
 | `GET /api/users` | Lista usuários | Autenticado |
+| `POST /api/users` | Cria usuário | Administrador |
+| `PUT /api/users/{id}` | Atualiza usuário | Administrador |
 | `GET /api/reservations` | Lista reservas paginadas | Público apenas para aprovadas |
 | `POST /api/reservations` | Cria reserva ou série recorrente | Requisitante autenticado |
 | `POST /api/reservations/{id}/approve` | Aprova reserva | Coordenador/admin |
@@ -117,10 +134,10 @@ seguir os critérios de [docs/ROADMAP.md](./docs/ROADMAP.md).
 
 ## Documentação
 
-- [Arquitetura](./docs/ARQUITETURA.md) — componentes, fluxos e segurança.
+- [Arquitetura](./docs/ARQUITETURA.md) — componentes, fluxos, responsabilidades e SOLID.
 - [Deploy](./docs/DEPLOY.md) — variáveis, migrations e operação.
 - [CI/CD](./docs/CI-CD.md) — pipeline, imagens e critérios de qualidade.
 - [Roadmap](./docs/ROADMAP.md) — evolução para um produto profissional.
 - [Histórico](./docs/HISTORICO.md) — resumo da evolução do projeto.
-- [Validação dos slides](./docs/ARQUITETURA.md#conformidade-com-os-slides-e-documentos-legados) —
-  confronto entre os materiais acadêmicos e a implementação.
+- [Metodologia ágil](./docs/METODOLOGIA_AGIL.md) — processo de desenvolvimento.
+- [Slides](./docs/NOVA_APRESENTACAO_SLIDES.md) — material de apresentação.

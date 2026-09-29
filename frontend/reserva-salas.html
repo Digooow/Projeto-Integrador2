@@ -41,11 +41,11 @@
 
   a{color:var(--accent);}
 
-  /* ---------- layout shells ---------- */
+  
   #app{min-height:100vh;display:flex;flex-direction:column;}
   .container{max-width:1080px;margin:0 auto;padding:0 20px;width:100%;}
 
-  /* ---------- login ---------- */
+  
   .login-wrap{
     flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;
     background:
@@ -84,7 +84,7 @@
   }
   .tv-link:hover{border-color:var(--accent-2);color:var(--accent-2);}
 
-  /* ---------- top bar ---------- */
+  
   header.topbar{
     border-bottom:1px solid var(--border);background:var(--bg-panel);position:sticky;top:0;z-index:20;
   }
@@ -115,7 +115,7 @@
   .page-head h2{font-size:22px;margin-bottom:4px;}
   .page-head p{color:var(--text-dim);font-size:14px;margin:0;max-width:640px;line-height:1.5;}
 
-  /* ---------- cards / generic ---------- */
+  
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
   .card + .card{margin-top:12px;}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -195,7 +195,7 @@
     border:1px solid var(--accent-dim);border-radius:8px;padding:8px 12px;
   }
 
-  /* toast */
+  
   #toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;}
   .toast{
     background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:11px 18px;border-radius:9px;
@@ -205,7 +205,7 @@
   .toast.err{border-color:var(--danger);color:var(--danger);}
   @keyframes toastin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-  /* ---------- TV panel ---------- */
+  
   .tv-body{background:#0c0f16;min-height:100vh;color:var(--text);}
   .tv-head{
     display:flex;justify-content:space-between;align-items:center;padding:26px 44px 18px;
@@ -260,10 +260,6 @@
 <div id="app"></div>
 
 <script>
-/* ======================= API CONFIG ======================= */
-// Points at the ASP.NET Core backend (Program.cs / Domain / Persistence).
-// Override at runtime without editing this file: set window.OCUPA_API_BASE
-// in an inline script placed before this one, or append ?api=<url> to the page URL.
 const API_BASE = (function(){
   const fromQuery = new URLSearchParams(location.search).get('api');
   if(fromQuery) return fromQuery.replace(/\/$/,'');
@@ -273,7 +269,7 @@ const API_BASE = (function(){
     : 'https://projeto-integrador2-latest.onrender.com';
 })();
 
-/* ======================= STATE ======================= */
+
 const DAY_NAMES = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const FLOOR_ORDER = ['Térreo','1º andar','2º andar','3º andar','4º andar'];
 
@@ -286,7 +282,7 @@ const St = {
   transient:{ conflicts:{}, calDate: todayStr(), showAddRoom:false, editRoomId:null, showAddUser:false, editUserId:null, showRegister:false, requestMode:'pontual', reqDays:[2,4], listPages:{ my:1, approvals:1 } }
 };
 
-/* ======================= UTIL ======================= */
+
 function uid(prefix){ return prefix+'_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
 function pad(n){ return String(n).padStart(2,'0'); }
 function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
@@ -318,11 +314,6 @@ function toast(msg, kind){
   wrap.appendChild(el);
   setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 3600);
 }
-
-/* ======================= API CLIENT ======================= */
-// The frontend's role/status vocabulary (pt-BR, lowercase) differs from the
-// backend's C# enums — these two tables are the single place that translates
-// between them.
 const ROLE_FRONT_TO_BACK = { requisitante:'Teacher', coordenador:'Coordinator', admin:'Administrator' };
 const ROLE_BACK_TO_FRONT = { Teacher:'requisitante', Collaborator:'requisitante', Coordinator:'coordenador', Administrator:'admin' };
 const STATUS_BACK_TO_FRONT = { Pending:'pending', Approved:'approved', Rejected:'rejected', Cancelled:'cancelled' };
@@ -336,7 +327,7 @@ async function api(path, options){
     body: options && options.body ? JSON.stringify(options.body) : undefined
   });
   let data = null;
-  try{ data = await res.json(); }catch(e){ /* no body */ }
+  try{ data = await res.json(); }catch(e){  }
   if(res.status===401 && St.authToken){
     St.authToken = null;
     sessionStorage.removeItem('ocupa_access_token');
@@ -398,7 +389,7 @@ async function loadRemoteData(){
   St.loaded = true; St.offline = false;
 }
 
-/* ======================= SEED DATA ======================= */
+
 function seedUsers(){
   return [
     { id:'u_renata', name:'Renata Alves', email:'renata.alves@senac.br', role:'admin', floors:[], active:true },
@@ -429,7 +420,6 @@ function seedCatalog(){
 function seedBookings(){
   const now = new Date();
   const list = [];
-  // live demo bookings so the TV panel always shows something happening "now"
   const liveA_start = new Date(now.getTime()-20*60000);
   const liveA_end = new Date(now.getTime()+70*60000);
   list.push({ id:uid('bk'), seriesId:null, roomId:'room_204', requesterId:'u_fernanda', title:'Programação Web II', responsavel:'Fernanda Lima', turmaSize:28, date:todayStr(), startTime:hhmm(liveA_start), endTime:hhmm(liveA_end), status:'approved', createdAt:now.toISOString(), decidedBy:'u_renata', decidedAt:now.toISOString() });
@@ -437,8 +427,6 @@ function seedBookings(){
   const liveB_start = new Date(now.getTime()-60*60000);
   const liveB_end = new Date(now.getTime()+30*60000);
   list.push({ id:uid('bk'), seriesId:null, roomId:'room_101', requesterId:'u_carlos', title:'Atendimento a alunos', responsavel:'Carlos Menezes', turmaSize:6, date:todayStr(), startTime:hhmm(liveB_start), endTime:hhmm(liveB_end), status:'approved', createdAt:now.toISOString(), decidedBy:'u_renata', decidedAt:now.toISOString() });
-
-  // an approved recurring series (Tue/Thu 19:00-22:00), spanning past + future, to show series handling
   const seriesId = uid('series');
   const seriesStart = new Date(now); seriesStart.setDate(seriesStart.getDate()-14);
   const seriesEnd = new Date(now); seriesEnd.setDate(seriesEnd.getDate()+56);
@@ -448,20 +436,16 @@ function seedBookings(){
       list.push({ id:uid('bk'), seriesId, roomId:seriesMeta.roomId, requesterId:seriesMeta.requesterId, title:seriesMeta.title, responsavel:seriesMeta.responsavel, turmaSize:26, date:dateStr(d), startTime:seriesMeta.startTime, endTime:seriesMeta.endTime, status:'approved', createdAt:now.toISOString(), decidedBy:'u_renata', decidedAt:now.toISOString() });
     }
   }
-
-  // two pending, overlapping requests for tomorrow — demonstrates conflict detection before approval
   const tmr = new Date(now); tmr.setDate(tmr.getDate()+1);
   const tmrStr = dateStr(tmr);
   list.push({ id:uid('bk'), seriesId:null, roomId:'room_101', requesterId:'u_fernanda', title:'Reunião pedagógica', responsavel:'Fernanda Lima', turmaSize:8, date:tmrStr, startTime:'10:00', endTime:'11:00', status:'pending', createdAt:now.toISOString() });
   list.push({ id:uid('bk'), seriesId:null, roomId:'room_101', requesterId:'u_joao', title:'Oficina de robótica', responsavel:'João Pedro Rocha', turmaSize:18, date:tmrStr, startTime:'10:30', endTime:'12:00', status:'pending' , createdAt:now.toISOString()});
-
-  // one more pending, no conflict — to show a clean approval
   list.push({ id:uid('bk'), seriesId:null, roomId:'room_301', requesterId:'u_joao', title:'Manutenção de máquinas', responsavel:'João Pedro Rocha', turmaSize:15, date:tmrStr, startTime:'14:00', endTime:'16:00', status:'pending', createdAt:now.toISOString() });
 
   return list;
 }
 
-/* ======================= DOMAIN HELPERS ======================= */
+
 function visibleRoomsFor(user){
   if(!user) return [];
   if(user.role==='admin') return St.rooms;
@@ -507,7 +491,7 @@ function myGroupsFor(user){
   return Object.values(groups).map(g=>{ g.instances.sort((a,b)=>a.date.localeCompare(b.date)); return g; }).sort((a,b)=> b.instances[0].createdAt.localeCompare(a.instances[0].createdAt));
 }
 
-/* ======================= ACTIONS ======================= */
+
 window.doLogin = async function(userId){
   const email = document.getElementById('login-email')?.value.trim() || '';
   const password = document.getElementById('login-password')?.value || '';
@@ -707,7 +691,7 @@ window.cancelGroupFuture = async function(seriesId){
 
 window.setCalDate = function(v){ St.transient.calDate = v; render(); };
 
-/* rooms admin */
+
 window.toggleAddRoom = function(){ St.transient.showAddRoom = !St.transient.showAddRoom; St.transient.editRoomId=null; render(); };
 window.editRoom = function(id){ St.transient.editRoomId = id; St.transient.showAddRoom=false; render(); };
 window.cancelRoomEdit = function(){ St.transient.editRoomId=null; St.transient.showAddRoom=false; render(); };
@@ -755,7 +739,7 @@ window.addResourceType = async function(ev){
   render();
 };
 
-/* users admin */
+
 window.toggleAddUser = function(){ St.transient.showAddUser = !St.transient.showAddUser; St.transient.editUserId=null; render(); };
 window.editUser = function(id){ St.transient.editUserId = id; St.transient.showAddUser=false; render(); };
 window.cancelUserEdit = function(){ St.transient.editUserId=null; St.transient.showAddUser=false; render(); };
@@ -791,7 +775,7 @@ window.toggleUserActive = async function(id){
   render();
 };
 
-/* ======================= RENDER: SHELL ======================= */
+
 function render(){
   const app = document.getElementById('app');
   if(St.view==='tv'){ app.innerHTML = renderTV(); attachTVTimer(); return; }
@@ -885,7 +869,7 @@ function renderShell(user){
   <main><div class="container">${content}</div></main>`;
 }
 
-/* ======================= RENDER: REQUEST ======================= */
+
 function renderRequestView(user){
   const rooms = St.rooms.filter(r=>r.active);
   const mode = St.transient.requestMode;
@@ -967,7 +951,7 @@ function renderRoomSelectHint(room){
   return `<p class="hint">${esc(r.description||'')}${names.length?' · Recursos: '+esc(names.join(', ')):''}</p>`;
 }
 
-/* ======================= RENDER: MY REQUESTS ======================= */
+
 function renderMyView(user){
   const groups = myGroupsFor(user);
   if(groups.length===0){
@@ -1041,14 +1025,13 @@ function renderInstanceMini(instances){
 }
 function statusLabel(s){ return {pending:'Pendente',approved:'Confirmada',rejected:'Rejeitada',cancelled:'Cancelada'}[s]||s; }
 
-/* ======================= RENDER: APPROVALS ======================= */
+
 function renderApprovalsView(user){
   const groups = pendingGroupsFor(user);
   const scopeNote = user.role==='coordenador' ? `<p class="hint">Você aprova apenas para: ${esc(user.floors.join(', '))}.</p>` : '';
   if(groups.length===0){
     return `<div class="page-head"><h2>Aprovações</h2>${scopeNote}</div><div class="empty"><b>Tudo em dia</b>Não há pedidos aguardando decisão no momento.</div>`;
   }
-  // FYI: flag pending groups that overlap with OTHER pending groups (heads-up before approving both)
   const pageSize = 5;
   const page = Math.min(St.transient.listPages.approvals, Math.max(1, Math.ceil(groups.length/pageSize)));
   St.transient.listPages.approvals = page;
@@ -1067,8 +1050,6 @@ function renderApprovalCard(g, allGroups){
   const rangeLabel = isSeries
     ? `${g.instances.length} aula(s) de ${fmtBR(g.instances[0].date)} a ${fmtBR(g.instances[g.instances.length-1].date)} · ${daysLabelFromInstances(g.instances)} · ${first.startTime}–${first.endTime}`
     : `${fmtBR(first.date)} · ${first.startTime}–${first.endTime}`;
-
-  // FYI against other pending groups
   const fyi = [];
   g.instances.forEach(b=>{
     const otherPendingConflicts = St.bookings.filter(o=> o.status==='pending' && o.roomId===b.roomId && o.date===b.date && o.id!==b.id && timeOverlap(b.startTime,b.endTime,o.startTime,o.endTime) && (!b.seriesId || o.seriesId!==b.seriesId));
@@ -1121,7 +1102,7 @@ function daysLabelFromInstances(instances){
   return days.map(d=>DAY_NAMES[d]).join('/');
 }
 
-/* ======================= RENDER: CALENDAR ======================= */
+
 function renderCalendarView(user){
   const rooms = sortedFloors(visibleRoomsFor(user).map(r=>r.floor)).flatMap(fl => visibleRoomsFor(user).filter(r=>r.floor===fl));
   const date = St.transient.calDate;
@@ -1132,7 +1113,6 @@ function renderCalendarView(user){
   rooms.forEach(r=>{
     if(r.floor!==currentFloor){ rows += `<div class="tv-floor-label" style="margin-top:16px;">${esc(r.floor)}</div>`; currentFloor=r.floor; }
     const items = dayBookings.filter(b=>b.roomId===r.id).sort((a,b)=>a.startTime.localeCompare(b.startTime));
-    // detect overlaps within this room/day
     const conflictIds = new Set();
     items.forEach((a,i)=>items.forEach((b,j)=>{ if(i<j && timeOverlap(a.startTime,a.endTime,b.startTime,b.endTime)){ conflictIds.add(a.id); conflictIds.add(b.id);} }));
     rows += `<div class="card">
@@ -1162,7 +1142,7 @@ function renderCalendarView(user){
   `;
 }
 
-/* ======================= RENDER: ROOMS ======================= */
+
 function renderRoomsView(user){
   const allowedFloors = user.role==='admin' ? sortedFloors(St.rooms.map(r=>r.floor)) : user.floors;
   const rooms = user.role==='admin' ? St.rooms : St.rooms.filter(r=>user.floors.includes(r.floor));
@@ -1240,7 +1220,7 @@ function renderRoomForm(room, allowedFloors){
   </form>`;
 }
 
-/* ======================= RENDER: USERS ======================= */
+
 function renderUsersView(user){
   const floors = sortedFloors(St.rooms.map(r=>r.floor));
   return `
@@ -1297,16 +1277,15 @@ function renderUserForm(u, floors){
   </form>`;
 }
 
-/* ======================= RENDER: TV ======================= */
+
 let tvTimerHandle = null;
 function attachTVTimer(){
   if(tvTimerHandle) clearInterval(tvTimerHandle);
   tvTimerHandle = setInterval(async ()=>{
-    // refresh clock every tick; re-pull shared data periodically to reflect changes from other sessions
     const clockEl = document.getElementById('tv-clock');
     if(clockEl) clockEl.textContent = hhmm(new Date())+':'+pad(new Date().getSeconds());
     if(new Date().getSeconds()===0){
-      try{ St.bookings = await fetchBookings('Approved'); }catch(e){ /* keep showing last known data */ }
+      try{ St.bookings = await fetchBookings('Approved'); }catch(e){  }
       render();
     }
   }, 1000);
@@ -1370,13 +1349,11 @@ function renderTVCard(room, todays, now){
   </div>`;
 }
 
-/* ======================= BOOT ======================= */
+
 async function boot(){
   try{
     await (St.authToken ? loadRemoteData() : loadPublicData());
   }catch(e){
-    // Keep the public panel usable while exposing whether the API was offline
-    // or responded with a server error.
     St.users = seedUsers();
     const cat = seedCatalog(); St.rooms = cat.rooms; St.resources = cat.resources;
     St.bookings = seedBookings();
