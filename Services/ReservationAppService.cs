@@ -118,48 +118,69 @@ public sealed class ReservationAppService(ReservationDbContext db)
     public async Task<ServiceResult<(Guid Id, List<ConflictResponse>? Conflicts)>> ApproveAsync(
         Guid id, string deciderId, bool force, CancellationToken ct)
     {
-        var reservation = await db.Reservations
-            .Include(r => r.Occurrences)
-            .SingleOrDefaultAsync(r => r.Id == id, ct);
-
-        if (reservation is null)
-            return ServiceResult<(Guid, List<ConflictResponse>?)>.NotFound();
-
-        if (reservation.Status != ReservationStatus.Pending)
-            return ServiceResult<(Guid, List<ConflictResponse>?)>.BadRequest("Este pedido já foi decidido.");
-
-        if (!force)
+        var isRelational = db.Database.IsRelational();
+        Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? tx = null;
+        if (isRelational)
         {
-            var occurrence = reservation.Occurrences.Single();
-
-            var conflicts = await db.Reservations
-                .AsNoTracking()
-                .Include(r => r.Occurrences)
-                .Where(r =>
-                    r.Id != id &&
-                    r.RoomId == reservation.RoomId &&
-                    r.Status == ReservationStatus.Approved &&
-                    r.Occurrences.Any(o => o.StartsAt < occurrence.EndsAt && occurrence.StartsAt < o.EndsAt))
-                .Select(r => new ConflictResponse(
-                    r.Id,
-                    r.Title,
-                    r.Responsavel,
-                    r.Occurrences.Select(o => o.StartsAt).Single(),
-                    r.Occurrences.Select(o => o.EndsAt).Single()))
-                .ToListAsync(ct);
-
-            if (conflicts.Count > 0)
-                return ServiceResult<(Guid, List<ConflictResponse>?)>.Conflict(
-                    "Já existe uma reserva aprovada para esse horário e sala.")
-                    with { Value = (id, conflicts) };
+            tx = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
         }
 
-        reservation.Status = ReservationStatus.Approved;
-        reservation.DecidedBy = deciderId;
-        reservation.DecidedAt = DateTime.UtcNow;
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            var reservation = await db.Reservations
+                .Include(r => r.Occurrences)
+                .SingleOrDefaultAsync(r => r.Id == id, ct);
 
-        return ServiceResult<(Guid, List<ConflictResponse>?)>.Ok((id, null));
+            if (reservation is null)
+                return ServiceResult<(Guid, List<ConflictResponse>?)>.NotFound();
+
+            if (reservation.Status != ReservationStatus.Pending)
+                return ServiceResult<(Guid, List<ConflictResponse>?)>.BadRequest("Este pedido já foi decidido.");
+
+            if (!force)
+            {
+                var occurrence = reservation.Occurrences.Single();
+
+                var conflicts = await db.Reservations
+                    .Include(r => r.Occurrences)
+                    .Where(r =>
+                        r.Id != id &&
+                        r.RoomId == reservation.RoomId &&
+                        r.Status == ReservationStatus.Approved &&
+                        r.Occurrences.Any(o => o.StartsAt < occurrence.EndsAt && occurrence.StartsAt < o.EndsAt))
+                    .Select(r => new ConflictResponse(
+                        r.Id,
+                        r.Title,
+                        r.Responsavel,
+                        r.Occurrences.Select(o => o.StartsAt).Single(),
+                        r.Occurrences.Select(o => o.EndsAt).Single()))
+                    .ToListAsync(ct);
+
+                if (conflicts.Count > 0)
+                    return ServiceResult<(Guid, List<ConflictResponse>?)>.Conflict(
+                        "Já existe uma reserva aprovada para esse horário e sala.")
+                        with { Value = (id, conflicts) };
+            }
+
+            reservation.Status = ReservationStatus.Approved;
+            reservation.DecidedBy = deciderId;
+            reservation.DecidedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync(ct);
+
+            if (tx is not null)
+            {
+                await tx.CommitAsync(ct);
+            }
+
+            return ServiceResult<(Guid, List<ConflictResponse>?)>.Ok((id, null));
+        }
+        finally
+        {
+            if (tx is not null)
+            {
+                await tx.DisposeAsync();
+            }
+        }
     }
     public async Task<ServiceResult<Guid>> RejectAsync(Guid id, string deciderId, CancellationToken ct)
     {

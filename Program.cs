@@ -12,14 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.Sources.Clear();
 builder.Configuration.AddEnvironmentVariables();
 
-var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING")
-    ?? Environment.GetEnvironmentVariable("DATABASE_URL")
-    ?? throw new InvalidOperationException(
-        "Connection string não configurada. Defina SUPABASE_CONNECTION_STRING.");
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING")
+        ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+        ?? throw new InvalidOperationException(
+            "Connection string não configurada. Defina SUPABASE_CONNECTION_STRING.");
 
-builder.Services.AddDbContext<ReservationDbContext>(options =>
-    options.UseNpgsql(NormalizeConnectionString(connectionString))
-        .UseSnakeCaseNamingConvention());
+    builder.Services.AddDbContext<ReservationDbContext>(options =>
+        options.UseNpgsql(NormalizeConnectionString(connectionString))
+            .UseSnakeCaseNamingConvention());
+}
 
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
     ?? throw new InvalidOperationException(
@@ -49,9 +52,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+var allowedOrigins = (Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS")
+    ?? "http://localhost:5000,http://localhost:5173,http://localhost:3000,http://127.0.0.1:5000,http://127.0.0.1:5173")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()));
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RoomService>();
@@ -60,13 +71,22 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ReservationAppService>();
 
 var app = builder.Build();
-app.Urls.Add($"http://0.0.0.0:{Environment.GetEnvironmentVariable("PORT") ?? "5000"}");
+
+var cloudPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(cloudPort) && !app.Environment.IsEnvironment("Testing"))
+{
+    app.Urls.Add($"http://0.0.0.0:{cloudPort}");
+}
 
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapApplicationEndpoints();
-app.Run();
+
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.Run();
+}
 
 static string NormalizeConnectionString(string value)
 {
