@@ -59,7 +59,10 @@ service-account*.json
 *.keystore
 secrets/
 secret/
-
+Arquivos/
+*.pdf
+*.pptx
+*.docx
 
 .vs/
 .vscode/

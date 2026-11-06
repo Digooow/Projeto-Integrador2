@@ -113,6 +113,7 @@ jobs:
       if: env.RENDER_API_KEY != '' && env.RENDER_SERVICE_ID != ''
       continue-on-error: true
       run: |
+        SERVICE_ID="srv-${RENDER_SERVICE_ID#srv-}"
         curl --fail-with-body --retry 3 --silent --show-error \
-          --request POST "https://api.render.com/v1/services/srv-${RENDER_SERVICE_ID}/deploys" \
+          --request POST "https://api.render.com/v1/services/${SERVICE_ID}/deploys" \
           --header "Authorization: Bearer ${RENDER_API_KEY}"
