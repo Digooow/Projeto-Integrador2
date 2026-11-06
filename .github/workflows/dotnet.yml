@@ -71,7 +71,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
       with:
-        driver-options: network=host
+        driver-opts: network=host
 
     # ✅ Melhoria 3: Gerar metadata para tags inteligentes
     - name: Extract metadata
