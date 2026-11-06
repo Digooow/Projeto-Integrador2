@@ -1,0 +1,10 @@
+**/.git
+**/.vs
+**/.vscode
+**/bin
+**/obj
+Arquivos/
+tests/
+*.pdf
+*.pptx
+*.docx

@@ -83,10 +83,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapApplicationEndpoints();
 
-if (!app.Environment.IsEnvironment("Testing"))
-{
-    app.Run();
-}
+app.Run();
 
 static string NormalizeConnectionString(string value)
 {
