@@ -111,6 +111,7 @@ jobs:
     steps:
     - name: Trigger Render deploy
       if: env.RENDER_API_KEY != '' && env.RENDER_SERVICE_ID != ''
+      continue-on-error: true
       run: |
         curl --fail-with-body --retry 3 --silent --show-error \
           --request POST "https://api.render.com/v1/services/srv-${RENDER_SERVICE_ID}/deploys" \
