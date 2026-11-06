@@ -1,6 +1,8 @@
 
 bin/
 obj/
+**/bin/
+**/obj/
 .env
 .env.*
 !.env.example
@@ -38,6 +40,8 @@ Build/
 out/
 bin/
 obj/
+**/bin/
+**/obj/
 node_modules/
 __pycache__/
 *.pyc
