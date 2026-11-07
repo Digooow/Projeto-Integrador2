@@ -38,7 +38,9 @@ public sealed class ReservationAppService(ReservationDbContext db)
                 r.CreatedAt,
                 r.DecidedBy,
                 r.DecidedAt,
-                r.Occurrences.Select(o => new OccurrenceResponse(o.StartsAt, o.EndsAt)).Single()))
+                new OccurrenceResponse(
+                    r.Occurrences.OrderBy(o => o.StartsAt).Select(o => o.StartsAt).FirstOrDefault(),
+                    r.Occurrences.OrderBy(o => o.StartsAt).Select(o => o.EndsAt).FirstOrDefault())))
             .ToListAsync(ct);
 
         return new PaginatedResult<ReservationResponse>(
@@ -52,7 +54,7 @@ public sealed class ReservationAppService(ReservationDbContext db)
             return ServiceResult<(List<Guid>, Guid?)>.Forbidden();
 
         var room = await db.Rooms.AsNoTracking()
-            .SingleOrDefaultAsync(r => r.Id == input.RoomId && r.Active, ct);
+            .FirstOrDefaultAsync(r => r.Id == input.RoomId && r.Active, ct);
 
         if (room is null)
             return ServiceResult<(List<Guid>, Guid?)>.NotFound();
@@ -129,7 +131,7 @@ public sealed class ReservationAppService(ReservationDbContext db)
         {
             var reservation = await db.Reservations
                 .Include(r => r.Occurrences)
-                .SingleOrDefaultAsync(r => r.Id == id, ct);
+                .FirstOrDefaultAsync(r => r.Id == id, ct);
 
             if (reservation is null)
                 return ServiceResult<(Guid, List<ConflictResponse>?)>.NotFound();
@@ -139,7 +141,9 @@ public sealed class ReservationAppService(ReservationDbContext db)
 
             if (!force)
             {
-                var occurrence = reservation.Occurrences.Single();
+                var occurrence = reservation.Occurrences.OrderBy(o => o.StartsAt).FirstOrDefault();
+                if (occurrence is null)
+                    return ServiceResult<(Guid, List<ConflictResponse>?)>.BadRequest("Este pedido não possui horários vinculados.");
 
                 var conflicts = await db.Reservations
                     .Include(r => r.Occurrences)
@@ -152,8 +156,8 @@ public sealed class ReservationAppService(ReservationDbContext db)
                         r.Id,
                         r.Title,
                         r.Responsavel,
-                        r.Occurrences.Select(o => o.StartsAt).Single(),
-                        r.Occurrences.Select(o => o.EndsAt).Single()))
+                        r.Occurrences.OrderBy(o => o.StartsAt).Select(o => o.StartsAt).FirstOrDefault(),
+                        r.Occurrences.OrderBy(o => o.StartsAt).Select(o => o.EndsAt).FirstOrDefault()))
                     .ToListAsync(ct);
 
                 if (conflicts.Count > 0)
@@ -184,7 +188,7 @@ public sealed class ReservationAppService(ReservationDbContext db)
     }
     public async Task<ServiceResult<Guid>> RejectAsync(Guid id, string deciderId, CancellationToken ct)
     {
-        var reservation = await db.Reservations.SingleOrDefaultAsync(r => r.Id == id, ct);
+        var reservation = await db.Reservations.FirstOrDefaultAsync(r => r.Id == id, ct);
         if (reservation is null) return ServiceResult<Guid>.NotFound();
         if (reservation.Status != ReservationStatus.Pending)
             return ServiceResult<Guid>.BadRequest("Este pedido já foi decidido.");
@@ -199,7 +203,7 @@ public sealed class ReservationAppService(ReservationDbContext db)
     public async Task<ServiceResult<Guid>> CancelAsync(
         Guid id, string authenticatedUserId, bool canOverride, CancellationToken ct)
     {
-        var reservation = await db.Reservations.SingleOrDefaultAsync(r => r.Id == id, ct);
+        var reservation = await db.Reservations.FirstOrDefaultAsync(r => r.Id == id, ct);
         if (reservation is null) return ServiceResult<Guid>.NotFound();
 
         var isOwner = reservation.RequesterId == authenticatedUserId;

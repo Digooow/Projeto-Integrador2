@@ -56,7 +56,7 @@ public sealed class RoomService(ReservationDbContext db)
     }
     public async Task<ServiceResult> UpdateRoomAsync(string id, UpsertRoomRequest input, CancellationToken ct)
     {
-        var room = await db.Rooms.Include(r => r.Resources).SingleOrDefaultAsync(r => r.Id == id, ct);
+        var room = await db.Rooms.Include(r => r.Resources).FirstOrDefaultAsync(r => r.Id == id, ct);
         if (room is null) return ServiceResult.NotFound();
 
         if (string.IsNullOrWhiteSpace(input.Name) || string.IsNullOrWhiteSpace(input.Floor) || input.Capacity <= 0)
@@ -75,7 +75,7 @@ public sealed class RoomService(ReservationDbContext db)
     }
     public async Task<ServiceResult<bool>> ToggleActiveAsync(string id, CancellationToken ct)
     {
-        var room = await db.Rooms.SingleOrDefaultAsync(r => r.Id == id, ct);
+        var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == id, ct);
         if (room is null) return ServiceResult<bool>.NotFound();
 
         room.Active = !room.Active;

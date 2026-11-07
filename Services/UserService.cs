@@ -44,7 +44,7 @@ public sealed class UserService(ReservationDbContext db)
     }
     public async Task<ServiceResult> UpdateUserAsync(string id, UpsertUserRequest input, CancellationToken ct)
     {
-        var user = await db.Users.SingleOrDefaultAsync(u => u.Id == id, ct);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
         if (user is null) return ServiceResult.NotFound();
 
         if (string.IsNullOrWhiteSpace(input.Name) || string.IsNullOrWhiteSpace(input.Email))
@@ -64,7 +64,7 @@ public sealed class UserService(ReservationDbContext db)
     }
     public async Task<ServiceResult<bool>> ToggleActiveAsync(string id, CancellationToken ct)
     {
-        var user = await db.Users.SingleOrDefaultAsync(u => u.Id == id, ct);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
         if (user is null) return ServiceResult<bool>.NotFound();
 
         user.Active = !user.Active;

@@ -14,7 +14,7 @@ public sealed class AuthService(ReservationDbContext db, JwtSettings jwtSettings
     public async Task<LoginResponse?> LoginAsync(string email, string password, CancellationToken ct)
     {
         var user = await db.Users
-            .SingleOrDefaultAsync(u => u.Email == email && u.Active, ct);
+            .FirstOrDefaultAsync(u => u.Email == email && u.Active, ct);
 
         if (user is null || user.PasswordHash is null || !PasswordHasher.Verify(password, user.PasswordHash))
             return null;
