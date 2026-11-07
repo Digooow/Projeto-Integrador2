@@ -1,6 +1,8 @@
 **/.git
 **/.vs
 **/.vscode
+.venv
+**/.venv
 **/bin
 **/obj
 Arquivos/
