@@ -141,24 +141,41 @@ public sealed class ReservationAppService(ReservationDbContext db)
 
             if (!force)
             {
-                var occurrence = reservation.Occurrences.OrderBy(o => o.StartsAt).FirstOrDefault();
-                if (occurrence is null)
+                var occurrences = reservation.Occurrences
+                    .OrderBy(o => o.StartsAt)
+                    .ToList();
+                if (occurrences.Count == 0)
                     return ServiceResult<(Guid, List<ConflictResponse>?)>.BadRequest("Este pedido não possui horários vinculados.");
 
-                var conflicts = await db.Reservations
+                var minStart = occurrences[0].StartsAt;
+                var maxEnd = occurrences.Max(o => o.EndsAt);
+
+                var approvedCandidates = await db.Reservations
                     .Include(r => r.Occurrences)
                     .Where(r =>
                         r.Id != id &&
                         r.RoomId == reservation.RoomId &&
                         r.Status == ReservationStatus.Approved &&
-                        r.Occurrences.Any(o => o.StartsAt < occurrence.EndsAt && occurrence.StartsAt < o.EndsAt))
-                    .Select(r => new ConflictResponse(
-                        r.Id,
-                        r.Title,
-                        r.Responsavel,
-                        r.Occurrences.OrderBy(o => o.StartsAt).Select(o => o.StartsAt).FirstOrDefault(),
-                        r.Occurrences.OrderBy(o => o.StartsAt).Select(o => o.EndsAt).FirstOrDefault()))
+                        r.Occurrences.Any(o => o.StartsAt < maxEnd && minStart < o.EndsAt))
                     .ToListAsync(ct);
+
+                var conflicts = new List<ConflictResponse>();
+                foreach (var candidate in approvedCandidates)
+                {
+                    var conflictingOccurrence = candidate.Occurrences
+                        .OrderBy(o => o.StartsAt)
+                        .FirstOrDefault(co => occurrences.Any(ro => co.StartsAt < ro.EndsAt && ro.StartsAt < co.EndsAt));
+
+                    if (conflictingOccurrence is not null)
+                    {
+                        conflicts.Add(new ConflictResponse(
+                            candidate.Id,
+                            candidate.Title,
+                            candidate.Responsavel,
+                            conflictingOccurrence.StartsAt,
+                            conflictingOccurrence.EndsAt));
+                    }
+                }
 
                 if (conflicts.Count > 0)
                     return ServiceResult<(Guid, List<ConflictResponse>?)>.Conflict(
