@@ -35,7 +35,7 @@ verdade sobre a implementação vigente; para isso, consulte o
   código versionado.
 - Reservas recorrentes são persistidas como ocorrências individuais ligadas por
   uma série.
-- O README descreve o presente; o [ROADMAP.md](../ROADMAP.md) descreve apenas
+- O README descreve o presente; o [ROADMAP.md](./ROADMAP.md) descreve apenas
   o futuro.
 - A camada de endpoints converte resultados de aplicação em HTTP, enquanto os
   serviços não conhecem `IResult`, `HttpRequest` ou detalhes de transporte.
