@@ -19,13 +19,17 @@ O desenvolvimento local usa `dotnet run`; a produção usa uma imagem Docker
 publicada no Docker Hub e executada no Render. O PostgreSQL de produção é
 fornecido pelo Supabase.
 
-## Variáveis obrigatórias
+## Variáveis obrigatórias e opcionais
 
-| Variável | Uso |
-|---|---|
-| `SUPABASE_CONNECTION_STRING` | conexão com o PostgreSQL |
-| `JWT_SECRET_KEY` | assinatura dos tokens; mínimo de 32 bytes |
-| `PORT` | porta informada pelo ambiente de execução |
+| Variável | Uso | Obrigatória |
+|---|---|---|
+| `SUPABASE_CONNECTION_STRING` | conexão com o PostgreSQL | Sim |
+| `JWT_SECRET_KEY` | assinatura dos tokens; mínimo de 32 bytes | Sim |
+| `PORT` | porta informada pelo ambiente de execução | Não (padrão Kestrel) |
+| `CORS_ALLOWED_ORIGINS` | lista separada por vírgulas de origens permitidas (sem `*`) | Não (usa origem padrão por ambiente) |
+| `RATE_LIMIT_AUTH_PERMITS` | requisições permitidas por janela em `/auth/*` | Não (padrão `20`) |
+| `RATE_LIMIT_API_PERMITS` | requisições permitidas por janela em `/api/*` | Não (padrão `120`) |
+| `RATE_LIMIT_WINDOW_SECONDS` | janela do rate limiter em segundos | Não (padrão `60`) |
 
 Secrets do GitHub Actions, Docker Hub e Render devem existir somente na
 configuração dos serviços. Nunca colocar valores reais no repositório.
@@ -48,8 +52,8 @@ qualquer mudança destrutiva. Backup automatizado ainda não está implementado.
 2. Abrir `/` e `/reserva-salas.html`.
 3. Fazer login com uma conta não demonstrativa.
 4. Validar criação, aprovação e consulta de uma reserva de teste.
-5. Conferir logs sem expor senha, token ou connection string.
-6. Confirmar que o build e os 9 testes automatizados passaram antes da
+5. Conferir logs JSON sem expor senha, token ou connection string.
+6. Confirmar que o build e os 16 testes automatizados passaram antes da
    publicação.
 
 ## Operação segura

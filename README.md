@@ -25,13 +25,18 @@ tratado como produto de produção.
 - Gestão administrativa de usuários, salas e recursos.
 - Paginação de reservas e painel público de reservas aprovadas.
 - Persistência PostgreSQL/Supabase com migrations e RLS.
-- Health check em `GET /health`.
+- Health check em `GET /health` e documentação OpenAPI/Swagger em `/swagger` (`/swagger/v1/swagger.json`).
 
 ### Estado atual e limites
 
 Implementado:
 
-- 9 testes automatizados, incluindo testes unitários de domínio e testes E2E da API.
+- 16 testes automatizados (unitários de domínio/aplicação e E2E da API com `WebApplicationFactory`).
+- Swagger/OpenAPI ativo (`/swagger` e `/swagger/v1/swagger.json`) com esquema JWT `Bearer`.
+- Logs estruturados em JSON com Serilog e correlação de requisições via `X-Correlation-Id`.
+- Validação de entrada com FluentValidation (`Validators/RequestValidators.cs`) nos endpoints de autenticação, reservas, salas, recursos e usuários.
+- CORS restrito a origens explícitas (`CORS_ALLOWED_ORIGINS`, rejeitando wildcard `*`) e rate limiting de janela fixa nos grupos `/auth` e `/api`.
+- Testes E2E compatíveis com PostgreSQL real via `TEST_POSTGRES_CONNECTION_STRING` (executados no CI contra `postgres:16-alpine`), mantendo fallback `EF Core InMemory` para execução offline.
 - CRUD de salas, recursos e usuários administrativos.
 - Papéis de requisitante, coordenador e administrador; o domínio também mantém
   o papel de colaborador.
@@ -48,10 +53,9 @@ Implementado:
 
 Ainda não tratar como concluído:
 
-- CORS restrito, timezone formal, rate limiting e observabilidade avançada.
-- Swagger/OpenAPI, Serilog e FluentValidation efetivamente configurados; os
-  pacotes estão referenciados, mas os recursos ainda não estão ativos.
-- Cobertura E2E específica para login, cadastro e todas as permissões.
+- Formalização de política de timezone e padronização de erros em `ProblemDetails`.
+- Execução das migrations `supabase/migrations/*.sql` e validação de RLS contra instância Supabase real em ambiente de teste.
+- Testes de concorrência sob carga e matriz completa de permissões por papel.
 - Backup/restore automatizado e procedimento de rollback.
 
 ## Stack
@@ -61,9 +65,10 @@ Ainda não tratar como concluído:
 | Backend | ASP.NET Core 8 / C# / Minimal APIs |
 | Domínio | Regras de negócio organizadas com DDD |
 | Dados | Entity Framework Core 8 / Npgsql / PostgreSQL |
-| Segurança | JWT / hash de senha / RLS |
+| Segurança | JWT / FluentValidation / CORS restrito / Rate Limiting |
+| Contratos e Logs | Swagger (OpenAPI) / Serilog JSON + `X-Correlation-Id` |
 | Frontend | HTML / CSS / JavaScript |
-| Qualidade | xUnit / 9 testes automatizados |
+| Qualidade | xUnit / 16 testes automatizados |
 | Entrega | Docker / GitHub Actions / Docker Hub / Render |
 
 ## Arquitetura resumida
@@ -103,11 +108,16 @@ Pré-requisitos: .NET SDK 8, PostgreSQL/Supabase e estas variáveis:
 ```powershell
 $env:SUPABASE_CONNECTION_STRING = "sua-connection-string"
 $env:JWT_SECRET_KEY = "uma-chave-com-pelo-menos-32-bytes"
+# Opcionais:
+# $env:CORS_ALLOWED_ORIGINS = "https://seu-dominio.com"
+# $env:RATE_LIMIT_AUTH_PERMITS = "20"
+# $env:RATE_LIMIT_API_PERMITS = "120"
+# $env:RATE_LIMIT_WINDOW_SECONDS = "60"
 dotnet run
 ```
 
-Acesse `http://localhost:5000/` ou
-`http://localhost:5000/reserva-salas.html`.
+Acesse `http://localhost:5000/`, `http://localhost:5000/reserva-salas.html` ou a
+documentação interativa OpenAPI em `http://localhost:5000/swagger`.
 
 Nunca versionar connection strings, tokens ou credenciais reais. As migrations
 estão em [supabase/migrations](./supabase/migrations).
@@ -115,22 +125,33 @@ estão em [supabase/migrations](./supabase/migrations).
 ## Testes
 
 ```powershell
-dotnet test tests/Projeto-Integrador2.Tests/Projeto-Integrador2.Tests.csproj
+# Execução local offline (fallback EF Core InMemory):
+dotnet test tests/Projeto-Integrador2.Tests/Projeto-Integrador2.Tests.csproj -c Release
+
+# Execução E2E contra PostgreSQL real (usado no CI com postgres:16-alpine):
+$env:TEST_POSTGRES_CONNECTION_STRING = "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres"
+dotnet test tests/Projeto-Integrador2.Tests/Projeto-Integrador2.Tests.csproj -c Release
 ```
 
-Os testes E2E substituem o banco por EF Core InMemory e exercitam login, criação,
-aprovação e consulta de reservas. Eles não comprovam o comportamento de um
-Supabase real; por isso migrations, RLS e concorrência continuam no roadmap.
+A suíte executa 16 testes automatizados (regras de domínio/aplicação e testes
+E2E de autenticação, fluxo de reservas, painel público, Swagger, CORS restrito,
+FluentValidation, rate limiting e `X-Correlation-Id`). Quando
+`TEST_POSTGRES_CONNECTION_STRING` está definida, os testes E2E provisionam bancos
+efêmeros isolados no PostgreSQL; sem ela, utilizam `EF Core InMemory` como
+fallback. Migrations SQL e políticas RLS no Supabase continuam fora do escopo da
+suíte automática.
 
 ## Deploy
 
-O pipeline executa restore, build e testes. Na branch `main`, publica uma
+O pipeline executa restore, build em Release e os 16 testes automatizados com
+container de serviço `postgres:16-alpine`. Na branch `main`, publica uma
 imagem Docker e pode acionar o redeploy no Render. Consulte
 [docs/DEPLOY.md](./docs/DEPLOY.md) e [docs/CI-CD.md](./docs/CI-CD.md).
 
 O deploy atual não deve ser interpretado como certificação de produção. A
-validação de domínio, secrets, CORS, backups, alertas e rollback ainda precisa
-seguir os critérios de [docs/ROADMAP.md](./docs/ROADMAP.md).
+padronização em `ProblemDetails`, política formal de timezone, validação de RLS
+em Supabase de teste, backups, alertas e rollback seguem os critérios de
+[docs/ROADMAP.md](./docs/ROADMAP.md).
 
 ## Documentação
 

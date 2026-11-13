@@ -13,31 +13,31 @@ evolução passada em [HISTORICO.md](./HISTORICO.md).
 - Extrair o mapeamento das rotas para `Endpoints/ApplicationEndpoints.cs`.
 - Aplicar autorização administrativa aos endpoints de gestão de salas,
   recursos e usuários.
-- Validar o projeto com build e 9 testes automatizados.
+- Configurar Swagger/OpenAPI (`/swagger`), logging estruturado JSON via Serilog com `X-Correlation-Id`, FluentValidation em `Validators/RequestValidators.cs`, CORS restrito (`CORS_ALLOWED_ORIGINS`, sem wildcard `*`) e rate limiting por janela fixa.
+- Preparar testes E2E com suporte condicional a PostgreSQL real (`TEST_POSTGRES_CONNECTION_STRING`) no GitHub Actions (`postgres:16-alpine`), mantendo fallback `InMemory` offline.
+- Validar o projeto com build e 16 testes automatizados.
 - Remover comentários dos arquivos de código atuais.
 
 ## Fase 1 — Segurança e dados
 
-- Restringir CORS aos domínios oficiais por ambiente.
-- Separar configurações de desenvolvimento, teste e produção.
+- Validar CORS por ambiente com testes de deploy no domínio final de produção.
 - Remover credenciais demonstrativas da produção e documentar rotação de secrets.
-- Formalizar e testar a matriz de permissões por endpoint e papel.
+- Formalizar e testar a matriz completa de permissões por endpoint e papel.
 - Definir política de UTC, timezone da instituição e exibição no frontend.
-- Validar migrations, índices, constraints e RLS em ambiente de teste.
-- Garantir que operações concorrentes não criem conflito de sala.
+- Validar migrations (`supabase/migrations/*.sql`), índices, constraints e RLS em ambiente Supabase de teste.
+- Garantir que operações concorrentes não criem conflito de sala sob carga.
 
-**Critério:** matriz de permissões, cenários de timezone e concorrência cobertos
+**Critério:** matriz de permissões, cenários de timezone, RLS e concorrência cobertos
 por testes automatizados.
 
 ## Fase 2 — Qualidade, contratos e observabilidade
 
-- Ativar validação centralizada e respostas `ProblemDetails`.
-- Publicar OpenAPI/Swagger com autenticação, paginação e erros documentados.
-- Configurar Serilog, correlação de requisições e métricas de latência, erros,
-  autenticação e conflitos.
-- Evoluir `/health` para diagnosticar dependências.
-- Ampliar E2E para login, cadastro, tokens inválidos/expirados e papéis.
-- Adicionar testes de RLS, migrations, paginação e falhas do banco.
+- Padronizar respostas de erro e validação no formato `ProblemDetails` (RFC 9457).
+- Expandir a documentação OpenAPI com exemplos de resposta e códigos de erro paginados.
+- Adicionar exportação de métricas/tracing distribuído (OpenTelemetry) além dos logs JSON estruturados.
+- Evoluir `/health` para diagnosticar dependências externas e latência do banco.
+- Ampliar E2E para tokens expirados e todos os papéis/fluxos administrativos.
+- Adicionar testes de RLS, migrations e falhas de conexão do banco.
 - Documentar contratos de request/response e exemplos de erro para o frontend.
 - Adicionar testes de arquitetura para impedir acesso direto ao `DbContext`
   pelos endpoints.
@@ -49,8 +49,7 @@ para investigar uma falha.
 
 ## Fase 3 — Resiliência e entrega
 
-- Adicionar rate limiting, limites de payload, timeouts e tratamento global de
-  exceções.
+- Adicionar limites de payload, timeouts e tratamento global de exceções (em complemento ao rate limiting já ativo).
 - Automatizar backup, restauração e plano de recuperação do Supabase.
 - Fixar imagens por commit/digest e escanear dependências e containers.
 - Documentar rollback do Render e resposta a incidentes.
@@ -70,11 +69,11 @@ Esses itens devem começar depois das fases de segurança, dados e observabilida
 
 ## Sequência recomendada
 
-1. CORS, secrets, autorização e timezone.
-2. RLS, migrations e concorrência.
-3. Validação, `ProblemDetails` e OpenAPI.
-4. E2E, logs, métricas, health check e alertas.
-5. Backup, rollback, rate limiting e scans.
+1. Política de timezone, matriz de permissões por endpoint e validação com secrets por ambiente.
+2. RLS, migrations no Supabase e concorrência sob carga.
+3. `ProblemDetails` e expansão de contratos OpenAPI.
+4. Métricas/tracing distribuído, health check avançado e alertas.
+5. Backup, rollback, tratamento global de exceções e scans.
 6. Funcionalidades de produto.
 
 ## Critério de maturidade

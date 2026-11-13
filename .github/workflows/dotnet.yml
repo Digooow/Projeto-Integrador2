@@ -19,6 +19,20 @@ jobs:
   
   build-and-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
     - uses: actions/checkout@v4
 
@@ -44,6 +58,8 @@ jobs:
 
     # ✅ Melhoria 5: Executar testes e gerar artefatos
     - name: Run tests with coverage
+      env:
+        TEST_POSTGRES_CONNECTION_STRING: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
       run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory TestResults
 
     # ✅ Melhoria 5: Upload de resultados de teste

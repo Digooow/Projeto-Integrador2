@@ -84,7 +84,8 @@ public sealed class ReservationApiFactory : WebApplicationFactory<Program>
 {
     private const string ConnectionString = "Host=localhost;Database=e2e";
     private const string JwtSecret = "e2e-secret-key-with-at-least-32-bytes";
-    private readonly string databaseName = $"reservation-api-e2e-{Guid.NewGuid()}";
+    private readonly System.Collections.Concurrent.ConcurrentBag<string> createdPostgresDatabases = [];
+    private readonly string? postgresBaseConnectionString = Environment.GetEnvironmentVariable("TEST_POSTGRES_CONNECTION_STRING");
 
     public ReservationApiFactory()
     {
@@ -97,14 +98,30 @@ public sealed class ReservationApiFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Testing");
         builder.ConfigureServices(services =>
         {
+            var localDatabaseName = $"e2e_{Guid.NewGuid():N}";
             services.RemoveAll<DbContextOptions<ReservationDbContext>>();
-            services.AddDbContext<ReservationDbContext>(options =>
-                options.UseInMemoryDatabase(databaseName));
+
+            if (!string.IsNullOrWhiteSpace(postgresBaseConnectionString))
+            {
+                var isolatedConnectionString = CreateIsolatedPostgresDatabase(
+                    postgresBaseConnectionString, localDatabaseName);
+                createdPostgresDatabases.Add(localDatabaseName);
+
+                services.AddDbContext<ReservationDbContext>(options =>
+                    options.UseNpgsql(isolatedConnectionString)
+                        .UseSnakeCaseNamingConvention());
+            }
+            else
+            {
+                services.AddDbContext<ReservationDbContext>(options =>
+                    options.UseInMemoryDatabase(localDatabaseName));
+            }
 
             using var provider = services.BuildServiceProvider();
             using var scope = provider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ReservationDbContext>();
-            db.Database.EnsureDeleted();
+            if (string.IsNullOrWhiteSpace(postgresBaseConnectionString))
+                db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
             db.Users.AddRange(
                 new UserEntity
@@ -156,5 +173,70 @@ public sealed class ReservationApiFactory : WebApplicationFactory<Program>
             db.Reservations.Add(approvedReservation);
             db.SaveChanges();
         });
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        DropPostgresDatabases();
+        await base.DisposeAsync();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            DropPostgresDatabases();
+
+        base.Dispose(disposing);
+    }
+
+    private static string CreateIsolatedPostgresDatabase(string baseConnectionString, string dbName)
+    {
+        var adminBuilder = new Npgsql.NpgsqlConnectionStringBuilder(baseConnectionString);
+        if (string.IsNullOrWhiteSpace(adminBuilder.Database))
+            adminBuilder.Database = "postgres";
+
+        using var conn = new Npgsql.NpgsqlConnection(adminBuilder.ConnectionString);
+        conn.Open();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = $"CREATE DATABASE \"{dbName}\";";
+        cmd.ExecuteNonQuery();
+
+        var testBuilder = new Npgsql.NpgsqlConnectionStringBuilder(baseConnectionString)
+        {
+            Database = dbName
+        };
+        return testBuilder.ConnectionString;
+    }
+
+    private void DropPostgresDatabases()
+    {
+        if (string.IsNullOrWhiteSpace(postgresBaseConnectionString) || createdPostgresDatabases.IsEmpty)
+            return;
+
+        Npgsql.NpgsqlConnection.ClearAllPools();
+        var adminBuilder = new Npgsql.NpgsqlConnectionStringBuilder(postgresBaseConnectionString);
+        if (string.IsNullOrWhiteSpace(adminBuilder.Database))
+            adminBuilder.Database = "postgres";
+
+        try
+        {
+            using var conn = new Npgsql.NpgsqlConnection(adminBuilder.ConnectionString);
+            conn.Open();
+            while (createdPostgresDatabases.TryTake(out var dbName))
+            {
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = $"""
+                    SELECT pg_terminate_backend(pid)
+                    FROM pg_stat_activity
+                    WHERE datname = '{dbName}' AND pid <> pg_backend_pid();
+                    DROP DATABASE IF EXISTS "{dbName}";
+                    """;
+                cmd.ExecuteNonQuery();
+            }
+        }
+        catch
+        {
+            // Best-effort cleanup for ephemeral CI databases
+        }
     }
 }

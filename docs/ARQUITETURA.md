@@ -32,8 +32,9 @@ reservas aprovadas alimenta o painel público.
 ### Composição e infraestrutura
 
 `Program.cs` registra o `ReservationDbContext`, autenticação JWT, autorização,
-CORS, serviços e middleware. O arquivo não contém regras de negócio nem
-definições de rotas.
+CORS restrito, rate limiting, Swagger/OpenAPI, logging estruturado em JSON
+(Serilog + `X-Correlation-Id`), validadores do FluentValidation e serviços. O
+arquivo não contém regras de negócio nem definições de rotas.
 
 ### Endpoints
 
@@ -79,6 +80,8 @@ chave de assinatura são obrigatórias por variável de ambiente.
 
 - `Program.cs`: composição da aplicação, infraestrutura e middleware.
 - `Endpoints/ApplicationEndpoints.cs`: rotas e conversão de resultados para HTTP.
+- `Validators/`: validadores FluentValidation (`RequestValidators.cs`).
+- `Observability/`: configuração Serilog JSON e middleware de `X-Correlation-Id` (`SerilogLogging.cs`).
 - `Domain/`: entidades, estados e conceitos do domínio.
 - `Models/`: DTOs de entrada e saída da API.
 - `Services/`: casos de uso e regras de aplicação.
@@ -114,8 +117,8 @@ chave de assinatura são obrigatórias por variável de ambiente.
 
 ## Limites conhecidos
 
-CORS ainda permite configuração ampla, o tratamento de timezone precisa ser
-formalizado, os pacotes de validação e observabilidade ainda não estão
-configurados e o tratamento global de exceções ainda está no roadmap. O projeto
-não deve ser considerado pronto para produção antes dos itens de segurança e
-operação de [ROADMAP.md](./ROADMAP.md).
+O tratamento formal de timezone, a padronização de respostas em `ProblemDetails`,
+o tratamento global de exceções além dos middlewares atuais e os testes de RLS/migrations
+diretamente em instância Supabase ainda estão no roadmap. O projeto
+não deve ser considerado pronto para produção antes dos itens operacionais de
+[ROADMAP.md](./ROADMAP.md).
